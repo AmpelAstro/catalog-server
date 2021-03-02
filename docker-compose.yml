@@ -9,11 +9,15 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: 12345
+    ports:
+      - "27017"
   web:
     build: .
+    # image: ampelproject/catalog-server:latest
     volumes:
       - ./tests/test-data/nginx-unit:/docker-entrypoint.d
       - ./tests/test-data/catsHTM2:/data/catsHTM
+      - ./app:/www/app
     ports:
       - "80"
     depends_on:

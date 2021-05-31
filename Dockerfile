@@ -1,4 +1,4 @@
-FROM nginx/unit:1.22.0-python3.9
+FROM nginx/unit:1.24.0-python3.9
 
 # install required environment
 COPY requirements.txt /config/requirements.txt

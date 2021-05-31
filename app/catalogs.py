@@ -4,8 +4,7 @@ import re
 from functools import lru_cache
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, Depends
-from pymongo import MongoClient
+from fastapi import APIRouter, Depends, HTTPException
 from pymongo.errors import OperationFailure
 
 from .models import CatalogDescription
@@ -157,6 +156,6 @@ def lookup(catalog: str, name: str, mongo = Depends(get_mongo)):
     try:
         if not any("name" in dict(idx["key"]) for idx in collection.index_information().values()):
             raise HTTPException(status_code=404)
-    except OperationalError:
+    except OperationFailure:
         raise HTTPException(status_code=404)
     return collection.find_one({"name": name}, {"_id": 0, "pos": 0})

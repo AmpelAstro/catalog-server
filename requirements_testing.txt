@@ -2,4 +2,4 @@ pytest
 pytest-asyncio
 httpx
 mongomock
-mypy==0.901
+mypy==0.910

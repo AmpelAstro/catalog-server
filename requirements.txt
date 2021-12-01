@@ -1,4 +1,4 @@
 fastapi>=0.60.0,<0.69
-catsHTM==0.1.32
+catsHTM==0.1.33
 extcats>=2.4.1,<2.5.0
 typing_extensions; python_version < "3.8"

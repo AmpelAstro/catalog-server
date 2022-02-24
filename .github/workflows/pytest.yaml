@@ -24,9 +24,16 @@ jobs:
         python-version: 3.9
     - name: Set up Poetry
       uses: abatilo/actions-poetry@v2.0.0
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v2
+      with:
+        path: .cache/pypoetry
+        key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
       run: |
         poetry install
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
     - name: Lint with mypy
       run: |
         poetry run mypy app
@@ -37,7 +44,6 @@ jobs:
         MONGO_INITDB_ROOT_USERNAME: root
         MONGO_INITDB_ROOT_PASSWORD: 12345
         MONGODUMP_DIR: tests/test-data/minimongodumps
-
     - name: Test with pytest
       run: |
         MONGO_URI=mongodb://nobody:seekrit@localhost:27017 poetry run pytest

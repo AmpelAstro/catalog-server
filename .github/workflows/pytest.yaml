@@ -15,7 +15,6 @@ jobs:
           MONGO_INITDB_ROOT_PASSWORD: 12345
         ports:
           - 27019:27019
-        options: -v ${{ github.workspace }}/tests/test-data/minimongodumps:/docker-entrypoint-initdb.d
 
     steps:
     - uses: actions/checkout@v2
@@ -31,6 +30,13 @@ jobs:
     - name: Lint with mypy
       run: |
         poetry run mypy app
+    - name: Populate test catalog
+      run: |
+        tests/test-data/minimongodumps/restore.sh
+      env:
+        MONGO_INITDB_ROOT_USERNAME: root
+        MONGO_INITDB_ROOT_PASSWORD: 12345
+
     - name: Test with pytest
       run: |
-        MONGO_URI=mongodb://root:12345@localhost:27019 poetry run pytest
+        MONGO_URI=mongodb://nobody:seekrit@localhost:27019 poetry run pytest

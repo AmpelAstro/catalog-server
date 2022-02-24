@@ -28,8 +28,8 @@ jobs:
       id: cached-poetry-dependencies
       uses: actions/cache@v2
       with:
-        path: .cache/pypoetry
-        key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+        path: /home/runner/.cache/pypoetry/virtualenvs
+        key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}.0
     - name: Install dependencies
       run: |
         poetry install

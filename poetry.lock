@@ -131,7 +131,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "extcats"
-version = "2.4.2"
+version = "2.4.3"
 description = "Tools to organize and query astronomical catalogs"
 category = "main"
 optional = false
@@ -659,7 +659,7 @@ standard = ["websockets (>=10.0)", "httptools (>=0.2.0,<0.4.0)", "watchgod (>=0.
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "5daca2d415f249cacc7268083a5823bd9a9ce9d7566aa1d366e054fd5d50c4da"
+content-hash = "51d87a7688c44cc45f903a3bb1c50bcc3602c26b56b49cbf6351421146b3a014"
 
 [metadata.files]
 anyio = [
@@ -722,8 +722,8 @@ cycler = [
     {file = "cycler-0.11.0.tar.gz", hash = "sha256:9c87405839a19696e837b3b818fed3f5f69f16f1eec1a1ad77e043dcea9c772f"},
 ]
 extcats = [
-    {file = "extcats-2.4.2-py3-none-any.whl", hash = "sha256:f43a8e64bbb4de3069e735ae4b283218d2b715afc901884d2280a37f6855b834"},
-    {file = "extcats-2.4.2.tar.gz", hash = "sha256:195d804ab328085890c7076d94016148907ba0933c6339993bf364bacb03ab63"},
+    {file = "extcats-2.4.3-py3-none-any.whl", hash = "sha256:483e065820cb1686b6b46089b0a56211e10e087ee8621ea5a885667b0829a55f"},
+    {file = "extcats-2.4.3.tar.gz", hash = "sha256:72f759aeee7c61311826271ee603104e40512f8086a8a25e5dfc9fb7e531edba"},
 ]
 fastapi = [
     {file = "fastapi-0.74.1-py3-none-any.whl", hash = "sha256:b8ec8400623ef0b2ff558ebe06753b349f8e3a5dd38afea650800f2644ddba34"},

@@ -7,6 +7,16 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    services:
+      mongo:
+        image: mongo:5.0.6
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: 12345
+        ports:
+          - 27019:27019
+        options: -v ${{ github.workspace }}/tests/test-data/minimongodumps:/docker-entrypoint-initdb.d
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.9
@@ -23,4 +33,4 @@ jobs:
         poetry run mypy app
     - name: Test with pytest
       run: |
-        poetry run pytest --integration -x
+        MONGO_URI=mongodb://root:12345@localhost:27019 poetry run pytest

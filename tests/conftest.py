@@ -70,7 +70,7 @@ def without_keys_doc(mock_mongoclient):
 
 
 @pytest.fixture
-def mock_catshtm(monkeypatch):
+def catshtm_dir(monkeypatch):
     settings = Settings(catshtm_dir=Path(__file__).parent / "test-data" / "catsHTM2")
     monkeypatch.setattr(
         "app.cone_search.settings",
@@ -88,7 +88,7 @@ def mock_catshtm(monkeypatch):
 
 
 @pytest.fixture
-async def mock_client(mock_extcats, mock_catshtm, without_keys_doc):
+async def mock_client(mock_extcats, catshtm_dir, without_keys_doc):
     async with AsyncClient(app=app, base_url="http://test", follow_redirects=True) as client:
         yield client
 
@@ -161,8 +161,8 @@ def web_service(pytestconfig):
 
 
 @pytest.fixture
-async def integration_client(web_service):
-    async with AsyncClient(base_url=web_service+"/api/catalogmatch") as client:
+async def integration_client(local_mongo, catshtm_dir):
+    async with AsyncClient(app=app, base_url="http://test", follow_redirects=True) as client:
         yield client
 
 

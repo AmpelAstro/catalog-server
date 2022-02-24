@@ -72,7 +72,7 @@ async def test_list_catalogs(test_client):
     assert catshtm["contact"] == "Eran Ofek <eran.ofek@weizmann.ac.il>"
 
 
-@pytest.mark.xfail
+@pytest.mark.xfail(reason="milliquas has ra_key")
 @pytest.mark.asyncio
 async def test_missing_keys_doc(without_keys_doc, mock_client):
     """

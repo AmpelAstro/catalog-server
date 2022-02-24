@@ -8,7 +8,7 @@ authors = ["Jakob van Santen <jvansanten@gmail.com>"]
 python = "^3.9"
 fastapi = "^0.74.1"
 uvicorn = "^0.17.5"
-extcats = "^2.4.2"
+extcats = "^2.4.3"
 catsHTM = "^0.2.4"
 gunicorn = "^20.1.0"
 

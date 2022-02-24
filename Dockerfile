@@ -20,6 +20,10 @@ RUN poetry build && /venv/bin/pip install dist/*.whl
 
 FROM base as final
 
+# create cache dirs for astropy and friends
+RUN mkdir -p --mode a=rwx /var/cache/astropy
+ENV XDG_CACHE_HOME=/var/cache XDG_CONFIG_HOME=/var/cache
+
 COPY --from=builder /venv /venv
 CMD ["/venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
 

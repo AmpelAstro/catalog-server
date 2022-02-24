@@ -14,7 +14,7 @@ jobs:
           MONGO_INITDB_ROOT_USERNAME: root
           MONGO_INITDB_ROOT_PASSWORD: 12345
         ports:
-          - 27019:27019
+          - 27017:27017
 
     steps:
     - uses: actions/checkout@v2
@@ -36,7 +36,8 @@ jobs:
       env:
         MONGO_INITDB_ROOT_USERNAME: root
         MONGO_INITDB_ROOT_PASSWORD: 12345
+        MONGODUMP_DIR: tests/test-data/minimongodumps
 
     - name: Test with pytest
       run: |
-        MONGO_URI=mongodb://nobody:seekrit@localhost:27019 poetry run pytest
+        MONGO_URI=mongodb://nobody:seekrit@localhost:27017 poetry run pytest

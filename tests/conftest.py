@@ -89,7 +89,7 @@ def mock_catshtm(monkeypatch):
 
 @pytest.fixture
 async def mock_client(mock_extcats, mock_catshtm, without_keys_doc):
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(app=app, base_url="http://test", follow_redirects=True) as client:
         yield client
 
 

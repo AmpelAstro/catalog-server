@@ -124,3 +124,8 @@ singularity run --containall \
 ```
 
 where `state`, `run`, and `log` are local directories writable by the user executing `singularity`.
+
+## Run tests locally
+
+docker run --rm -d --name extcats -p 27021:27017 -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD=12345 -v $(pwd)/tests/test-data/minimongodumps:/docker-entrypoint-initdb.d mongo:5
+MONGO_URI=mongodb://nobody:seekrit@localhost:27021 pytest

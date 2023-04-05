@@ -8,7 +8,7 @@ from pymongo import MongoClient
 from .settings import settings
 
 log = logging.getLogger(__name__)
-mongo_db = MongoClient(settings.mongo_uri) # type: ignore[var-annotated]
+mongo_db: MongoClient = MongoClient(settings.mongo_uri)
 
 
 def get_mongo() -> MongoClient:

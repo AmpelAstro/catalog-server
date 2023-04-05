@@ -39,6 +39,21 @@ async def test_missing_keys_doc(without_keys_doc, mock_client):
     assert response.status_code == 422
 
 
+@pytest.mark.asyncio
+async def test_invalid_dec(mock_client):
+    """
+    Invalid declination raises a ValidationError
+    """
+    # build request explicitly to avoid premature validation
+    request = {
+        "ra_deg": 0,
+        "dec_deg": -999,
+        "catalogs": [{"name": "milliquas", "use": "extcats", "rs_arcsec": 0}],
+    }
+    response = await mock_client.post("/cone_search/nearest", json=request)
+    assert response.status_code == 422
+
+
 def with_request(expected):
     requests = [
         (5, 5, [{"use": "catsHTM", "name": "ROSATfsc", "rs_arcsec": 3600}]),
@@ -110,7 +125,7 @@ async def test_keys_to_append(
 ):
     meta = next(
         c
-        for c in (await test_client.get("/catalogs")).json()
+        for c in (await test_client.get("/catalogs/")).json()
         if c["use"] == use and c["name"] == name
     )
     keys = {c["name"] for c in meta["columns"]}

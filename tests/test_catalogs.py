@@ -4,7 +4,7 @@ from app.mongo import get_catq
 
 @pytest.mark.asyncio
 async def test_list_catalogs(test_client):
-    response = await test_client.get("/catalogs")
+    response = await test_client.get("/catalogs/")
     response.raise_for_status()
     body = response.json()
     assert isinstance(body, list)

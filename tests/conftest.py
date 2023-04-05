@@ -1,3 +1,4 @@
+import asyncio
 import json
 import subprocess
 import time
@@ -6,12 +7,16 @@ from pathlib import Path
 
 import mongomock
 import pytest
+import pytest_asyncio
 from bson import decode_all
 from httpx import AsyncClient
 
 from app.main import app
 from app.mongo import get_catq
 from app.settings import Settings
+
+import nest_asyncio
+nest_asyncio.apply()
 
 
 def pytest_addoption(parser):
@@ -21,6 +26,15 @@ def pytest_addoption(parser):
         default=False,
         help="run docker-based integration tests",
     )
+
+# # https://github.com/encode/starlette/issues/652#issuecomment-569327566
+# @pytest.mark.anyio
+# @pytest_asyncio.fixture(scope='module')
+# def event_loop():
+#     loop = asyncio.get_event_loop_policy().new_event_loop()
+#     asyncio.set_event_loop(loop)
+#     yield loop
+#     # assert loop.is_running()
 
 
 @pytest.fixture(scope="session")
@@ -86,8 +100,7 @@ def mock_catshtm(monkeypatch):
     )
     
 
-
-@pytest.fixture
+@pytest_asyncio.fixture
 async def mock_client(mock_extcats, mock_catshtm, without_keys_doc):
     async with AsyncClient(app=app, base_url="http://test") as client:
         yield client
@@ -159,14 +172,13 @@ def web_service(pytestconfig):
             stderr=subprocess.DEVNULL,
         )
 
-
-@pytest.fixture
+@pytest_asyncio.fixture
 async def integration_client(web_service):
     async with AsyncClient(base_url=web_service+"/api/catalogmatch") as client:
         yield client
 
 
 # metafixture as suggested in https://github.com/pytest-dev/pytest/issues/349#issuecomment-189370273
-@pytest.fixture(params=["mock_client", "integration_client"])
-def test_client(request):
+@pytest_asyncio.fixture(params=["mock_client", "integration_client"])
+async def test_client(request):
     yield request.getfixturevalue(request.param)

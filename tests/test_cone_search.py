@@ -110,7 +110,7 @@ async def test_keys_to_append(
 ):
     meta = next(
         c
-        for c in (await test_client.get("/catalogs")).json()
+        for c in (await test_client.get("/catalogs/")).json()
         if c["use"] == use and c["name"] == name
     )
     keys = {c["name"] for c in meta["columns"]}

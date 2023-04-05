@@ -64,7 +64,7 @@ class ConeSearchRequest(BaseModel):
         ..., description="Right ascension (J2000) of field center in degrees"
     )
     dec_deg: float = Field(
-        ..., description="Declination (J2000) of field center in degrees"
+        ..., description="Declination (J2000) of field center in degrees", ge=-90, le=90
     )
     catalogs: Sequence[Union[ExtcatsQueryItem, CatsHTMQueryItem]]
 

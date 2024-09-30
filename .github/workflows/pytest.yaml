@@ -9,7 +9,7 @@ jobs:
 
     services:
       mongo:
-        image: mongo:5.0.6
+        image: mongo:8
         env:
           MONGO_INITDB_ROOT_USERNAME: root
           MONGO_INITDB_ROOT_PASSWORD: 12345
@@ -17,23 +17,17 @@ jobs:
           - 27017:27017
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+    - name: "Set up environment"
+      uses: packetcoders/action-setup-cache-python-poetry@v1.2.0
       with:
-        python-version: 3.9
-    - name: Set up Poetry
-      uses: abatilo/actions-poetry@v2.0.0
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v2
-      with:
-        path: /home/runner/.cache/pypoetry/virtualenvs
-        key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}.0
-    - name: Install dependencies
-      run: |
-        poetry install
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        # renovate: datasource=conda depName=conda-forge/python
+        python-version: "3.12.6"
+        # renovate: datasource=pypi depName=poetry versioning=pep440
+        poetry-version: "1.8.3"
+        install-args: --all-extras
+    - name: Install root
+      run: poetry run pip install -e . --no-deps
     - name: Lint with mypy
       run: |
         poetry run mypy app

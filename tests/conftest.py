@@ -9,11 +9,11 @@ import mongomock
 import pytest
 import pytest_asyncio
 from bson import decode_all
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 
 from app.main import app
 from app.mongo import get_catq
-from app.settings import Settings
+from app.settings import Settings, settings
 
 import nest_asyncio
 nest_asyncio.apply()
@@ -84,25 +84,19 @@ def without_keys_doc(mock_mongoclient):
 
 
 @pytest.fixture
-def catshtm_dir(monkeypatch):
-    settings = Settings(catshtm_dir=Path(__file__).parent / "test-data" / "catsHTM2")
-    monkeypatch.setattr(
-        "app.cone_search.settings",
-        settings,
-    )
-    monkeypatch.setattr(
-        "app.catalogs.settings",
-        settings,
-    )
-    monkeypatch.setattr(
-        "app.models.settings",
-        settings,
-    )
+def mock_catshtm(monkeypatch):
+    original_settings = settings.model_copy()
+    monkeypatch.setenv("CATSHTM_DIR", str(Path(__file__).parent / "test-data" / "catsHTM2"))
+    try:
+        settings.__dict__.update(Settings().__dict__)
+        yield
+    finally:
+        settings.__dict__.update(original_settings.__dict__)
     
 
 @pytest_asyncio.fixture
 async def mock_client(mock_extcats, mock_catshtm, without_keys_doc):
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         yield client
 
 

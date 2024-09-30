@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 MONGODUMP_DIR=${MONGODUMP_DIR:-/docker-entrypoint-initdb.d}
 MONGO_USER=nobody
 MONGO_PASSWORD=seekrit
@@ -10,7 +12,7 @@ catalogs=\"$(find $MONGODUMP_DIR/ -maxdepth 1 -mindepth 1 -type d -exec basename
 roles=$(echo $catalogs | jq 'split(" ") | [{db : .[], role : "read"}]')
 echo $roles
 
-mongo=( mongo --host 127.0.0.1 --port 27017 --username $MONGO_INITDB_ROOT_USERNAME --password $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin )
+mongo=( mongosh --host 127.0.0.1 --port 27017 --username $MONGO_INITDB_ROOT_USERNAME --password $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin )
 "${mongo[@]}" admin <<-EOJS
 	db.runCommand({ createRole: "listDatabases",
 		privileges: [

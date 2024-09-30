@@ -3,41 +3,82 @@ name: Python package
 on: [push]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
+  mypy:
+    runs-on: ubuntu-24.04
+    steps:
+        - uses: actions/checkout@v4
+        - name: "Set up environment"
+          uses: packetcoders/action-setup-cache-python-poetry@v1.2.0
+          with:
+            # renovate: datasource=conda depName=conda-forge/python
+            python-version: "3.12.6"
+            # renovate: datasource=pypi depName=poetry versioning=pep440
+            poetry-version: "1.8.3"
+            install-args: --all-extras
+        - name: Install root
+          run: poetry run pip install -e . --no-deps
+        - run: |
+            poetry run mypy app
+  test:
+    runs-on: ubuntu-24.04
     services:
       mongo:
         image: mongo:8
         env:
           MONGO_INITDB_ROOT_USERNAME: root
           MONGO_INITDB_ROOT_PASSWORD: 12345
+          MONGODUMP_DIR: /mongodumps
+        volumes:
+          - ${{ github.workspace }}/mongodumps:/mongodumps
         ports:
           - 27017:27017
+        options: --name mongo
+      unit:
+        image: unit:1.33.0-python3.12-slim
+        volumes:
+          - ${{ github.workspace }}/unit:/www
+        ports:
+          - 80:80
+        options: --name unit
+    defaults:
+      run:
+        working-directory: "src"
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        path: src
     - name: "Set up environment"
-      uses: packetcoders/action-setup-cache-python-poetry@v1.2.0
+      uses: jvansanten/action-setup-cache-python-poetry@working-directory
       with:
         # renovate: datasource=conda depName=conda-forge/python
         python-version: "3.12.6"
         # renovate: datasource=pypi depName=poetry versioning=pep440
         poetry-version: "1.8.3"
         install-args: --all-extras
+        working-directory: src
     - name: Install root
       run: poetry run pip install -e . --no-deps
-    - name: Lint with mypy
+    - name: Populate docker volumes
       run: |
-        poetry run mypy app
-    # - name: Populate test catalog
-    #   run: |
-    #     tests/test-data/minimongodumps/restore.sh
-    #   env:
-    #     MONGO_INITDB_ROOT_USERNAME: root
-    #     MONGO_INITDB_ROOT_PASSWORD: 12345
-    #     MONGODUMP_DIR: tests/test-data/minimongodumps
+        sudo cp -r . ${{ github.workspace }}/unit
+        sudo cp -r tests/test-data/minimongodumps/* ${{ github.workspace }}/mongodumps
+    - name: "Populate test catalog"
+      uses: docker://docker
+      with:
+        args: >
+          docker exec mongo /mongodumps/restore.sh
+    - name: "Configure Unit"
+      uses: docker://docker
+      with:
+        args: >
+          docker exec unit curl
+          http://localhost/config
+          --unix-socket /var/run/control.unit.sock
+          -X PUT -d @/www/tests/test-data/nginx-unit/config.json
+          --fail-with-body
     - name: Test with pytest
       run: |
-        MONGO_URI=mongodb://nobody:seekrit@localhost:27017 poetry run pytest
+        poetry run pytest --integration
+      env:
+        CATALOGSERVER_URI: http://localhost:80

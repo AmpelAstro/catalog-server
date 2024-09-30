@@ -9,7 +9,7 @@ import mongomock
 import pytest
 import pytest_asyncio
 from bson import decode_all
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 
 from app.main import app
 from app.mongo import get_catq
@@ -102,7 +102,7 @@ def mock_catshtm(monkeypatch):
 
 @pytest_asyncio.fixture
 async def mock_client(mock_extcats, mock_catshtm, without_keys_doc):
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         yield client
 
 

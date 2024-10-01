@@ -1,6 +1,15 @@
-name: Python package
+name: ci
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+      - renovate/*
+    tags:
+      - v*
+  pull_request:
+    branches:
+      - main
 
 jobs:
   mypy:

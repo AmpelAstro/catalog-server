@@ -1,21 +1,28 @@
-FROM python:3.12.6 as base
+
+# renovate: datasource=conda depName=conda-forge/python
+ARG PYTHON_VERSION=3.12.6
+
+FROM python:$PYTHON_VERSION-slim as base
 
 WORKDIR /app
 
 FROM base as builder
 
+# renovate: datasource=pypi depName=poetry versioning=pep440
+ARG POETRY_VERSION=1.8.3
+
 ENV PIP_DEFAULT_TIMEOUT=100 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_NO_CACHE_DIR=1 \
-    POETRY_VERSION=1.0.5
+    PIP_NO_CACHE_DIR=1
 
 RUN pip install "poetry==$POETRY_VERSION"
 RUN python -m venv /venv
 
 COPY pyproject.toml poetry.lock ./
-RUN poetry export -f requirements.txt | /venv/bin/pip install -r /dev/stdin
+RUN VIRTUAL_ENV=/venv poetry install --no-root --all-extras
 
 COPY app app
+COPY README.md README.md
 RUN poetry build && /venv/bin/pip install dist/*.whl
 
 FROM base as final

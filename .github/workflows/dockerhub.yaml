@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
+    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@27d0a4f181a40b142cce983c5393082c365d1480 # v1
+      uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@f211e3e9ded2d9377c8cadc4489a4e38014bc4c9 # v1
+      uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3
     - name: Login to Github Packages
-      uses: docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7 # v1
+      uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -26,7 +26,7 @@ jobs:
       uses: dawidd6/action-get-tag@727a6f0a561be04e09013531e73a3983a65e3479 # v1
     - name: Build and push
       id: docker_build
-      uses: docker/build-push-action@ac9327eae2b366085ac7f6a2d02df8aa8ead720a # v2
+      uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6
       with:
         push: true
         tags: ghcr.io/ampelproject/catalog-server:${{steps.tag.outputs.tag}}, ghcr.io/ampelproject/catalog-server:k8s

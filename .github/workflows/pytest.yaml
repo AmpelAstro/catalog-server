@@ -15,9 +15,9 @@ jobs:
   mypy:
     runs-on: ubuntu-24.04
     steps:
-        - uses: actions/checkout@v4
+        - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         - name: "Set up environment"
-          uses: packetcoders/action-setup-cache-python-poetry@v1.2.0
+          uses: packetcoders/action-setup-cache-python-poetry@0d0be5577b30d85f3fa2d93a4beeda149520f120 # v1.2.0
           with:
             # renovate: datasource=conda depName=conda-forge/python
             python-version: "3.12.6"
@@ -54,7 +54,7 @@ jobs:
         working-directory: "src"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
       with:
         path: src
     - name: "Set up environment"

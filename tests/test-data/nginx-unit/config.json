@@ -27,13 +27,14 @@
 
     "applications": {
         "catalogmatch": {
-            "type": "python 3.9",
+            "type": "python 3.12",
+            "home": "/www/.venv",
             "path": "/www",
             "module": "app.main",
             "callable": "app",
             "environment": {
-              "MONGO_URI": "mongodb://nobody:seekrit@db:27017",
-              "CATSHTM_DIR": "/data/catsHTM",
+              "MONGO_URI": "mongodb://nobody:seekrit@mongo:27017?connectTimeoutMS=10",
+              "CATSHTM_DIR": "/www/tests/test-data/catsHTM2",
               "ROOT_PATH": "/api/catalogmatch"
             }
         }

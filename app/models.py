@@ -1,5 +1,6 @@
 import sys
 from typing import Any, Dict, List, Optional, Sequence, Union
+from pydantic import field_validator
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -7,7 +8,7 @@ else:
     from typing_extensions import Literal
 
 from catsHTM.script import get_CatDir, params
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 from .mongo import get_catq
 from .settings import settings
@@ -31,7 +32,8 @@ class ExtcatsQueryItem(CatalogQueryItem):
         None, description="Filter condition to apply after index search"
     )
 
-    @validator("name")
+    @field_validator("name")
+    @classmethod
     def check_name(cls, value):
         if (catq := get_catq(value)) is None:
             raise ValueError(f"Unknown extcats catalog '{value}'")
@@ -41,7 +43,8 @@ class ExtcatsQueryItem(CatalogQueryItem):
 class CatsHTMQueryItem(CatalogQueryItem):
     use: Literal["catsHTM"] = "catsHTM"
 
-    @validator("name")
+    @field_validator("name")
+    @classmethod
     def check_name(cls, value):
 
         try:
@@ -71,13 +74,13 @@ class ConeSearchRequest(BaseModel):
 
 class CatalogField(BaseModel):
     name: str
-    unit: Optional[str]
+    unit: Optional[str] = None
 
 
 class CatalogDescription(BaseModel):
     name: str
     use: Literal["extcats", "catsHTM"]
-    description: Optional[str]
-    reference: Optional[str]
-    contact: Optional[str]
+    description: Optional[str] = None
+    reference: Optional[str] = None
+    contact: Optional[str] = None
     columns: List[CatalogField]

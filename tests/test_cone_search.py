@@ -72,7 +72,7 @@ def with_request(expected):
 
 async def search(test_client, method, request_dict):
     if test_client.base_url.host == "test" and any(c["name"] == "TNS" for c in request_dict["catalogs"]):
-        pytest.xfail("mongomock does not implement $geoWithin")
+        pytest.skip("mongomock does not implement $geoWithin")
     response = await test_client.post(f"/cone_search/{method}", json=request_dict)
     response.raise_for_status()
     return response.json()

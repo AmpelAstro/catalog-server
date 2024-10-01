@@ -38,12 +38,10 @@ def sanitize_json(obj):
 
 
 def table_to_json(
-    table: Optional["Table"],
+    table: "Table",
     allow_keys: Optional[Set[str]],
     disallow_keys: Set[str] = set(),
-) -> Optional[List[Dict[str, Any]]]:
-    if table is None:
-        return None
+) -> List[Dict[str, Any]]:
     keys = table.keys()
     rows = [
         {
@@ -64,14 +62,11 @@ def table_to_json(
         for row in table.iterrows()
     ]
 
-
 def row_to_json(
-    row: Optional["Row"],
+    row: "Row",
     allow_keys: Optional[Set[str]],
     disallow_keys: Set[str] = set(),
-) -> Optional[Dict[str, Any]]:
-    if row is None:
-        return None
+) -> Dict[str, Any]:
     keys = row.table.keys()
     return {
         k: sanitize_json(v)

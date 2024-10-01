@@ -1,6 +1,0 @@
-pytest
-pytest-asyncio
-httpx
-mongomock
-mypy==0.910
-nest_asyncio

@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "app"
+version = "2.0.0"
+description = "catalog-server provides cone searches against extcats and catsHTM catalogs via a REST API. It is strictly read-only, and safe to expose to anonymous users with appropriate rate-limiting."
+authors = ["Jakob van Santen <jvansanten@gmail.com>"]
+license = "BSD-2-Clause"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<4.0"
+fastapi = "^0.115.0"
+catsHTM = "^0.2.4"
+extcats = "^2.5.0"
+uvicorn = {version="^0.17.5", optional=true}
+gunicorn = {version="^20.1.0", optional=true}
+pydantic-settings = "^2.5.2"
+
+[tool.poetry.extras]
+asgi = ["uvicorn", "gunicorn"]
+
+[tool.poetry.group.dev.dependencies]
+httpx = "^0.27.2"
+mongomock = "^4.2.0.post1"
+mypy = "^1.11.2"
+nest-asyncio = "^1.6.0"
+pytest = "^8.3.3"
+pytest-asyncio = "^0.24.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--showlocals -r a"
+filterwarnings = [
+    "error",
+    # triggered by hdf5storage
+    "ignore:pkg_resources is deprecated:DeprecationWarning",
+]
+asyncio_mode = "strict"

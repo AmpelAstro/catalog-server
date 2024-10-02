@@ -2,11 +2,11 @@
 # renovate: datasource=conda depName=conda-forge/python
 ARG PYTHON_VERSION=3.12.6
 
-FROM python:$PYTHON_VERSION-slim as base
+FROM python:$PYTHON_VERSION-slim AS base
 
 WORKDIR /app
 
-FROM base as builder
+FROM base AS builder
 
 # renovate: datasource=pypi depName=poetry versioning=pep440
 ARG POETRY_VERSION=1.8.3
@@ -25,7 +25,7 @@ COPY app app
 COPY README.md README.md
 RUN poetry build && /venv/bin/pip install dist/*.whl
 
-FROM base as final
+FROM base AS final
 
 # create cache dirs for astropy and friends
 RUN mkdir -p --mode a=rwx /var/cache/astropy

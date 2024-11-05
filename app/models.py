@@ -7,6 +7,11 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import Literal
 
+if sys.version_info >= (3, 9):
+    from typing import Annotated
+else:
+    from typing_extensions import Annotated
+
 from catsHTM.script import get_CatDir, params
 from pydantic import BaseModel, Field
 
@@ -56,6 +61,7 @@ class CatsHTMQueryItem(CatalogQueryItem):
             raise ValueError(f"Unknown catsHTM catalog '{value}'")
         return value
 
+QueryItem = Annotated[Union[ExtcatsQueryItem, CatsHTMQueryItem], Field(discriminator="use")]
 
 class CatalogItem(BaseModel):
     body: Dict[str, Any]
@@ -69,7 +75,7 @@ class ConeSearchRequest(BaseModel):
     dec_deg: float = Field(
         ..., description="Declination (J2000) of field center in degrees", ge=-90, le=90
     )
-    catalogs: Sequence[Union[ExtcatsQueryItem, CatsHTMQueryItem]]
+    catalogs: Sequence[QueryItem]
 
 
 class CatalogField(BaseModel):

@@ -1,9 +1,12 @@
+import logging
 
 from fastapi import FastAPI
 
 from .catalogs import router as catalogs_router
 from .cone_search import router as cone_search_router
 from .settings import settings
+
+logging.basicConfig(level=settings.log_level)
 
 tags_metadata = [
     {

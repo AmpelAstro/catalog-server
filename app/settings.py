@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     root_path: str = Field("", validation_alias="ROOT_PATH")
     mongo_uri: MongoUrl = Field(MongoUrl("mongodb://localhost:27018"), validation_alias="MONGO_URI")
     catshtm_dir: Optional[DirectoryPath] = Field(None, validation_alias="CATSHTM_DIR")
+    log_level: str = Field("WARN", validation_alias="LOG_LEVEL")
     model_config = SettingsConfigDict(env_file=".env")
 
 

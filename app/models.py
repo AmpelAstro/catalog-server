@@ -40,7 +40,7 @@ class ExtcatsQueryItem(CatalogQueryItem):
     @field_validator("name")
     @classmethod
     def check_name(cls, value):
-        if (catq := get_catq(value)) is None:
+        if get_catq(value) is None:
             raise ValueError(f"Unknown extcats catalog '{value}'")
         return value
 
@@ -57,8 +57,8 @@ class CatsHTMQueryItem(CatalogQueryItem):
                 settings.catshtm_dir / get_CatDir(value) / (params.ColCelFile % value)
             ).exists():
                 raise FileNotFoundError
-        except:
-            raise ValueError(f"Unknown catsHTM catalog '{value}'")
+        except (ValueError, FileNotFoundError) as exc:
+            raise ValueError(f"Unknown catsHTM catalog '{value}'") from exc
         return value
 
 QueryItem = Annotated[Union[ExtcatsQueryItem, CatsHTMQueryItem], Field(discriminator="use")]

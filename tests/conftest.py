@@ -1,4 +1,3 @@
-import asyncio
 import json
 import subprocess
 import time
@@ -17,10 +16,6 @@ from app.settings import Settings, settings
 
 import nest_asyncio
 nest_asyncio.apply()
-
-import nest_asyncio
-nest_asyncio.apply()
-
 
 def pytest_addoption(parser):
     parser.addoption(

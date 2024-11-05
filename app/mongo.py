@@ -19,6 +19,6 @@ def get_mongo() -> MongoClient:
 def get_catq(name: str) -> Optional[CatalogQuery]:
     try:
         return CatalogQuery(name, dbclient=get_mongo())
-    except:
+    except KeyError:
         log.exception(f"{name} is not a valid extcats catalog")
         return None

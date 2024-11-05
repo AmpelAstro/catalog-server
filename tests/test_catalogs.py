@@ -1,5 +1,4 @@
 import pytest
-from app.mongo import get_catq
 
 
 @pytest.mark.asyncio

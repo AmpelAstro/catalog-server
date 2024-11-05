@@ -1,12 +1,5 @@
 import pytest
 
-from app.cone_search import (
-    CatsHTMQueryItem,
-    ConeSearchRequest,
-    ExtcatsQueryItem,
-)
-
-
 @pytest.mark.parametrize("method", ["any", "nearest", "all"])
 @pytest.mark.parametrize("use", ["catsHTM", "extcats"])
 @pytest.mark.asyncio
@@ -182,13 +175,13 @@ async def test_post_filter(
             }
         ],
     }
-    response = await test_client.post(f"/cone_search/all", json=request_dict)
+    response = await test_client.post("/cone_search/all", json=request_dict)
     response.raise_for_status()
     body = response.json()
     assert len(body) == 1 and len(body[0]) == 1
 
     request_dict["catalogs"][0]["post_filter"]["rmag"] = {"$lt": 18}
-    response = await test_client.post(f"/cone_search/all", json=request_dict)
+    response = await test_client.post("/cone_search/all", json=request_dict)
     response.raise_for_status()
     body = response.json()
     assert len(body) == 1 and body[0] is None

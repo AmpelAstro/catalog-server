@@ -8,7 +8,6 @@ from astropy.table import Table
 from catsHTM import cone_search
 from extcats.catquery_utils import get_closest, get_distances
 from fastapi import APIRouter
-from pydantic import ValidationError
 
 from .models import (
     CatalogItem,
@@ -52,7 +51,7 @@ def table_to_json(
         for row in table.iterrows()
     ]
     for row in rows:
-        assert not any(type(c) == np.int64 for c in row.values())
+        assert not any(isinstance(c, np.int64) for c in row.values())
     return [
         {
             k: sanitize_json(v)

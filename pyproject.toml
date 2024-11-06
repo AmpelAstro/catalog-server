@@ -9,7 +9,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
 fastapi = "^0.115.0"
-catsHTM = {path = "vendor/github.com/AmpelAstro/catsHTM", develop = true}
+catsHTM = {path = "vendor/github.com/AmpelAstro/catsHTM"}
 # catsHTM secretly depends on pkg_resources via hdf5storage
 setuptools = {version = "*", python = ">=3.12"}
 extcats = "^2.5.0"

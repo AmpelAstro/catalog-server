@@ -107,7 +107,7 @@ description = "fast access and cross-matching of large astronomical catalogs"
 optional = false
 python-versions = ">=2.7.10"
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 h5py = "*"
@@ -1131,4 +1131,4 @@ asgi = ["gunicorn", "uvicorn"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<4.0"
-content-hash = "6b9978dc6862f0a60c49f8a57bb2789e3f52966802ea9db9de3f1b089ff6bbd7"
+content-hash = "57ffa44a3fababe934673c0ec46ab573536db4239529eb24b6c69c9024eca7c2"

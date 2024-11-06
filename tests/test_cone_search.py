@@ -51,6 +51,7 @@ def with_request(expected):
     requests = [
         (5, 5, [{"use": "catsHTM", "name": "ROSATfsc", "rs_arcsec": 3600}]),
         (5, 5, [{"use": "catsHTM", "name": "ROSATfsc", "rs_arcsec": 60}]),
+        (5, 5, [{"use": "catsHTM", "name": "AKARI", "rs_arcsec": 60}]),
         (5, 5, [{"use": "extcats", "name": "milliquas", "rs_arcsec": 60}]),
         (265, -89.58, [{"use": "extcats", "name": "milliquas", "rs_arcsec": 60}],),
         (0, 0, [{"use": "extcats", "name": "TNS", "rs_arcsec": 2400}],),
@@ -70,7 +71,7 @@ async def search(test_client, method, request_dict):
     response.raise_for_status()
     return response.json()
 
-@with_request([[True], [False], [False], [True], [True]])
+@with_request([[True], [False], [False], [False], [True], [True]])
 @pytest.mark.asyncio
 async def test_search_any(request_dict, expected, test_client):
     body = await search(test_client, "any", request_dict)
@@ -79,7 +80,7 @@ async def test_search_any(request_dict, expected, test_client):
 
 
 
-@with_request([[True], [None], [None], [True], [True]])
+@with_request([[True], [None], [None], [None], [True], [True]])
 @pytest.mark.asyncio
 async def test_search_nearest(request_dict, expected, test_client):
     body = await search(test_client, "nearest", request_dict)
@@ -90,7 +91,7 @@ async def test_search_nearest(request_dict, expected, test_client):
         assert body == expected
 
 
-@with_request([9, None, None, 1, 12])
+@with_request([9, None, None, None, 1, 12])
 @pytest.mark.asyncio
 async def test_search_all(request_dict, expected, test_client):
     body = await search(test_client, "all", request_dict)

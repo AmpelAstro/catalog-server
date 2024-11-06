@@ -7,7 +7,7 @@ async def test_list_catalogs(test_client):
     response.raise_for_status()
     body = response.json()
     assert isinstance(body, list)
-    assert len(body) == 3
+    assert len(body) == 4
 
     milliquas = body[1]
     assert milliquas["use"] == "extcats"
@@ -67,7 +67,7 @@ async def test_list_catalogs(test_client):
 
     catshtm = body[2]
     assert catshtm["use"] == "catsHTM"
-    assert len(catshtm["columns"]) == 21
+    assert len(catshtm["columns"]) == 9
     assert catshtm["contact"] == "Eran Ofek <eran.ofek@weizmann.ac.il>"
 
 

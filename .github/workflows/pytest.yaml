@@ -88,6 +88,6 @@ jobs:
           --fail-with-body
     - name: Test with pytest
       run: |
-        poetry run pytest --integration
+        poetry run pytest tests --integration
       env:
         CATALOGSERVER_URI: http://localhost:80

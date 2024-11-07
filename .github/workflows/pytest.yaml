@@ -15,14 +15,14 @@ jobs:
   mypy:
     runs-on: ubuntu-24.04
     steps:
-        - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         - name: "Set up environment"
           uses: packetcoders/action-setup-cache-python-poetry@0d0be5577b30d85f3fa2d93a4beeda149520f120 # v1.2.0
           with:
             # renovate: datasource=python-version depName=python versioning=python
-            python-version: "3.12.6"
+            python-version: "3.13.0"
             # renovate: datasource=pypi depName=poetry versioning=pep440
-            poetry-version: "1.8.3"
+            poetry-version: "1.8.4"
             install-args: --all-extras
         - name: Install root
           run: poetry run pip install -e . --no-deps
@@ -43,7 +43,7 @@ jobs:
           - 27017:27017
         options: --name mongo
       unit:
-        image: unit:1.33.0-python3.12-slim
+        image: unit:1.33.0-python3.13-slim
         volumes:
           - ${{ github.workspace }}/unit:/www
         ports:
@@ -54,16 +54,16 @@ jobs:
         working-directory: "src"
 
     steps:
-    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       with:
         path: src
     - name: "Set up environment"
       uses: jvansanten/action-setup-cache-python-poetry@working-directory
       with:
         # renovate: datasource=python-version depName=python versioning=python
-        python-version: "3.12.6"
+        python-version: "3.13.0"
         # renovate: datasource=pypi depName=poetry versioning=pep440
-        poetry-version: "1.8.3"
+        poetry-version: "1.8.4"
         install-args: --all-extras
         working-directory: src
     - name: Install root

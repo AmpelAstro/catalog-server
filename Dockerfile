@@ -1,5 +1,5 @@
 
-# renovate: datasource=conda depName=conda-forge/python
+# renovate: datasource=python-version depName=python versioning=python
 ARG PYTHON_VERSION=3.12.6
 
 FROM python:$PYTHON_VERSION-slim AS base

@@ -13,7 +13,7 @@ catsHTM = {path = "vendor/github.com/AmpelAstro/catsHTM"}
 # catsHTM secretly depends on pkg_resources via hdf5storage
 setuptools = {version = "*", python = ">=3.12"}
 extcats = "^2.5.0"
-uvicorn = {version="^0.31.0", optional=true}
+uvicorn = {version="^0.32.0", optional=true}
 gunicorn = {version="^23.0.0", optional=true}
 pydantic-settings = "^2.5.2"
 

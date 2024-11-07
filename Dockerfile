@@ -19,17 +19,18 @@ RUN pip install "poetry==$POETRY_VERSION"
 RUN python -m venv /venv
 
 COPY pyproject.toml poetry.lock ./
-RUN VIRTUAL_ENV=/venv poetry install --no-root --all-extras
+RUN VIRTUAL_ENV=/venv poetry install --no-root --no-directory --all-extras
 
 COPY app app
-COPY README.md README.md
+COPY vendor vendor
+COPY README.md ./
 RUN poetry build && /venv/bin/pip install dist/*.whl
 
 FROM base AS final
 
 # create cache dirs for astropy and friends
 RUN mkdir -p --mode a=rwx /var/cache/astropy
-ENV XDG_CACHE_HOME=/var/cache XDG_CONFIG_HOME=/var/cache
+ENV XDG_CACHE_HOME=/var/cache XDG_CONFIG_HOME=/var/cache PATH=/venv/bin:$PATH
 
 COPY --from=builder /venv /venv
 CMD ["/venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]

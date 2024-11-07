@@ -3,6 +3,14 @@
     "github>AmpelProject/renovate-config",
     "github>AmpelProject/renovate-config//regexManagers/githubActionsVersions"
   ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor"],
+      "matchDatasources": ["python-version"],
+      "semanticCommitType": "fix",
+      "groupName": "python"
+    }
+  ],
   "customManagers": [
     {
       "customType": "regex",

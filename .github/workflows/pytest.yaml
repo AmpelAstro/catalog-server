@@ -81,10 +81,11 @@ jobs:
       uses: docker://docker
       with:
         args: >
-          docker exec unit curl
+          docker exec unit bash -c 'curl
           http://localhost/config
           --unix-socket /var/run/control.unit.sock
-          -X PUT -d @/www/tests/test-data/nginx-unit/config.json
+          -X PUT
+          -d "$(sed -e "s|\$PYTHON_VERSION|$(python -c "from sys import version_info as v; print(f\"{v.major}.{v.minor}\")")|g" /www/tests/test-data/nginx-unit/config.json)"
           --fail-with-body
     - name: Test with pytest
       run: |

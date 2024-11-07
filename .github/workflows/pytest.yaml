@@ -19,7 +19,7 @@ jobs:
         - name: "Set up environment"
           uses: packetcoders/action-setup-cache-python-poetry@0d0be5577b30d85f3fa2d93a4beeda149520f120 # v1.2.0
           with:
-            # renovate: datasource=conda depName=conda-forge/python
+            # renovate: datasource=python-version depName=python versioning=python
             python-version: "3.12.6"
             # renovate: datasource=pypi depName=poetry versioning=pep440
             poetry-version: "1.8.3"
@@ -60,7 +60,7 @@ jobs:
     - name: "Set up environment"
       uses: jvansanten/action-setup-cache-python-poetry@working-directory
       with:
-        # renovate: datasource=conda depName=conda-forge/python
+        # renovate: datasource=python-version depName=python versioning=python
         python-version: "3.12.6"
         # renovate: datasource=pypi depName=poetry versioning=pep440
         poetry-version: "1.8.3"

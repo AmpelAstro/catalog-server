@@ -27,7 +27,7 @@
 
     "applications": {
         "catalogmatch": {
-            "type": "python 3.12",
+            "type": "python",
             "home": "/www/.venv",
             "path": "/www",
             "module": "app.main",

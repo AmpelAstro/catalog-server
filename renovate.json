@@ -11,6 +11,18 @@
       "matchStrings": [
         "# renovate: datasource=(?<datasource>[a-z-]+?) depName=(?<depName>[^\\s]+?)(?: packageName=(?<packageName>[^\\s]+?))?(?: versioning=(?<versioning>[^\\s]+?))?\\s(?:ENV|ARG) .+?_VERSION=(?<currentValue>.+?)\\s"
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "Update Python version in Unit image",
+      "fileMatch": ["(^|/)(workflow-templates|\\.(?:github|gitea|forgejo)/(?:workflows|actions))/.+\\.ya?ml$"],
+      "matchStringsStrategy": "any",
+      "matchStrings": [
+        "image:\\s*(\\\"?)unit:([^-\\s]*)-python(?<currentValue>[^-\\\"\\s]+)"
+      ],
+      "datasourceTemplate": "python-version",
+      "versioningTemplate": "python",
+      "depNameTemplate": "python"
     }
   ]
 }

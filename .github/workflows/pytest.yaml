@@ -7,9 +7,17 @@ on:
       - renovate/*
     tags:
       - v*
+    paths-ignore:
+      - renovate.json
+      - "**.md"
+      - Dockerfile
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - renovate.json
+      - "**.md"
+      - Dockerfile
 
 jobs:
   mypy:

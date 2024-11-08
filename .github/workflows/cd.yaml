@@ -7,9 +7,21 @@ on:
     branches:
       - main
       - renovate/*
+    paths:
+      - pyproject.toml
+      - poetry.lock
+      - Dockerfile
+      - app/**
+      - vendor/**
   pull_request:
     branches:
       - main
+    paths:
+      - pyproject.toml
+      - poetry.lock
+      - Dockerfile
+      - app/**
+      - vendor/**
 
 env:
   REGISTRY: ghcr.io

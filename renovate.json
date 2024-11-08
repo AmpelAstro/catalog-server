@@ -1,25 +1,10 @@
 {
   "extends": [
     "github>AmpelProject/renovate-config",
-    "github>AmpelProject/renovate-config//regexManagers/githubActionsVersions"
-  ],
-  "packageRules": [
-    {
-      "matchUpdateTypes": ["minor"],
-      "matchDatasources": ["python-version"],
-      "semanticCommitType": "fix",
-      "groupName": "python"
-    }
+    "github>AmpelProject/renovate-config//regexManagers/githubActionsVersions",
+    "github>AmpelProject/renovate-config//regexManagers/dockerfileVersions"
   ],
   "customManagers": [
-    {
-      "customType": "regex",
-      "description": "Update _VERSION variables in Dockerfiles",
-      "fileMatch": ["(^|/|\\.)Dockerfile$", "(^|/)Dockerfile\\.[^/]*$"],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>[a-z-]+?) depName=(?<depName>[^\\s]+?)(?: packageName=(?<packageName>[^\\s]+?))?(?: versioning=(?<versioning>[^\\s]+?))?\\s(?:ENV|ARG) .+?_VERSION=(?<currentValue>.+?)\\s"
-      ]
-    },
     {
       "customType": "regex",
       "description": "Update Python version in Unit image",

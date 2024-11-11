@@ -19,7 +19,7 @@ RUN pip install "poetry==$POETRY_VERSION"
 RUN python -m venv /venv
 
 COPY pyproject.toml poetry.lock ./
-RUN VIRTUAL_ENV=/venv poetry install --no-root --no-directory --all-extras
+RUN VIRTUAL_ENV=/venv poetry install --no-root --no-directory --all-extras --without dev
 
 COPY app app
 COPY vendor vendor

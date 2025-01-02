@@ -13,7 +13,7 @@ catsHTM = {path = "vendor/github.com/AmpelAstro/catsHTM"}
 # catsHTM secretly depends on pkg_resources via hdf5storage
 setuptools = {version = "*", python = ">=3.12"}
 extcats = "^2.5.0"
-uvicorn = {version="^0.32.0", optional=true}
+uvicorn = {version="^0.34.0", optional=true}
 gunicorn = {version="^23.0.0", optional=true}
 pydantic-settings = "^2.5.2"
 
@@ -26,7 +26,7 @@ mongomock = "^4.2.0-post.0"
 mypy = "^1.11.2"
 nest-asyncio = "^1.6.0"
 pytest = "^8.3.3"
-pytest-asyncio = "^0.24.0"
+pytest-asyncio = "^0.25.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

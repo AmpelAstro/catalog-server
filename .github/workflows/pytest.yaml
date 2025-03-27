@@ -28,9 +28,9 @@ jobs:
           uses: packetcoders/action-setup-cache-python-poetry@0d0be5577b30d85f3fa2d93a4beeda149520f120 # v1.2.0
           with:
             # renovate: datasource=python-version depName=python versioning=python
-            python-version: "3.13.1"
+            python-version: "3.13.2"
             # renovate: datasource=pypi depName=poetry versioning=pep440
-            poetry-version: "2.0.1"
+            poetry-version: "2.1.1"
             install-args: --all-extras
         - name: Install root
           run: poetry run pip install -e . --no-deps
@@ -51,7 +51,7 @@ jobs:
           - 27017:27017
         options: --name mongo
       unit:
-        image: unit:1.34.1-python3.13-slim
+        image: unit:1.34.2-python3.13-slim
         volumes:
           - ${{ github.workspace }}/unit:/www
         ports:
@@ -69,9 +69,9 @@ jobs:
       uses: jvansanten/action-setup-cache-python-poetry@working-directory
       with:
         # renovate: datasource=python-version depName=python versioning=python
-        python-version: "3.13.1"
+        python-version: "3.13.2"
         # renovate: datasource=pypi depName=poetry versioning=pep440
-        poetry-version: "2.0.1"
+        poetry-version: "2.1.1"
         install-args: --all-extras
         working-directory: src
     - name: Install root

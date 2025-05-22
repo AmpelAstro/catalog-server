@@ -1,6 +1,6 @@
 
 # renovate: datasource=python-version depName=python versioning=python
-ARG PYTHON_VERSION=3.13.2
+ARG PYTHON_VERSION=3.13.3
 
 FROM python:$PYTHON_VERSION-slim AS base
 
@@ -9,7 +9,7 @@ WORKDIR /app
 FROM base AS builder
 
 # renovate: datasource=pypi depName=poetry versioning=pep440
-ARG POETRY_VERSION=2.1.1
+ARG POETRY_VERSION=2.1.3
 
 ENV PIP_DEFAULT_TIMEOUT=100 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \

@@ -25,8 +25,8 @@ httpx = "^0.28.0"
 mongomock = "^4.2.0-post.0"
 mypy = "^1.11.2"
 nest-asyncio = "^1.6.0"
-pytest = "^8.3.3"
-pytest-asyncio = "^0.26.0"
+pytest = "^9.0.0"
+pytest-asyncio = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

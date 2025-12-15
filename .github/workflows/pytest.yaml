@@ -23,7 +23,7 @@ jobs:
   mypy:
     runs-on: ubuntu-24.04
     steps:
-        - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         - name: "Set up environment"
           uses: packetcoders/action-setup-cache-python-poetry@0d0be5577b30d85f3fa2d93a4beeda149520f120 # v1.2.0
           with:
@@ -62,7 +62,7 @@ jobs:
         working-directory: "src"
 
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       with:
         path: src
     - name: "Set up environment"

@@ -21,11 +21,11 @@ pydantic-settings = "^2.5.2"
 asgi = ["uvicorn", "gunicorn"]
 
 [tool.poetry.group.dev.dependencies]
-httpx = "^0.28.0"
-mongomock = "^4.2.0-post.0"
-mypy = "^1.11.2"
+httpx = "^0.28.1"
+mongomock = "^4.3.0"
+mypy = "^1.19.1"
 nest-asyncio = "^1.6.0"
-pytest = "^8.3.3"
+pytest = "^8.4.2"
 pytest-asyncio = "^0.26.0"
 
 [build-system]

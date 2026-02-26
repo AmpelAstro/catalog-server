@@ -1294,4 +1294,4 @@ asgi = ["gunicorn", "uvicorn"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4"
-content-hash = "1f567e2c5924d48eb256b9c96bd3f05060c76d43e82abc671385598c7acff03b"
+content-hash = "8c3b5bce60e2371e0d02b435cc927bb0718c1785cfc46211ab4374f54123aa28"

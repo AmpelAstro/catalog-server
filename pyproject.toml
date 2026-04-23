@@ -14,7 +14,7 @@ catsHTM = {path = "vendor/github.com/AmpelAstro/catsHTM"}
 setuptools = {version = "*", python = ">=3.12"}
 extcats = "^2.5.0"
 uvicorn = {version="^0.34.0", optional=true}
-gunicorn = {version="^24.0.0", optional=true}
+gunicorn = {version="^25.0.0", optional=true}
 pydantic-settings = "^2.5.2"
 
 [tool.poetry.extras]

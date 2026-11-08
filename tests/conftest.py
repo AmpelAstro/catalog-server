@@ -8,7 +8,7 @@ import mongomock
 import pytest
 import pytest_asyncio
 from bson import decode_all
-from httpx import AsyncClient, ASGITransport
+from httpx import AsyncClient, ASGITransport, Timeout
 
 from app.main import app
 from app.mongo import get_catq
@@ -124,11 +124,19 @@ def web_service(pytestconfig):
 
 @pytest_asyncio.fixture
 async def integration_client(web_service):
-    async with AsyncClient(base_url=web_service) as client:
+    # Shorter timeout for faster feedback
+    async with AsyncClient(base_url=web_service, timeout=Timeout(5.0)) as client:
         yield client
 
 
-# metafixture as suggested in https://github.com/pytest-dev/pytest/issues/349#issuecomment-189370273
-@pytest_asyncio.fixture(params=["mock_client", "integration_client"])
-async def test_client(request):
-    yield request.getfixturevalue(request.param)
+@pytest.fixture
+def test_client(request, pytestconfig):
+    """
+    Provides the appropriate client based on test mode.
+    - Without --integration: uses mock_client (in-process, mocked DB)
+    - With --integration: uses integration_client (external server, real DB)
+    """
+    if pytestconfig.getoption("--integration"):
+        return request.getfixturevalue("integration_client")
+    else:
+        return request.getfixturevalue("mock_client")

@@ -81,17 +81,27 @@ jobs:
     - name: Start uvicorn server
       run: |
         export ROOT_PATH=/api/catalogmatch
-        poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+        export MONGO_URI=mongodb://root:12345@localhost:27017
+        export CATSHTM_DIR=${{ github.workspace }}/tests/test-data/catsHTM2
+        nohup poetry run uvicorn app.main:app \
+          --host 0.0.0.0 \
+          --port 8000 \
+          --workers 2 \
+          > uvicorn.log 2>&1 &
         UVICORN_PID=$!
         echo "UVICORN_PID=$UVICORN_PID" >> $GITHUB_ENV
-        # Wait for server to start
-        sleep 3
+        # Wait for server to start and verify it's responsive
+        sleep 5
+        curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/api/catalogmatch/ || exit 1
     - name: Test with pytest
       run: |
         poetry run pytest tests --integration
       env:
         CATALOGSERVER_URI: http://localhost:8000/api/catalogmatch
         MONGO_URI: mongodb://root:12345@localhost:27017
+    - name: Dump uvicorn logs on failure
+      if: failure()
+      run: cat uvicorn.log || true
     - name: Stop uvicorn server
       if: always()
       run: kill ${UVICORN_PID} || true

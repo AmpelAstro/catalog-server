@@ -1,8 +1,8 @@
 
 # renovate: datasource=python-version depName=python versioning=python
-ARG PYTHON_VERSION=3.13.3
+ARG PYTHON_VERSION=3.15.2
 
-FROM python:$PYTHON_VERSION-slim AS base
+FROM python:$PYTHON_VERSION AS base
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ COPY vendor vendor
 COPY README.md ./
 RUN poetry build && /venv/bin/pip install dist/*.whl
 
-FROM base AS final
+FROM python:$PYTHON_VERSION-slim AS final
 
 # create cache dirs for astropy and friends
 RUN mkdir -p --mode a=rwx /var/cache/astropy

@@ -47,3 +47,4 @@ filterwarnings = [
     "default::pytest.PytestUnraisableExceptionWarning",
 ]
 asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"

@@ -43,5 +43,7 @@ filterwarnings = [
     "default:distutils Version classes are deprecated:DeprecationWarning",
     # Demote resource warnings to avoid treating unclosed resources as errors
     "default:ResourceWarning",
+    # Demote pytest unraisable exception warnings
+    "default::pytest.PytestUnraisableExceptionWarning",
 ]
 asyncio_mode = "strict"

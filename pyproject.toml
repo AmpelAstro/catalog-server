@@ -25,7 +25,7 @@ httpx = "^0.28.1"
 mongomock = "^4.3.0"
 mypy = "^2.4.1"
 nest-asyncio = "^1.6.0"
-pytest = "^8.4.2"
+pytest = "^9.0.0"
 pytest-asyncio = "^1.4.1"
 
 [build-system]
@@ -47,3 +47,4 @@ filterwarnings = [
     "default::pytest.PytestUnraisableExceptionWarning",
 ]
 asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"

@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-24.04
     services:
       mongo:
-        image: mongo:8
+        image: mongo:9
         env:
           MONGO_INITDB_ROOT_USERNAME: root
           MONGO_INITDB_ROOT_PASSWORD: 12345
@@ -50,13 +50,6 @@ jobs:
         ports:
           - 27017:27017
         options: --name mongo
-      unit:
-        image: unit:1.34.2-python3.13-slim
-        volumes:
-          - ${{ github.workspace }}/unit:/www
-        ports:
-          - 80:80
-        options: --name unit
     defaults:
       run:
         working-directory: "src"
@@ -76,26 +69,39 @@ jobs:
         working-directory: src
     - name: Install root
       run: poetry run pip install -e . --no-deps
-    - name: Populate docker volumes
+    - name: Populate mongodb data
       run: |
-        sudo cp -r . ${{ github.workspace }}/unit
-        sudo cp -r tests/test-data/minimongodumps/* ${{ github.workspace }}/mongodumps
+        sudo mkdir -p ${{ github.workspace }}/mongodumps
+        sudo cp -r tests/test-data/minimongodumps/* ${{ github.workspace }}/mongodumps/
     - name: "Populate test catalog"
       uses: docker://docker
       with:
         args: >
           docker exec mongo /mongodumps/restore.sh
-    - name: "Configure Unit"
-      uses: docker://docker
-      with:
-        args: >
-          docker exec unit curl
-          http://localhost/config
-          --unix-socket /var/run/control.unit.sock
-          -X PUT -d @/www/tests/test-data/nginx-unit/config.json
-          --fail-with-body
+    - name: Start uvicorn server
+      run: |
+        export ROOT_PATH=/api/catalogmatch
+        export MONGO_URI=mongodb://root:12345@localhost:27017
+        export CATSHTM_DIR=${{ github.workspace }}/src/tests/test-data/catsHTM2
+        nohup poetry run uvicorn app.main:app \
+          --host 0.0.0.0 \
+          --port 8000 \
+          --workers 2 \
+          > uvicorn.log 2>&1 &
+        UVICORN_PID=$!
+        echo "UVICORN_PID=$UVICORN_PID" >> $GITHUB_ENV
+        # Wait for server to start and verify it's responsive
+        sleep 5
+        curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/api/catalogmatch/ || exit 1
     - name: Test with pytest
       run: |
         poetry run pytest tests --integration
       env:
-        CATALOGSERVER_URI: http://localhost:80
+        CATALOGSERVER_URI: http://localhost:8000/api/catalogmatch
+        MONGO_URI: mongodb://root:12345@localhost:27017
+    - name: Dump uvicorn logs on failure
+      if: failure()
+      run: cat uvicorn.log || true
+    - name: Stop uvicorn server
+      if: always()
+      run: kill ${UVICORN_PID} || true

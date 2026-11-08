@@ -72,7 +72,7 @@ jobs:
     - name: Populate mongodb data
       run: |
         sudo mkdir -p ${{ github.workspace }}/mongodumps
-        sudo cp -r tests/test-data/minimongodumps/* ${{ github.workspace }}/mongodumps/
+        sudo cp -r src/tests/test-data/minimongodumps/* ${{ github.workspace }}/mongodumps/
     - name: "Populate test catalog"
       uses: docker://docker
       with:
@@ -82,7 +82,7 @@ jobs:
       run: |
         export ROOT_PATH=/api/catalogmatch
         export MONGO_URI=mongodb://root:12345@localhost:27017
-        export CATSHTM_DIR=${{ github.workspace }}/tests/test-data/catsHTM2
+        export CATSHTM_DIR=${{ github.workspace }}/src/tests/test-data/catsHTM2
         nohup poetry run uvicorn app.main:app \
           --host 0.0.0.0 \
           --port 8000 \

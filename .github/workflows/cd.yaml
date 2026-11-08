@@ -60,7 +60,7 @@ jobs:
     - name: Smoke test
       run: |
         container=$(docker run -d "${{ steps.docker_build.outputs.imageid }}")
-        sleep 1
+        sleep 10
         docker stop -s INT -t 5 $container
         docker logs $container
         exit $(docker wait $container)

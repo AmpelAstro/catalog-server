@@ -72,7 +72,7 @@ jobs:
     - name: Populate mongodb data
       run: |
         sudo mkdir -p ${{ github.workspace }}/mongodumps
-        sudo cp -r src/tests/test-data/minimongodumps/* ${{ github.workspace }}/mongodumps/
+        sudo cp -r tests/test-data/minimongodumps/* ${{ github.workspace }}/mongodumps/
     - name: "Populate test catalog"
       uses: docker://docker
       with:

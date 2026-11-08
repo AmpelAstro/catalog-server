@@ -42,7 +42,7 @@ filterwarnings = [
     # triggered by hdf5storage via setuptools v84+
     "default:distutils Version classes are deprecated:DeprecationWarning",
     # Demote resource warnings to avoid treating unclosed resources as errors
-    "default:ResourceWarning",
+    "default::ResourceWarning",
     # Demote pytest unraisable exception warnings
     "default::pytest.PytestUnraisableExceptionWarning",
 ]

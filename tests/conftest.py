@@ -124,7 +124,7 @@ def web_service(pytestconfig):
 
 @pytest_asyncio.fixture
 async def integration_client(web_service):
-    async with AsyncClient(base_url=web_service+"/api/catalogmatch") as client:
+    async with AsyncClient(base_url=web_service) as client:
         yield client
 
 

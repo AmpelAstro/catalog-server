@@ -80,6 +80,7 @@ jobs:
           docker exec mongo /mongodumps/restore.sh
     - name: Start uvicorn server
       run: |
+        export ROOT_PATH=/api/catalogmatch
         poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 &
         UVICORN_PID=$!
         echo "UVICORN_PID=$UVICORN_PID" >> $GITHUB_ENV

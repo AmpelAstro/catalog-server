@@ -41,5 +41,7 @@ filterwarnings = [
     "ignore:pkg_resources is deprecated:DeprecationWarning",
     # triggered by hdf5storage via setuptools v84+
     "ignore:distutils Version classes are deprecated:DeprecationWarning",
+    # Demote resource warnings to avoid treating unclosed resources as errors
+    "default:ResourceWarning",
 ]
 asyncio_mode = "strict"

@@ -4,8 +4,6 @@ ARG PYTHON_VERSION=3.13.3
 
 FROM python:$PYTHON_VERSION-slim AS base
 
-WORKDIR /app
-
 FROM base AS builder
 
 # renovate: datasource=pypi depName=poetry versioning=pep440
@@ -19,11 +17,11 @@ RUN pip install "poetry==$POETRY_VERSION"
 RUN python -m venv /venv
 
 COPY pyproject.toml poetry.lock ./
-RUN VIRTUAL_ENV=/venv poetry install --no-root --no-directory --all-extras --without dev
 
-COPY app app
 COPY vendor vendor
+COPY app app
 COPY README.md ./
+RUN VIRTUAL_ENV=/venv poetry install --no-root --no-directory --all-extras --without dev
 RUN poetry build && /venv/bin/pip install dist/*.whl
 
 FROM base AS final

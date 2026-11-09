@@ -1157,11 +1157,10 @@ def xmatch_2cats(
     # print('header1 is',header1)
     # print('header2 is', header2)
     # print(header1+','+header2)
-    if save_results == True:
-        if save_in_one_file == True:
-            if os.path.exists(output + "/cross-matching_result_full.txt"):
-                print("the txt file exists already, I am removing it")
-                os.remove(output + "/cross-matching_result_full.txt")
+    if save_results == True and save_in_one_file == True:
+        if os.path.exists(output + "/cross-matching_result_full.txt"):
+            print("the txt file exists already, I am removing it")
+            os.remove(output + "/cross-matching_result_full.txt")
         if save_in_separate_files == True:
             if os.path.exists(
                 output + f"/cross-matching_result_{Catname1}.txt"
@@ -1449,23 +1448,22 @@ def xmatch_2cats(
                 # print("np.shape(IsN)",np.shape(IsN))
                 Cat2matched[IsN, :] = np.nan
                 # print('Cat2matched is', Cat2matched)
-                if Debug == True:
-                    if i in [
-                        Nh1 // 1000,
-                        Nh1 // 200,
-                        Nh1 // 100,
-                        Nh1 // 10,
-                        Nh1 // 4,
-                        Nh1 // 3,
-                        Nh1 // 2,
-                        Nh1 // 1.5,
-                    ]:
-                        print(f"******** i={i} ********")
-                        print("I am saving Cat2matched")
-                        np.savetxt(
-                            output + f"Cat2matched_{i}_4debug.txt", Cat2matched
-                        )  # pas ok
-                        pdb.set_trace()
+                if Debug == True and i in [
+                    Nh1 // 1000,
+                    Nh1 // 200,
+                    Nh1 // 100,
+                    Nh1 // 10,
+                    Nh1 // 4,
+                    Nh1 // 3,
+                    Nh1 // 2,
+                    Nh1 // 1.5,
+                ]:
+                    print(f"******** i={i} ********")
+                    print("I am saving Cat2matched")
+                    np.savetxt(
+                        output + f"Cat2matched_{i}_4debug.txt", Cat2matched
+                    )  # pas ok
+                    pdb.set_trace()
                 # print('Cat2matched at the index of IndCatMinDist is',Cat2matched[IndCatMinDist!=1])
                 # print('IndCatMinDist', IndCatMinDist)
                 # pdb.set_trace()

@@ -29,11 +29,10 @@ setup(
     keywords="astronomy catalogs cone-search cross-matching",  # Optional
     packages=["catsHTM"],
     install_requires=[
+        "numpy",
         "h5py",
         "scipy",
-        "tqdm",
         "hdf5storage",
-        'backports.functools-lru-cache; python_version < "3.3"',
     ],  # Optional
     python_requires=">=2.7.10",
     project_urls={

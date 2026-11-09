@@ -42,11 +42,10 @@ These instruction are for installing the catsHTM **code**, i.e. do not include t
 * `python 3` (required for the cross-matcher)
 
 ### Required python packages
-* `math`
 * `numpy`
 * `scipy`
 * `h5py`
-* `tqdm`
+* `hdf5storage`
 
 ## How to make a cone search with ``catsHTM``?
 

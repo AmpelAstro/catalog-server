@@ -5,6 +5,7 @@ A python implementation of catsHTM.m
 
 import math
 import os.path
+from functools import lru_cache
 
 # import mat73
 import hdf5storage
@@ -13,13 +14,6 @@ import scipy.io as sio
 from scipy.io.matlab import MatReadError
 
 from . import celestial, class_HDF5, params
-
-# import time
-
-try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
 
 __all__ = [
     "cone_search",

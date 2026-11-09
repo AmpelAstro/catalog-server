@@ -42,11 +42,10 @@ These instruction are for installing the catsHTM **code**, i.e. do not include t
 * `python 3` (required for the cross-matcher)
 
 ### Required python packages
-* `math`
 * `numpy`
 * `scipy`
 * `h5py`
-* `tqdm`
+* `hdf5storage`
 
 ## How to make a cone search with ``catsHTM``?
 
@@ -184,61 +183,74 @@ import numpy as np
 import pandas as pd
 import os
 
-def query_function_example(Cat1,Ind,Cat2,IndCatMinDist,i,additionnal_args):
 
-    columns_in_crossmatchfile=additionnal_args[0]+additionnal_args[1]
-    Verbose=additionnal_args[2]
+def query_function_example(Cat1, Ind, Cat2, IndCatMinDist, i, additionnal_args):
 
-    Nind=len(Ind)
-    if Verbose==True:
-        print('Nind',Nind)
+    columns_in_crossmatchfile = additionnal_args[0] + additionnal_args[1]
+    Verbose = additionnal_args[2]
 
-    data_list=[]
+    Nind = len(Ind)
+    if Verbose == True:
+        print("Nind", Nind)
+
+    data_list = []
     for si in range(Nind):
-        if Verbose==True:
-            print('Ind',Ind)
-        I1=Ind[si]['IndRef'] # (Index of a Cat1's source having one or more counterpart in Cat2)
-        I2 = int(Ind[si]['IndCat'][np.argmin(Ind[si]['Dist'])])
-        if Verbose==True:
-            print('IndCatMinDist',IndCatMinDist)
-            print("Ind[si]['IndRef']",Ind[si]['IndRef'])
-            print("Ind[si]['IndCat']",Ind[si]['IndCat'])
-            print('I2, the index of the closest is',I2) # List of indexes of the Cat2's counterparts.
+        if Verbose == True:
+            print("Ind", Ind)
+        I1 = Ind[si][
+            "IndRef"
+        ]  # (Index of a Cat1's source having one or more counterpart in Cat2)
+        I2 = int(Ind[si]["IndCat"][np.argmin(Ind[si]["Dist"])])
+        if Verbose == True:
+            print("IndCatMinDist", IndCatMinDist)
+            print("Ind[si]['IndRef']", Ind[si]["IndRef"])
+            print("Ind[si]['IndCat']", Ind[si]["IndCat"])
+            print(
+                "I2, the index of the closest is", I2
+            )  # List of indexes of the Cat2's counterparts.
 
-        gaia3_parallax     = cat1_cols.index('Plx')
-        gaia3_parallax_err = cat1_cols.index('ErrPlx')
-        ps1_g              = cat2_cols.index('gPSFMag')
-        ps1_r              = cat2_cols.index('rPSFMag')
+        gaia3_parallax = cat1_cols.index("Plx")
+        gaia3_parallax_err = cat1_cols.index("ErrPlx")
+        ps1_g = cat2_cols.index("gPSFMag")
+        ps1_r = cat2_cols.index("rPSFMag")
 
-        parallax_constraint = 15   # constraint on the parallax: Parallax/Err > 15
-        g_r_constraint      = -0.5 # constraint on the g-r color: (g-r) < -0.5
-        
-        
+        parallax_constraint = 15  # constraint on the parallax: Parallax/Err > 15
+        g_r_constraint = -0.5  # constraint on the g-r color: (g-r) < -0.5
+
         # the criterion based on which we want to select the matches:
-        cond=(Cat1[I1,gaia3_parallax]/Cat1[I1,gaia3_parallax_err] > parallax_constraint) & \
-             (Cat2[I2,ps1_g]-Cat2[I2,ps1_r] < g_r_constraint) & \
-             (Cat2[I2,ps1_g]-Cat2[I2,ps1_r] > -5.0 )
+        cond = (
+            (
+                Cat1[I1, gaia3_parallax] / Cat1[I1, gaia3_parallax_err]
+                > parallax_constraint
+            )
+            & (Cat2[I2, ps1_g] - Cat2[I2, ps1_r] < g_r_constraint)
+            & (Cat2[I2, ps1_g] - Cat2[I2, ps1_r] > -5.0)
+        )
 
         if cond:
-            if Verbose==True:
-                print('Success.')
+            if Verbose == True:
+                print("Success.")
             data_line = {}
-            for bli,blu in enumerate(np.hstack((Cat1[I1,:],Cat2[I2,:]))):
-                data_line[columns_in_crossmatchfile[bli]]=blu
+            for bli, blu in enumerate(np.hstack((Cat1[I1, :], Cat2[I2, :]))):
+                data_line[columns_in_crossmatchfile[bli]] = blu
             data_list.append(data_line)
     data = pd.DataFrame(data_list)
 
-    if len(data)>0:
-        data['RA_gaia3'] *= 180./np.pi # Convert RA,Dec back to decimal degrees before saving.
-        data['Dec_gaia3'] *= 180./np.pi
-        data['RA_ps1'] *= 180./np.pi
-        data['Dec_ps1'] *= 180./np.pi
+    if len(data) > 0:
+        data["RA_gaia3"] *= (
+            180.0 / np.pi
+        )  # Convert RA,Dec back to decimal degrees before saving.
+        data["Dec_gaia3"] *= 180.0 / np.pi
+        data["RA_ps1"] *= 180.0 / np.pi
+        data["Dec_ps1"] *= 180.0 / np.pi
         if not os.path.isfile("data_xmatch.csv"):
             # If the output file does not exist, then create it and save the header and data.
-            data.to_csv('data_xmatch.csv'.format(i),index=False, mode='a', header=True)
+            data.to_csv("data_xmatch.csv".format(i), index=False, mode="a", header=True)
         else:
             # Else if the output file does exist, then do not print the header line; only print the data.
-            data.to_csv('data_xmatch.csv'.format(i),index=False, mode='a', header=False)
+            data.to_csv(
+                "data_xmatch.csv".format(i), index=False, mode="a", header=False
+            )
     return data
 ```
 Then we run the xmatch_2cats function with this:

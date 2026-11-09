@@ -32,6 +32,23 @@ pytest-asyncio = "^1.4.1"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.ruff.lint.pep8-naming]
+# catsHTM and class_HDF5 are load-bearing upstream module names: the app imports
+# `catsHTM.script`/`catsHTM.params`/`catsHTM.cone_search` and script.py does
+# `from . import class_HDF5`. Renaming them would break every import and diverge
+# from upstream, so accept the names rather than disabling N999 for all of vendor/.
+ignore-names = ["catsHTM", "class_HDF5"]
+
+[tool.pyright]
+# Analyze against the Poetry-managed virtualenv instead of the globally
+# installed interpreter, so third-party stubs (pydantic, fastapi, ...) come
+# from the pinned dependencies.
+venvPath = "."
+venv = ".venv"
+# The globally installed pyright cannot infer the interpreter version from the
+# venv (it falls back to a bogus future version), so pin it to match pyproject.
+pythonVersion = "3.12"
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "--showlocals -r a"

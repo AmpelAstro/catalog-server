@@ -1,19 +1,26 @@
 import numpy as np
 
-ID=[[[[[[3833.0]]], [[[3913.0]]], [[[3961.0]]]], [[[[4553.0]]], [[[4665.0]]], [[[4745.0]]]]]]
+ID = [
+    [
+        [[[[3833.0]]], [[[3913.0]]], [[[3961.0]]]],
+        [[[[4553.0]]], [[[4665.0]]], [[[4745.0]]]],
+    ]
+]
 
-print('the nested list is',ID)
+print("the nested list is", ID)
+
 
 def simplify_list(val):
-        if isinstance(val, list) == False:
+    if isinstance(val, list) == False:
+        return val
+    else:
+        if len(val) > 1:
             return val
         else:
-            if len(val) > 1:
-                return val
-            else:
-                return simplify_list(val[0])
+            return simplify_list(val[0])
 
-'''IDx=[]
+
+"""IDx=[]
 for i in ID:
     a=simplify_list(i)
     if isinstance(a, (list, tuple, np.ndarray))==False:
@@ -23,9 +30,11 @@ for i in ID:
            IDx.append(simplify_list(j))
 
 print('IDx is',IDx)
-'''
+"""
+
+
 def simplify2(x):
-    IDc=[]
+    IDc = []
     for i in x:
         if isinstance(i, (list, tuple, np.ndarray)) == True:
             for j in i:
@@ -33,21 +42,21 @@ def simplify2(x):
         else:
             IDc.append(i)
     return IDc
-    #return simplify2(IDc)
+    # return simplify2(IDc)
+
 
 def simplify3(x):
-    if isinstance(x[0],(list, tuple, np.ndarray)) == False:
+    if isinstance(x[0], (list, tuple, np.ndarray)) == False:
         return x
     else:
-        y=simplify2(x)
+        y = simplify2(x)
         print(y)
         return simplify3(y)
 
 
+print("simplify3(IDx) is", simplify3(ID))
 
-print ('simplify3(IDx) is',simplify3(ID))
-
-'''
+"""
 
 IDy=[]
 for i in IDx:
@@ -78,6 +87,6 @@ for i in IDw:
             IDh.append(j)
     else:
         IDh.append(i)
-'''
+"""
 
-print('the list without brakets is',simplify3(ID))
+print("the list without brakets is", simplify3(ID))

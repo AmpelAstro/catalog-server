@@ -66,14 +66,17 @@ def catshtm_catalog_descriptions():
         )
         if match:
             name = match.group("key")
+            # Handle S3 URIs - can't use Path algebra on strings
+            if isinstance(settings.catshtm_dir, str) and settings.catshtm_dir.startswith("s3://"):
+                # For S3 URIs, construct the path as a string
+                file_path = f"{settings.catshtm_dir}{get_CatDir(name)}/{params.ColCelFile % name}"
+            else:
+                # For local paths, use Path algebra
+                from pathlib import Path
+                file_path = str(Path(settings.catshtm_dir) / get_CatDir(name) / (params.ColCelFile % name))
+            
             try:
-                meta = loadmat(
-                    str(
-                        settings.catshtm_dir
-                        / get_CatDir(name)
-                        / (params.ColCelFile % name)
-                    )
-                )
+                meta = loadmat(file_path)
             except FileNotFoundError:
                 continue
             catalogs.append(

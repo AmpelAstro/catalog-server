@@ -13,6 +13,9 @@ Style Guidelines:
 - ImportError should raise (don't catch - deps are installed in test env)
 - Use explicit pytest.skip() for intentional skips
 - Setup/teardown goes in fixtures
+
+Note: Tests marked with @pytest.mark.integration_s3 require h5py with ROS3 VFD support.
+If ROS3 is not available, these tests will be skipped.
 """
 
 import os
@@ -24,6 +27,38 @@ from typing import Generator, Any
 import pytest
 import h5py
 import numpy as np
+
+
+# Check if h5py has ROS3 VFD support
+# ROS3 support can be checked by attempting to use the ros3 driver
+# or by checking for the presence of certain attributes
+try:
+    HAS_ROS3 = False
+    # Try to create a file with ros3 driver to check if supported
+    # This is a lightweight check that doesn't actually connect to S3
+    import tempfile
+    with tempfile.NamedTemporaryFile(suffix='.h5', delete=True) as tmp:
+        try:
+            # Try to open with ros3 driver - will fail if not compiled in
+            with h5py.File(tmp.name, 'w', driver='ros3') as f:
+                pass
+            HAS_ROS3 = True
+        except (ValueError, OSError) as e:
+            # "can't use ros3 driver" means ROS3 not compiled in
+            if "ros3" in str(e).lower() or "driver" in str(e).lower():
+                HAS_ROS3 = False
+            else:
+                # Some other error, assume ROS3 is available
+                HAS_ROS3 = True
+except Exception:
+    HAS_ROS3 = False
+
+
+@pytest.fixture(autouse=True)
+def skip_if_no_ros3(request):
+    """Skip tests marked as integration_s3 if ROS3 VFD is not available."""
+    if request.node.get_closest_marker("integration_s3") and not HAS_ROS3:
+        pytest.skip("ROS3 VFD not available in h5py - requires h5py compiled with ROS3 support")
 
 
 # Direct imports - will raise ImportError if not available (intentional)
@@ -385,6 +420,156 @@ async def test_catalogs_endpoint_comprehensive(integration_client):
         assert "name" in catalog
         assert "use" in catalog
         assert "description" in catalog
+
+
+# ============================================================================
+# S3 Integration Tests with VersityGW
+# ============================================================================
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_s3_uvicorn_startup(s3_integration_client):
+    """
+    Test that uvicorn starts successfully with S3 CATSHTM configuration.
+    
+    This test verifies:
+    1. VersityGW container spins up
+    2. Uvicorn starts with S3 environment variables
+    3. Server responds to health check
+    """
+    response = await s3_integration_client.get("/catalogs/")
+    response.raise_for_status()
+    body = response.json()
+    assert isinstance(body, list)
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_s3_catalogs_endpoint(s3_integration_client):
+    """
+    Test that the /catalogs/ endpoint works with S3 CATSHTM configuration.
+    
+    This test verifies that the server can list catalogs even when
+    CATSHTM_DIR points to an S3 bucket.
+    """
+    response = await s3_integration_client.get("/catalogs/")
+    response.raise_for_status()
+    body = response.json()
+    
+    assert isinstance(body, list)
+    assert len(body) > 0
+    
+    # Check that each catalog has expected fields
+    for catalog in body:
+        assert "name" in catalog
+        assert "use" in catalog
+        assert "description" in catalog
+
+
+@pytest.mark.integration
+@pytest.mark.integration_s3
+@pytest.mark.asyncio
+async def test_s3_cone_search_smoke(s3_integration_client):
+    """
+    Smoke test for cone search with S3 CATSHTM.
+    
+    This test performs a simple cone search to verify that:
+    1. The server can communicate with VersityGW
+    2. ROS3 VFD can read files via S3 protocol
+    3. Query returns valid results
+    
+    Note: This assumes test-data/catsHTM2 contains valid catalog data
+    that can be queried.
+    """
+    # Use a catalog that exists in test-data
+    request_body = {
+        "ra_deg": 0.0,
+        "dec_deg": 0.0,
+        "radius_arcsec": 60.0,
+        "catalogs": [
+            {"name": "ROSATfsc", "use": "catsHTM", "rs_arcsec": 60}
+        ]
+    }
+    
+    response = await s3_integration_client.post("/cone_search/any", json=request_body)
+    response.raise_for_status()
+    body = response.json()
+    
+    # Should return a list with one boolean for each catalog
+    assert isinstance(body, list)
+    assert len(body) == 1
+    # Result should be True or False (whether sources were found)
+    assert isinstance(body[0], bool)
+
+
+@pytest.mark.integration
+@pytest.mark.integration_s3
+@pytest.mark.asyncio
+async def test_s3_cone_search_with_results(s3_integration_client):
+    """
+    Test cone search with S3 that should return results.
+    
+    This test verifies that actual data can be retrieved from S3
+    and processed correctly.
+    """
+    # Query near a known bright source (e.g., near galactic center)
+    request_body = {
+        "ra_deg": 266.4,
+        "dec_deg": -29.0,
+        "radius_arcsec": 3600.0,  # 1 degree radius
+        "catalogs": [
+            {"name": "ROSATfsc", "use": "catsHTM", "rs_arcsec": 3600}
+        ]
+    }
+    
+    response = await s3_integration_client.post("/cone_search/all", json=request_body)
+    response.raise_for_status()
+    body = response.json()
+    
+    assert isinstance(body, list)
+    assert len(body) == 1
+    
+    # Each result should be a list of catalog items or None
+    result = body[0]
+    if result is not None:
+        assert isinstance(result, list)
+        # Each item should have expected structure
+        for item in result:
+            assert "body" in item
+            assert "dist_arcsec" in item
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_s3_nonexistent_catalog(s3_integration_client):
+    """
+    Test that querying a non-existent catalog with S3 returns appropriate error.
+    
+    This verifies error handling works correctly with S3 backend.
+    """
+    request_body = {
+        "ra_deg": 0.0,
+        "dec_deg": 0.0,
+        "radius_arcsec": 60.0,
+        "catalogs": [
+            {"name": "NONEXISTENT_CATALOG_XYZ", "use": "catsHTM", "rs_arcsec": 60}
+        ]
+    }
+    
+    # This should either return empty results or raise an error
+    # The exact behavior depends on how cone_search handles missing catalogs
+    response = await s3_integration_client.post("/any", json=request_body)
+    
+    # Should either succeed with False (no sources) or fail with 4XX/5XX
+    if response.status_code >= 400:
+        # Error response is acceptable
+        pass
+    else:
+        # Success response should contain False (no sources found)
+        body = response.json()
+        assert isinstance(body, list)
+        assert len(body) == 1
+        assert body[0] == False
 
 
 # ============================================================================

@@ -94,6 +94,10 @@ def search_all_item(item, coord: SkyCoord) -> Optional[List[CatalogItem]]:
 
 @search_any_item.register  # type: ignore[no-redef]
 def _(item: CatsHTMQueryItem, coord: SkyCoord) -> bool:
+    # Only call cone_search if CATSHTM_DIR is configured
+    if settings.catshtm_dir is None:
+        return False
+    
     srcs, colnames, colunits = cone_search(
         item.name,
         coord.ra.rad,
@@ -106,6 +110,10 @@ def _(item: CatsHTMQueryItem, coord: SkyCoord) -> bool:
 
 @search_nearest_item.register  # type: ignore[no-redef]
 def _(item: CatsHTMQueryItem, coord: SkyCoord) -> Optional[CatalogItem]:  # type: ignore[no-redef]
+    # Only call cone_search if CATSHTM_DIR is configured
+    if settings.catshtm_dir is None:
+        return None
+    
     srcs, colnames, colunits = cone_search(
         item.name,
         coord.ra.rad,
@@ -131,6 +139,10 @@ def _(item: CatsHTMQueryItem, coord: SkyCoord) -> Optional[CatalogItem]:  # type
 
 @search_all_item.register  # type: ignore[no-redef]
 def _(item: CatsHTMQueryItem, coord: SkyCoord) -> Optional[List[CatalogItem]]:
+    # Only call cone_search if CATSHTM_DIR is configured
+    if settings.catshtm_dir is None:
+        return None
+    
     srcs, colnames, colunits = cone_search(
         item.name,
         coord.ra.rad,

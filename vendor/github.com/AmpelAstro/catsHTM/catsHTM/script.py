@@ -143,24 +143,44 @@ def cone_search(
 
     ColCelFile = ColCelFile % CatName
     IndexFilename = IndexFileTemplate % CatName
-    if os.path.isfile(root_to_data + CatDir + "/" + ColCelFile) == True:
+    
+    file_path = root_to_data.rstrip('/') + "/" + CatDir.lstrip('/') + "/" + ColCelFile
+    is_s3_uri = file_path.startswith("s3://")
+    
+    # For S3 URIs, skip os.path.isfile check (doesn't work with S3)
+    # and use class_HDF5 which supports ROS3 VFD
+    if is_s3_uri:
+        try:
+            # Load the ColCell dataset using our S3-enabled HDF5 class
+            colcell_data = class_HDF5.HDF5(file_path).load("ColCell", numpy_array=True)
+            if colcell_data.size == 0:
+                raise FileNotFoundError(f"Empty or invalid data in {file_path}")
+            # Wrap in expected dict format
+            test = {"ColCell": colcell_data}
+            if np.shape(test["ColCell"])[1] < np.shape(test["ColCell"])[0]:
+                Ncol = np.shape(test["ColCell"])[0]
+            else:
+                Ncol = np.shape(test["ColCell"])[1]
+        except Exception as e:
+            raise FileNotFoundError(f"Failed to load S3 file {file_path}: {e}")
+    elif os.path.isfile(file_path) == True:
         # hdf5storage.loadmat is a superset of sio.loadmat: it reads HDF5-based
         # v7.3 files (which raise NotImplementedError here) and bare HDF5 files
         # (which raise ValueError), then delegates to scipy for older formats.
         # Catch only the failures a fallback can actually fix, so genuine errors
         # such as a missing or unreadable file still propagate.
         try:
-            test = sio.loadmat(root_to_data + CatDir + "/" + ColCelFile)
+            test = sio.loadmat(file_path)
             # test = mat73.loadmat(root_to_data + CatDir + '/' + ColCelFile)
         except (NotImplementedError, ValueError, MatReadError):
             if verbose == True:
                 print(
                     "sio.loadmat did not work for opening {}, I am trying hdf5storage.loadmat".format(
-                        root_to_data + CatDir + "/" + ColCelFile
+                        file_path
                     )
                 )
             # test = sio.loadmat(root_to_data + CatDir + '/' + ColCelFile)
-            test = hdf5storage.loadmat(root_to_data + CatDir + "/" + ColCelFile)
+            test = hdf5storage.loadmat(file_path)
         if np.shape(test["ColCell"])[1] < np.shape(test["ColCell"])[0]:
             # test=test.transpose()
             Ncol = np.shape(test["ColCell"])[0]

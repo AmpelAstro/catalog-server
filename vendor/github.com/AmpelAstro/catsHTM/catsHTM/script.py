@@ -1107,14 +1107,10 @@ def xmatch_2cats(
         print("Level2:", Level2)
 
     Nh1 = len(Level1["ptr"])  # the number of trixels in the highest level
-    print(
-        f"The number of trixels in the highest level, for {Catname1} is {Nh1}"
-    )  # ok
+    print(f"The number of trixels in the highest level, for {Catname1} is {Nh1}")  # ok
     # pdb.set_trace()
     Nh2 = len(Level2["ptr"])
-    print(
-        f"The number of trixels in the highest level, for {Catname2} is {Nh2}"
-    )  # ok
+    print(f"The number of trixels in the highest level, for {Catname2} is {Nh2}")  # ok
     # pdb.set_trace()
 
     ColCell2 = load_colcell(catalogs_dir + "/" + CatDir2, Catname2)[0]
@@ -1158,19 +1154,11 @@ def xmatch_2cats(
             print("the txt file exists already, I am removing it")
             os.remove(output + "/cross-matching_result_full.txt")
         if save_in_separate_files == True:
-            if os.path.exists(
-                output + f"/cross-matching_result_{Catname1}.txt"
-            ):
-                print(
-                    f"the txt file for {Catname1} exists already, I am removing it"
-                )
+            if os.path.exists(output + f"/cross-matching_result_{Catname1}.txt"):
+                print(f"the txt file for {Catname1} exists already, I am removing it")
                 os.remove(output + f"/cross-matching_result_{Catname1}.txt")
-            if os.path.exists(
-                output + f"/cross-matching_result_{Catname2}.txt"
-            ):
-                print(
-                    f"the txt file for {Catname2} exists already, I am removing it"
-                )
+            if os.path.exists(output + f"/cross-matching_result_{Catname2}.txt"):
+                print(f"the txt file for {Catname2} exists already, I am removing it")
                 os.remove(output + f"/cross-matching_result_{Catname2}.txt")
 
     # print("Level1['ptr'] is", Level1['ptr'])
@@ -1252,9 +1240,7 @@ def xmatch_2cats(
             # if Verbose==True:
             ID2w = simplify3(ID2)
             if Verbose == True:
-                print(
-                    f"there are {len(ID2w)} trixel overlapping with it"
-                )  # ok
+                print(f"there are {len(ID2w)} trixel overlapping with it")  # ok
                 # pdb.set_trace()
                 print(
                     f"the list of trixels indexes of Catalog_2({Catname2}) overlapping with the trixel #{index_cat1} of Catalog_1({Catname1}) is {ID2w}"
@@ -1663,14 +1649,12 @@ def xmatch_2cats(
                         if save_in_separate_files == True:
                             if (
                                 os.path.exists(
-                                    output
-                                    + f"/cross-matching_result_{Catname1}.txt"
+                                    output + f"/cross-matching_result_{Catname1}.txt"
                                 )
                                 == False
                             ):
                                 with open(
-                                    output
-                                    + f"/cross-matching_result_{Catname1}.txt",
+                                    output + f"/cross-matching_result_{Catname1}.txt",
                                     "ab",
                                 ) as f:
                                     if cross_matching_result_intermediate_cat1.ndim > 1:
@@ -1691,8 +1675,7 @@ def xmatch_2cats(
                                         )
                             else:
                                 with open(
-                                    output
-                                    + f"/cross-matching_result_{Catname1}.txt",
+                                    output + f"/cross-matching_result_{Catname1}.txt",
                                     "ab",
                                 ) as f:
                                     if cross_matching_result_intermediate_cat1.ndim > 1:
@@ -1711,14 +1694,12 @@ def xmatch_2cats(
                                         )
                             if (
                                 os.path.exists(
-                                    output
-                                    + f"/cross-matching_result_{Catname2}.txt"
+                                    output + f"/cross-matching_result_{Catname2}.txt"
                                 )
                                 == False
                             ):
                                 with open(
-                                    output
-                                    + f"/cross-matching_result_{Catname2}.txt",
+                                    output + f"/cross-matching_result_{Catname2}.txt",
                                     "ab",
                                 ) as f:
                                     if cross_matching_result_intermediate_cat2.ndim > 1:
@@ -1739,8 +1720,7 @@ def xmatch_2cats(
                                         )
                             else:
                                 with open(
-                                    output
-                                    + f"/cross-matching_result_{Catname2}.txt",
+                                    output + f"/cross-matching_result_{Catname2}.txt",
                                     "ab",
                                 ) as f:
                                     if cross_matching_result_intermediate_cat2.ndim > 1:
@@ -1775,9 +1755,7 @@ def xmatch_2cats(
                 # pdb.set_trace()
         else:
             if Verbose == True:
-                print(
-                    f"trixel #{index_cat1} of Catalog_1 ({Catname1}) is empty"
-                )
+                print(f"trixel #{index_cat1} of Catalog_1 ({Catname1}) is empty")
     if time_it == True:
         ongoing7 = time.time()
         print(f"it took {ongoing7 - start} seconds for the process to run")

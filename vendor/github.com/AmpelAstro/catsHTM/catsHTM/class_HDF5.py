@@ -38,9 +38,7 @@ class HDF5:
         print(
             f"Number of datasets in the HDF5 file {self.FileName}: {np.shape(list(f.keys()))}"
         )
-        print(
-            f"{np.shape(list(f.keys()))[0] / 2.0} pairs of [data file, indexfile]"
-        )
+        print(f"{np.shape(list(f.keys()))[0] / 2.0} pairs of [data file, indexfile]")
         print("****")
         print("The keys are:")
         print(list(f.keys()))

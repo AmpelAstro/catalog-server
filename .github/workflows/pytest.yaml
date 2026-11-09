@@ -60,7 +60,9 @@ jobs:
       run: pixi install -e dev
     - name: "Populate test catalog"
       run: |
-        docker cp tests/test-data/minimongodumps/. mongo:/mongodumps/
+        docker cp tests/test-data/minimongodumps mongo:/mongodumps_data
+        docker exec mongo mv /mongodumps_data/* /mongodumps/
+        docker exec mongo rm -rf /mongodumps_data
         docker exec mongo chmod +x /mongodumps/restore.sh
         docker exec mongo /mongodumps/restore.sh
     - name: Start uvicorn server

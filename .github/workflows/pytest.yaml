@@ -60,6 +60,8 @@ jobs:
         docker run --rm \
           -v ${{ github.workspace }}/tests/test-data/minimongodumps:/mongodumps:ro \
           --network container:mongo \
+          -e MONGO_INITDB_ROOT_USERNAME=root \
+          -e MONGO_INITDB_ROOT_PASSWORD=12345 \
           mongo:9 \
           bash -c "export MONGODUMP_DIR=/mongodumps && /mongodumps/restore.sh"
     - name: Start uvicorn server

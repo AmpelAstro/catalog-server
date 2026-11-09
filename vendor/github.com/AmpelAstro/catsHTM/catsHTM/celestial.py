@@ -4,9 +4,8 @@ A python implementation of the celestial functions
 
 # print __doc__
 import math
+
 import numpy as np
-import pdb
-import sys
 
 
 # sys.setrecursionlimit(100000)
@@ -144,7 +143,7 @@ def cosined2coo(CD1, CD2, CD3):  # TESTED compared with Eran's, ok
         # print(np.shape(CD2))
         Long = np.arctan2(CD2, CD1)
         SLL = np.sqrt(np.power(CD1, 2) + np.power(CD2, 2))
-        Lat = np.zeros((np.shape(Long)))
+        Lat = np.zeros(np.shape(Long))
         Lat[(SLL != 0)] = np.arctan(CD3[(SLL != 0)] / SLL[(SLL != 0)])
         Lat[(SLL == 0)] = np.sign(CD3[SLL == 0]) * math.pi / 2.0
         Long[(Long < 0)] = 2 * math.pi + Long[(Long < 0)]
@@ -339,9 +338,9 @@ def htm_build_son(HTM_list, Levlist, Level, Ind, Verbose=False):
     """
     LevelDepth = len(Levlist)  # the number of levels so far
     if Verbose == True:
-        print("the number of levels so far is {0}".format(LevelDepth))
+        print(f"the number of levels so far is {LevelDepth}")
         print(type(LevelDepth))
-        print("Levlist is {0}".format(Levlist))
+        print(f"Levlist is {Levlist}")
         # pdb.set_trace()
     if (
         Level > LevelDepth

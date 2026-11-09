@@ -13,15 +13,15 @@ Reliable:
 called this way from HDF5 import HDF5
 ******************************************************"""
 
+import os
+
 import h5py
 
 # import pdb
 import numpy as np
-import pdb
-import os
 
 
-class HDF5(object):
+class HDF5:
     def __init__(self, FileName):  # ,VarName):
         self.FileName = FileName
         # self.VarName=VarName
@@ -33,17 +33,13 @@ class HDF5(object):
         Output :"""
         filename = self.FileName
         f = h5py.File(filename, "r")
-        print("Filename:{0}".format(filename))
+        print(f"Filename:{filename}")
         # print(f.keys())
         print(
-            "Number of datasets in the HDF5 file {0}: {1}".format(
-                self.FileName, np.shape(list(f.keys()))
-            )
+            f"Number of datasets in the HDF5 file {self.FileName}: {np.shape(list(f.keys()))}"
         )
         print(
-            "{0} pairs of [data file, indexfile]".format(
-                np.shape(list(f.keys()))[0] / 2.0
-            )
+            f"{np.shape(list(f.keys()))[0] / 2.0} pairs of [data file, indexfile]"
         )
         print("****")
         print("The keys are:")

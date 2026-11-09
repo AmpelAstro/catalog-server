@@ -4,19 +4,18 @@ A python implementation of catsHTM.m
 # print __doc__
 
 import math
-import tqdm
-import numpy as np
-from . import celestial
-import scipy.io as sio
-from . import params
 import os.path
-import h5py
-from . import class_HDF5
-import time
 import pdb
+import time
 
 # import mat73
 import hdf5storage
+import numpy as np
+import scipy.io as sio
+import tqdm
+
+from . import celestial, class_HDF5, params
+
 # import time
 
 try:
@@ -31,21 +30,21 @@ except NameError:
     FileNotFoundError = IOError
 
 __all__ = [
+    "Example_QueryAllFun",
     "cone_search",
+    "htm_search_cone",
+    "load_colcell",
+    "load_trix_by_ind",
+    "match_cats",
+    "mfind_bin",
+    "read_ztf_HDF_matched",
     "search_htm_ind",
     "search_sortedlat",
-    "sources_match",
-    "htm_search_cone",
-    "xmatch_2cats",
-    "load_trix_by_ind",
-    "simplify_list",
-    "load_colcell",
-    "mfind_bin",
-    "match_cats",
     "simplify2",
     "simplify3",
-    "Example_QueryAllFun",
-    "read_ztf_HDF_matched",
+    "simplify_list",
+    "sources_match",
+    "xmatch_2cats",
 ]  # redefinition of '*' for import *
 
 
@@ -156,9 +155,7 @@ def cone_search(
     if verbose == True:
         print("*************")
         print(
-            "Catalog: {0}; cone radius: {1} arcsec; cone center: (RA,DEC)=({2},{3})".format(
-                CatName, Radius, RA, Dec
-            )
+            f"Catalog: {CatName}; cone radius: {Radius} arcsec; cone center: (RA,DEC)=({RA},{Dec})"
         )
         print("*************")
 
@@ -846,12 +843,12 @@ def match_cats(Cat, Refcat, Radius=2, RadiusUnits="arcsec"):
     # print('Ilowx is',Ilowx)#ok
     Ilow = np.zeros(np.shape(Ilowx)[0])
     for r, s in enumerate(Ilowx):
-        Ilow[r] = max(1, Ilowx[r])
+        Ilow[r] = max(1, s)
     # Ilow=np.max(1,Ilowx)
 
     Iupp = np.zeros(np.shape(Iuppx)[0])
     for r, s in enumerate(Iuppx):
-        Iupp[r] = min(Ncat, Iuppx[r] + 1)
+        Iupp[r] = min(Ncat, s + 1)
     # print('Iup is',Iupp)#ok
     # print('Ilow is',Ilow)#ok
     Ncand = Iupp - Ilow
@@ -1059,8 +1056,8 @@ def xmatch_2cats(
         Catname2, catalogs_dir=catalogs_dir, CatDir=CatDir2
     )  # number of trixels in catalog 2
     # if Verbose==True:
-    print("Catalog_1 is {0} ({1} trixels)".format(Catname1, N_trixels_1))
-    print("Catalog_2 is {0} ({1} trixels)".format(Catname2, N_trixels_2))
+    print(f"Catalog_1 is {Catname1} ({N_trixels_1} trixels)")
+    print(f"Catalog_2 is {Catname2} ({N_trixels_2} trixels)")
 
     # print('Catalog_2 is', CatDir2)
     # print('The number of trixels in {0} is {1}'.format(CatDir1,N_trixels_1))
@@ -1074,8 +1071,8 @@ def xmatch_2cats(
     ]  # number of levels in catalog 2
 
     if Verbose == True:
-        print("The level of {0} is {1}".format(Catname1, L1))
-        print("The level of {0} is {1}".format(Catname2, L2))
+        print(f"The level of {Catname1} is {L1}")
+        print(f"The level of {Catname2} is {L2}")
 
     Lmax = max(L1, L2)
     if Verbose == True:
@@ -1115,16 +1112,12 @@ def xmatch_2cats(
 
     Nh1 = len(Level1["ptr"])  # the number of trixels in the highest level
     print(
-        "The number of trixels in the highest level, for {0} is {1}".format(
-            Catname1, Nh1
-        )
+        f"The number of trixels in the highest level, for {Catname1} is {Nh1}"
     )  # ok
     # pdb.set_trace()
     Nh2 = len(Level2["ptr"])
     print(
-        "The number of trixels in the highest level, for {0} is {1}".format(
-            Catname2, Nh2
-        )
+        f"The number of trixels in the highest level, for {Catname2} is {Nh2}"
     )  # ok
     # pdb.set_trace()
 
@@ -1136,9 +1129,9 @@ def xmatch_2cats(
     ColUnits1 = load_colcell(catalogs_dir + "/" + CatDir1, Catname1)[1]
     Ncol1 = np.shape(ColCell1)[0]
     if Verbose == True:
-        print("{0} has the following fields {1}".format(CatDir1, ColCell1))
+        print(f"{CatDir1} has the following fields {ColCell1}")
         print("in units", ColUnits1)
-        print("{0} has the following fields {1}".format(CatDir2, ColCell2))
+        print(f"{CatDir2} has the following fields {ColCell2}")
         print("in units", ColUnits2)
     # At this stage, we have 2 Level dictionnaries, one per each catalog, such that LevelX['level'] is the number of the highest level (0 for level 1)
     # and LevelX['ptr'] is the list of trixels indexes at the highest level
@@ -1173,23 +1166,19 @@ def xmatch_2cats(
                 os.remove(output + "/cross-matching_result_full.txt")
         if save_in_separate_files == True:
             if os.path.exists(
-                output + "/cross-matching_result_{0}.txt".format(Catname1)
+                output + f"/cross-matching_result_{Catname1}.txt"
             ):
                 print(
-                    "the txt file for {0} exists already, I am removing it".format(
-                        Catname1
-                    )
+                    f"the txt file for {Catname1} exists already, I am removing it"
                 )
-                os.remove(output + "/cross-matching_result_{0}.txt".format(Catname1))
+                os.remove(output + f"/cross-matching_result_{Catname1}.txt")
             if os.path.exists(
-                output + "/cross-matching_result_{0}.txt".format(Catname2)
+                output + f"/cross-matching_result_{Catname2}.txt"
             ):
                 print(
-                    "the txt file for {0} exists already, I am removing it".format(
-                        Catname2
-                    )
+                    f"the txt file for {Catname2} exists already, I am removing it"
                 )
-                os.remove(output + "/cross-matching_result_{0}.txt".format(Catname2))
+                os.remove(output + f"/cross-matching_result_{Catname2}.txt")
 
     # print("Level1['ptr'] is", Level1['ptr'])
     # np.savetxt('indexes.txt',Level1['ptr'])
@@ -1222,9 +1211,7 @@ def xmatch_2cats(
             # if index_cat1==27305:
             if Verbose == True:
                 print(
-                    "I am looking for Catalog_2 ({0}) trixels overlapping with the non-empty trixel #{2} ({3}/{4}) of Catalog_1 ({1})".format(
-                        Catname2, Catname1, index_cat1, i, Nh1
-                    )
+                    f"I am looking for Catalog_2 ({Catname2}) trixels overlapping with the non-empty trixel #{index_cat1} ({i}/{Nh1}) of Catalog_1 ({Catname1})"
                 )
                 print(
                     "there are {0} sources in this trixel".format(
@@ -1275,13 +1262,11 @@ def xmatch_2cats(
             ongoing2 = time.time()
             if Verbose == True:
                 print(
-                    "there are {0} trixel overlapping with it".format(len(ID2w))
+                    f"there are {len(ID2w)} trixel overlapping with it"
                 )  # ok
                 # pdb.set_trace()
                 print(
-                    "the list of trixels indexes of Catalog_2({0}) overlapping with the trixel #{2} of Catalog_1({1}) is {3}".format(
-                        Catname2, Catname1, index_cat1, ID2w
-                    )
+                    f"the list of trixels indexes of Catalog_2({Catname2}) overlapping with the trixel #{index_cat1} of Catalog_1({Catname1}) is {ID2w}"
                 )
             # print('the list without brakets is',ID2w)# a list of indexes of cat2 trixels, which overlap with the cat1 trixel
 
@@ -1310,9 +1295,7 @@ def xmatch_2cats(
                     if Verbose == True:
                         print("**********")
                         print(
-                            "(catalog_2) {0}'s trixel (overlapping with (catalog_1) {1}'s trixel) of index {2}:".format(
-                                Catname2, Catname1, index_cat1
-                            )
+                            f"(catalog_2) {Catname2}'s trixel (overlapping with (catalog_1) {Catname1}'s trixel) of index {index_cat1}:"
                         )
                     [Cat2tmp, Ind2] = load_trix_by_ind(
                         Catname2,
@@ -1432,7 +1415,7 @@ def xmatch_2cats(
                 # print('IsN is',IsN)
                 # print('IsN is',IsN) ok, mais moi c est des True et False et matlab c est des 0 et 1
                 # print('the shape of IsN is',np.shape(IsN)) ok
-                IndCatMinDist[IsN] = True  #
+                IndCatMinDist[IsN] = True
                 # if V
                 # print('IndCatMinDist is now',IndCatMinDist) # un tableau de la taille de cat1 avec : la ou il y a pas de cross-matched dans cat2: 1, et la ou il y en a: l'indice de l'objet de cat2 le plus proche
                 """
@@ -1470,7 +1453,7 @@ def xmatch_2cats(
                 #  -s'il y a un cross-matched dans cat2: la ligne de cat2
                 # print("np.shape(Cat2matched)",np.shape(Cat2matched))
                 # print("np.shape(IsN)",np.shape(IsN))
-                Cat2matched[IsN, :] = np.nan  #
+                Cat2matched[IsN, :] = np.nan
                 # print('Cat2matched is', Cat2matched)
                 if Debug == True:
                     if i in [
@@ -1483,10 +1466,10 @@ def xmatch_2cats(
                         Nh1 // 2,
                         Nh1 // 1.5,
                     ]:
-                        print("******** i={0} ********".format(i))
+                        print(f"******** i={i} ********")
                         print("I am saving Cat2matched")
                         np.savetxt(
-                            output + "Cat2matched_{0}_4debug.txt".format(i), Cat2matched
+                            output + f"Cat2matched_{i}_4debug.txt", Cat2matched
                         )  # pas ok
                         pdb.set_trace()
                 # print('Cat2matched at the index of IndCatMinDist is',Cat2matched[IndCatMinDist!=1])
@@ -1538,9 +1521,7 @@ def xmatch_2cats(
                         ):
                             if Verbose == True:
                                 print(
-                                    "At line {0} of Cat1, there is a cross-matched object in cat2".format(
-                                        i
-                                    )
+                                    f"At line {i} of Cat1, there is a cross-matched object in cat2"
                                 )
                                 # print('Cat2matched[i,:] is',Cat2matched[i,:])
                                 # pdb.set_trace()
@@ -1611,12 +1592,7 @@ def xmatch_2cats(
                         #    pdb.set_trace()
                         # if Verbose is True:
                         print(
-                            "The entries from catalog_1 ({0}) :{1}, cross-matched in catalog_2 ({2}) are {3}".format(
-                                Catname1,
-                                cross_matching_result_intermediate_cat1,
-                                Catname2,
-                                cross_matching_result_intermediate_cat2,
-                            )
+                            f"The entries from catalog_1 ({Catname1}) :{cross_matching_result_intermediate_cat1}, cross-matched in catalog_2 ({Catname2}) are {cross_matching_result_intermediate_cat2}"
                         )
                         pdb.set_trace()
                         # print('cross_matching_result is',cross_matching_result)
@@ -1703,13 +1679,13 @@ def xmatch_2cats(
                             if (
                                 os.path.exists(
                                     output
-                                    + "/cross-matching_result_{0}.txt".format(Catname1)
+                                    + f"/cross-matching_result_{Catname1}.txt"
                                 )
                                 == False
                             ):
                                 with open(
                                     output
-                                    + "/cross-matching_result_{0}.txt".format(Catname1),
+                                    + f"/cross-matching_result_{Catname1}.txt",
                                     "ab",
                                 ) as f:
                                     if cross_matching_result_intermediate_cat1.ndim > 1:
@@ -1731,7 +1707,7 @@ def xmatch_2cats(
                             else:
                                 with open(
                                     output
-                                    + "/cross-matching_result_{0}.txt".format(Catname1),
+                                    + f"/cross-matching_result_{Catname1}.txt",
                                     "ab",
                                 ) as f:
                                     if cross_matching_result_intermediate_cat1.ndim > 1:
@@ -1751,13 +1727,13 @@ def xmatch_2cats(
                             if (
                                 os.path.exists(
                                     output
-                                    + "/cross-matching_result_{0}.txt".format(Catname2)
+                                    + f"/cross-matching_result_{Catname2}.txt"
                                 )
                                 == False
                             ):
                                 with open(
                                     output
-                                    + "/cross-matching_result_{0}.txt".format(Catname2),
+                                    + f"/cross-matching_result_{Catname2}.txt",
                                     "ab",
                                 ) as f:
                                     if cross_matching_result_intermediate_cat2.ndim > 1:
@@ -1779,7 +1755,7 @@ def xmatch_2cats(
                             else:
                                 with open(
                                     output
-                                    + "/cross-matching_result_{0}.txt".format(Catname2),
+                                    + f"/cross-matching_result_{Catname2}.txt",
                                     "ab",
                                 ) as f:
                                     if cross_matching_result_intermediate_cat2.ndim > 1:
@@ -1809,21 +1785,17 @@ def xmatch_2cats(
                 # pdb.set_trace()
             else:
                 print(
-                    "None of the trixels of catalog_2 ({0}) overlapping with trixel #{1} of catalog_1 ({2}) has sources in it".format(
-                        Catname2, index_cat1, Catname1
-                    )
+                    f"None of the trixels of catalog_2 ({Catname2}) overlapping with trixel #{index_cat1} of catalog_1 ({Catname1}) has sources in it"
                 )
                 # pdb.set_trace()
         else:
             if Verbose == True:
                 print(
-                    "trixel #{0} of Catalog_1 ({1}) is empty".format(
-                        index_cat1, Catname1
-                    )
+                    f"trixel #{index_cat1} of Catalog_1 ({Catname1}) is empty"
                 )
     if time_it == True:
         ongoing7 = time.time()
-        print("it took {0} seconds for the process to run".format(ongoing7 - start))
+        print(f"it took {ongoing7 - start} seconds for the process to run")
 
 
 def read_ztf_HDF_matched(FieldID, Lines, ColCell=None, path=None):
@@ -1846,7 +1818,7 @@ def read_ztf_HDF_matched(FieldID, Lines, ColCell=None, path=None):
     if path is None:
         path = "."
 
-    FieldIDstring = "{number:06}".format(number=FieldID)  #'ztfLCDR1_%06d.hdf5'
+    FieldIDstring = f"{FieldID:06}"  #'ztfLCDR1_%06d.hdf5'
     FileName = "ztfLCDR1_" + FieldIDstring + ".hdf5"
 
     Cati = class_HDF5.HDF5(path + "/" + FileName).load(

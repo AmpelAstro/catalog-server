@@ -34,7 +34,6 @@ class HDF5:
         filename = self.FileName
         f = h5py.File(filename, "r")
         print(f"Filename:{filename}")
-        # print(f.keys())
         print(
             f"Number of datasets in the HDF5 file {self.FileName}: {np.shape(list(f.keys()))}"
         )
@@ -78,8 +77,6 @@ class HDF5:
                     datax = np.array(f[dataset_name])
                     if Block is not None:
                         datay = datax.T
-                        # print('Offset is',Offset)
-                        # print('Block is',Block)
                         if Offset[0] - int(Offset[0]) > 0:
                             print(
                                 "*********** Warning!!! Offset[0] is not an integer! ***********"
@@ -106,7 +103,6 @@ class HDF5:
                 else:
                     if Block is not None:
                         print("stop, Block not none unsupported")
-                        # pdb.set_trace()
                         data = f[dataset_name]
                     # MemSpaceId=h5py.h5s.create_simple(TUPLE dims_tpl, TUPLE max_dims_tpl)
         return data

@@ -85,20 +85,13 @@ def sphere_dist_fast(RA_1, Dec_1, RA_2, Dec_2):  # used by xmatch_2cats and matc
         np.sin(Dec_2) * np.cos(Dec_1) - np.cos(Dec_2) * np.sin(Dec_1) * np.cos(dRA)
     ) / np.sin(Dist)
     PA = np.arctan2(SinPA, CosPA)
-    # print(PA)
     if type(PA) is np.ndarray:
         # I = find(PA < 0);
         PA[(PA < 0)] = 2.0 * math.pi + PA[(PA < 0)]
     else:
         if PA < 0:
             PA = 2 * math.pi + PA
-    # print('Dist before nan_to_num',Dist)
-    # print('RA1:',RA_1)
-    # print('DEC1:',Dec_1)
-    # print('RA2',RA_2)
-    # print('DEC2',Dec_2)
     Distx = np.nan_to_num(Dist)
-    # print('Dist after nan_to_num',Distx)
     return Distx, PA
 
 
@@ -135,12 +128,6 @@ def cosined2coo(CD1, CD2, CD3):  # TESTED compared with Eran's, ok
            -np.array of lattitudes [radians]
            example: [RA,Dec]=cosined2coo(0.1,0,1)"""
     if type(CD1) is np.ndarray:
-        # print(type(CD1))
-        # print(type(CD2))
-        # print(CD2[0])
-        # print(CD1[0])
-        # print(np.shape(CD1))
-        # print(np.shape(CD2))
         Long = np.arctan2(CD2, CD1)
         SLL = np.sqrt(np.power(CD1, 2) + np.power(CD2, 2))
         Lat = np.zeros(np.shape(Long))
@@ -149,13 +136,10 @@ def cosined2coo(CD1, CD2, CD3):  # TESTED compared with Eran's, ok
         Long[(Long < 0)] = 2 * math.pi + Long[(Long < 0)]
     else:
         Long = math.atan2(CD2, CD1)
-        # print('Long is',Long)
         SLL = np.sqrt(CD1**2 + CD2**2)
-        # print('SLL is',SLL)
         # Lat=np.zeros((np.shape(Long)))
         if SLL != 0:
             Lat = np.arctan(CD3 / SLL)
-            # print('Lat is',Lat)
         else:
             Lat = np.sign(CD3) * math.pi / 2.0
         if Long < 0:
@@ -176,14 +160,7 @@ def cross_fast(A, B):  # TESTED compared with Eran's, ok
             A[:, 0] * B[:, 1] - A[:, 1] * B[:, 0],
         ]
     )
-    # print('A is',A)
-    # print('B is',B)
-    # print('A[:,1]*B[:,2]-A[:,2]*B[:,1] is',A[:,1]*B[:,2]-A[:,2]*B[:,1])
-    # print('C is',C)
     # C=C.flatten()
-    # print('C is', C)
-    # print(np.shape(C.T))
-    # print(np.shape(C.T[0]))
     return C.T
 
 
@@ -201,9 +178,6 @@ def polysphere_poles(VertLong, VertLat):
     CD1_sortPA = CD1[SI]
     CD2_sortPA = CD2[SI]
     CD3_sortPA = CD3[SI]
-    # print(CD1_sortPA)
-    # print(CD2_sortPA)
-    # print(CD3_sortPA)
     Corners = np.zeros((np.shape(CD1_sortPA)[0] + 1, 3))
     Corners[:-1, 0] = CD1_sortPA
     Corners[-1, 0] = CD1_sortPA[0]
@@ -212,10 +186,6 @@ def polysphere_poles(VertLong, VertLat):
     Corners[:-1, 2] = CD3_sortPA
     Corners[-1, 2] = CD3_sortPA[0]
     # Corners=np.array([[CD1_sortPA,CD2_sortPA,CD3_sortPA],[CD1_sortPA[0],CD2_sortPA[0],CD3_sortPA[0]]])
-    # print('Corners is',Corners)
-    # print('the shape of Corners is',np.shape(Corners))
-    # print('the shape of Corners[:-1,:] is',np.shape(Corners[:-1,:]))
-    # pdb.set_trace()
     Polevec = cross_fast(Corners[:-1, :], Corners[1:, :])
     [PolesLong, PolesLat] = cosined2coo(Polevec[:, 0], Polevec[:, 1], Polevec[:, 2])
     return PolesLong, PolesLat
@@ -250,26 +220,14 @@ def htm_build(Level, Verbose=True):
         trixel["cosd"][:, 0] = CD1
         trixel["cosd"][:, 1] = CD2
         trixel["cosd"][:, 2] = CD3
-        # print(trixel['coo'])#ok same as Eran
-        # print(trixel['coo'][:,0])#ok same as Eran
-        # print(trixel['coo'][:,1])#ok same as Eran
-        # print('at i={0}, coo[:,0] is {1}'.format(i,trixel['coo'][:,0])) #ok same as Eran
-        # print('at i={0}, coo[:,1] is {1}'.format(i, trixel['coo'][:, 1])) #ok same as Eran
         [Poleslong, Poleslat] = polysphere_poles(
             trixel["coo"][:, 0], trixel["coo"][:, 1]
         )
-        # print('at i={0}, Poleslong is {1} and polesLat is {2}'.format(i,Poleslong,Poleslat))
         # trixel['PolesCoo']=list(zip(Poleslong,Poleslat))
         trixel["PolesCoo"] = np.zeros((np.shape(Poleslong)[0], 2))
         trixel["PolesCoo"][:, 0] = Poleslong
         trixel["PolesCoo"][:, 1] = Poleslat
-        # print("trixel['PolesCoo'] is", trixel['PolesCoo'])
-        # print(trixel)
-        # print('at i={0}, PolesCoo is {1}'.format(i,trixel['PolesCoo']))
-        # pdb.set_trace()
         HTM_list.append(trixel)
-        # print(HTM_list)
-        # pdb.set_trace()
     for i in range(4):
         Ind = Ind + 1
         trixel = {}
@@ -291,7 +249,6 @@ def htm_build(Level, Verbose=True):
         trixel["PolesCoo"] = np.zeros((np.shape(Poleslong)[0], 2))
         trixel["PolesCoo"][:, 0] = Poleslong
         trixel["PolesCoo"][:, 1] = Poleslat
-        # print("trixel['PolesCoo'] is", trixel['PolesCoo'])
         HTM_list.append(trixel)
 
     Levlist = []
@@ -299,8 +256,6 @@ def htm_build(Level, Verbose=True):
     lev_list_dic["level"] = 0
     lev_list_dic["ptr"] = np.arange(8) + 1
     Levlist.append(lev_list_dic)
-    # print('Levlist')
-    # pdb.set_trace()
 
     if Level != 0:
         total_HTM_list = htm_build_son(HTM_list, Levlist, Level, Ind)[0]
@@ -315,7 +270,6 @@ def htm_build(Level, Verbose=True):
         print("HT_list[-1]['level'] is {}".format(total_HTM_list[-1]["level"]))
         print("HT_list[-1]['father'] is {}".format(total_HTM_list[-1]["father"]))
         print("HT_list[-1]['son'] is {}".format(total_HTM_list[-1]["son"]))
-        # print("the total Levlist is",total_Levlist)
 
     return total_HTM_list, total_Levlist
 
@@ -339,7 +293,6 @@ def htm_build_son(HTM_list, Levlist, Level, Ind, Verbose=False):
         print(f"the number of levels so far is {LevelDepth}")
         print(type(LevelDepth))
         print(f"Levlist is {Levlist}")
-        # pdb.set_trace()
     if (
         Level > LevelDepth
     ):  # if there are more Levels to build than the number of levels so far
@@ -369,8 +322,6 @@ def htm_build_son(HTM_list, Levlist, Level, Ind, Verbose=False):
             Cen = gc_mid_section(
                 np.array([Vert1, Vert2, Vert3]), np.array([Vert2, Vert3, Vert1])
             )
-            # print(Cen)
-            # pdb.set_trace()
             # maintenant pour chaque trixel, creons les nouveaux trixels: les fils de ceux que l'on est en train de parcourir
             for j in range(4):
                 Ind = Ind + 1  # on augmente le plus haut index de 1
@@ -400,12 +351,7 @@ def htm_build_son(HTM_list, Levlist, Level, Ind, Verbose=False):
                 trixel["coo"][:, 1] = cosined2coo(
                     trixel["cosd"][:, 0], trixel["cosd"][:, 1], trixel["cosd"][:, 2]
                 )[1]
-                # print(trixel['coo'])
-                # print(np.shape(trixel['coo']))
-                # pdb.set_trace()
                 # trixel['coo']=np.array([[0,0],[math.pi/2.,0],[0,math.pi/2.]])
-                # print('FatherPtr is',FatherPtr)
-                # print(type(FatherPtr))
                 trixel["father"] = FatherPtr
                 trixel["son"] = []
                 HTM_list.append(trixel)
@@ -415,15 +361,12 @@ def htm_build_son(HTM_list, Levlist, Level, Ind, Verbose=False):
                 )
                 K = K + 1
                 lev_list_dic["ptr"][K - 1] = Ind
-                # print(trixel['coo'])
                 [PoleLong, PoleLat] = polysphere_poles(
                     trixel["coo"][:, 0], trixel["coo"][:, 1]
                 )
                 trixel["PolesCoo"] = np.zeros((np.shape(PoleLong)[0], 2))
                 trixel["PolesCoo"][:, 0] = PoleLong
                 trixel["PolesCoo"][:, 1] = PoleLat
-
-                # print("trixel['PolesCoo'] is",trixel['PolesCoo'])
 
         Levlist.append(lev_list_dic)
 
@@ -445,7 +388,6 @@ def htm_search_cone(HTM, Long, Lat, Radius, Ind):  # NOT TESTED
                    - Search radius [radians].
             Output: - list of indexes of the intersecting trixeels"""
 
-    # print('at the begginging of the code, Ind is',Ind)
     if Ind == []:
         Sons = np.arange(8) + 1
     else:
@@ -457,75 +399,36 @@ def htm_search_cone(HTM, Long, Lat, Radius, Ind):  # NOT TESTED
     Poleslat = np.zeros((3, Nsons))
 
     for i in range(Nsons):
-        # print(i)
-        # print(HTM[Sons[i]])
-        # print(HTM[Sons[i]]['PolesCoo'])
-        # print(np.shape(HTM[Sons[i]]['PolesCoo']))
-        # print('Sons[i] is',Sons[i])
         Poleslong[:, i] = HTM[int(Sons[i]) - 1]["PolesCoo"][:, 0]
         Poleslat[:, i] = HTM[int(Sons[i]) - 1]["PolesCoo"][:, 1]
 
     Flag = cone_in_polysphere(Poleslong, Poleslat, Long, Lat, Radius)
-    # print('Radius is',Radius) #pas ok
-    # print('Lat is',Lat) #ok
-    # print('Long is',Long) #ok
-    # print('HTM[0] is',HTM[0])#ok compared with Eran
-    # print('Poleslat is',Poleslat) #ok compared with Eran
-    # print('Poleslong is',Poleslong)#ok
-    # print('Flag is',Flag) #pas ok
 
-    # pdb.set_trace()
-    # print(Sons)
     for i in range(Nsons):
-        # print('at the begginging of the loop, Ind is', Ind)
-        # print('at the beggining of the loop, Ind is of type',type(Ind))
-        # print('i is {0} and Flag[i] is {1}'.format(i, Flag[i]))
         if Flag[i] == 1.0:
             CSons = Sons[i]
-            # print('HTM[int(CSons)-1] is',HTM[int(CSons)-1])
-            # print('Cson is',CSons)
-            # print('Ind is',Ind)
-            # print('ID is',ID)
             if HTM[int(CSons) - 1]["son"] == []:
-                # print('ID before appending',ID)
                 ID.append(CSons)
-                # print('ID after appending',ID)
-                # pdb.set_trace()
-                # print("HTM[int(CSons)-1]['son']==[]")
                 # if ID==[]:
-                #    print('ID is []?',ID)
                 #    ID=[CSons]
                 # else:
                 #    #print('I am going to append {0} to ID'.format(CSons))
                 #    #print(ID)
                 #    #print(CSons)
-                #    print('ID right before appending:',ID)
                 #    ID.append(CSons)
-                #    print('ID right after appending:', ID)
                 #   #print('now ID is',ID)
             else:
-                # print("HTM[int(CSons)-1]['son']is not[]")
                 Ind = HTM[int(CSons) - 1]["son"]
-                # print('Ind is now',Ind)
-                # print('ID right before appending #2:', ID)
                 ID.append(htm_search_cone(HTM, Long, Lat, Radius, Ind))
-                # print('ID right after appending #2:', ID)
                 # if isinstance(ID[0],list):
                 #    ID=ID[0]
                 # if ID==[]:
                 #    #print('noooooooo')
-                #    print('ID is [] #2?', ID)
                 #    ID=[htm_search_cone(HTM,Long,Lat,Radius,Ind)]
                 #    #print('ID is now',ID)
                 # else:
                 #    #print('yesssss')
-                #    print('ID right before appending #2:', ID)
                 #    ID.append(htm_search_cone(HTM,Long,Lat,Radius,Ind))
-                #    print('ID right after appending #2:', ID)
-            # print(i)
-            # print(Flag[i])
-            # print(ID)
-            # print(Ind)
         """
         else:
             print('Flag was 0, i,Flag, ID and Ind are:')
@@ -534,7 +437,6 @@ def htm_search_cone(HTM, Long, Lat, Radius, Ind):  # NOT TESTED
             print(ID)
             print(Ind)
         """
-        # pdb.set_trace()
     return ID
 
 
@@ -568,10 +470,6 @@ def gc_mid_section(Pos1, Pos2):
     #    Pos2_tr=Pos2
 
     C = Pos1 + Pos2
-    # print(C)
-    # print(np.sum(C,axis=1))
-    # print(np.power(C,2))
-    # print(np.sqrt(np.sum(np.power(C,2),axis=1)))
     # print np.sum()
 
     Cx = np.zeros(np.shape(C))
@@ -582,5 +480,4 @@ def gc_mid_section(Pos1, Pos2):
     else:
         Cx = C / np.sqrt(np.sum(np.power(C, 2)))
 
-    # print(np.sqrt(np.sum(np.power(C,2)),axis=1))
     return Cx

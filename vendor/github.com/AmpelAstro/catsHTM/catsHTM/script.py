@@ -163,7 +163,6 @@ def cone_search(
 
     ColCelFile = ColCelFile % CatName
     IndexFilename = IndexFileTemplate % CatName
-    # print(root_to_data+CatDir+'/'+ColCelFile)
     if os.path.isfile(root_to_data + CatDir + "/" + ColCelFile) == True:
         # hdf5storage.loadmat is a superset of sio.loadmat: it reads HDF5-based
         # v7.3 files (which raise NotImplementedError here) and bare HDF5 files
@@ -182,9 +181,6 @@ def cone_search(
                 )
             # test = sio.loadmat(root_to_data + CatDir + '/' + ColCelFile)
             test = hdf5storage.loadmat(root_to_data + CatDir + "/" + ColCelFile)
-        # print(test1)
-        # print(test2)
-        # pdb.set_trace()
         if np.shape(test["ColCell"])[1] < np.shape(test["ColCell"])[0]:
             # test=test.transpose()
             Ncol = np.shape(test["ColCell"])[0]
@@ -222,7 +218,6 @@ def cone_search(
             .load(DataName_0, numpy_array=True)
             .T
         )
-        # print('shape of cat is',np.shape(cat))
         for Iid in range(Nid)[1:]:
             FileName = CatFileTemplate % (CatName, FileID[Iid])
             DataName = htmTemplate % ID_matlab[Iid]
@@ -249,13 +244,8 @@ def cone_search(
         ColCell = np.empty((Ncol), dtype=object)
         ColUnits = np.empty((Ncol), dtype=object)
 
-    # print(np.shape(test['ColCell']))
-    # print(np.shape(ColCell))
-    # print(np.shape(cat_onlycone))
-
     if np.shape(test["ColCell"])[1] > np.shape(test["ColCell"])[0]:
         for i, j in enumerate(test["ColCell"][0, :]):
-            # print(test['ColCell'][0,i][0])
             ColCell[i] = str(test["ColCell"][0, i][0])
         for i, j in enumerate(test["ColUnits"][0, :]):
             if len(test["ColUnits"][0, i]) > 0:
@@ -265,7 +255,6 @@ def cone_search(
 
     else:  # rare cases: Cosmos and TMASSxsc
         for i, j in enumerate(test["ColCell"][:, 0]):
-            # print(str(test['ColCell'][i][0][0]))
             ColCell[i] = str(test["ColCell"][i][0][0])
         for i, j in enumerate(test["ColUnits"][0, :]):
             if len(test["ColUnits"][0, i]) > 0:
@@ -289,15 +278,12 @@ def search_sortedlat(Cat, Long, Lat, Radius):
     Inear = mfind_bin(Cat[:, 1], [Lat - Radius, Lat + Radius])
     Ilow = float(Inear[0])
     Ihigh = min(Ncat, float(Inear[1] + 1))  # add 1 because of the way mfind_bin works
-    # print('Ihigh',Ihigh)#ok
-    # print('Ilow',Ilow)#ok
     Dist = celestial.sphere_dist_fast(
         Long,
         Lat,
         Cat[int(Ilow - 1) : int(Ihigh), 0],
         Cat[int(Ilow - 1) : int(Ihigh), 1],
     )[0]
-    # print('Dist is',Dist)
     Ind = Ilow - 1 + np.argwhere(Dist <= Radius)
     return Ind
 
@@ -322,22 +308,15 @@ def sources_match(CatName, Cat, SearchRadius_arcs=2, catalog_dir="./data"):
     MedRa = np.nanmedian(Ra)
     MedDec = np.nanmedian(Dec)
     D = celestial.sphere_dist_fast(MedRa, MedDec, Ra, Dec)[0]
-    # print('D is',D)
     Radiusi = np.max(D) * (1 + 10 * np.spacing(1))
     Radius = Radiusi * Rad * 3600  # converts to arcsec
-    # print('Radius',Radius)
-    # print('MedRa',MedRa)
-    # print('MedDec',MedDec)
     CatHunsorted, ColCelH, _ColUnitsH = cone_search(
         CatName, MedRa, MedDec, Radius, catalogs_dir=catalog_dir
     )
-    # print('CatHunsorted:',CatHunsorted)
     if CatHunsorted.ndim < 2:
         CatH = CatHunsorted
     else:
         CatH = CatHunsorted[np.argsort(CatHunsorted[:, 1])]  # sort by declination
-    # print('ColCelH',ColCelH)
-    # pdb.set_trace()
     Nsrc = np.shape(Cat)[0]
     CatM = {}
     CatM["Match"] = np.empty((Nsrc, len(ColCelH)))
@@ -349,27 +328,17 @@ def sources_match(CatName, Cat, SearchRadius_arcs=2, catalog_dir="./data"):
     CatM["Nmatch"] = np.zeros((Nsrc, 1))
     if len(CatH) != 0:
         for Isrc in range(Nsrc):
-            # print('I am running sortedlat')
             Ind = search_sortedlat(CatH, Ra[Isrc], Dec[Isrc], SearchRadius_rad).astype(
                 int
             )
-            # print('I am done running sortedlat')
             if len(Ind) != 0:
-                # print('Isrc',Isrc)
-                # print('Ind',Ind)
                 Dist = celestial.sphere_dist_fast(
                     Ra[Isrc], Dec[Isrc], CatH[Ind, 0], CatH[Ind, 1]
                 )[0]
                 Distmin = Dist
                 Nmatch = len(Ind)
                 if Nmatch > 1:
-                    #    print('there is more than one match')
-                    #    print('Dist',Dist)
-                    #    print('np.min(Dist)',np.min(Dist))
                     Distmin = np.min(Dist)
-                    #    print('type(Dist)',type(Dist))
-                    #    print('np.shape(Dist)',np.shape(Dist))
-                    #    print('np.argmin(Dist)',np.argmin(Dist))
                     MinInd = np.argmin(Dist)
                     Ind = Ind[MinInd]
 
@@ -434,7 +403,6 @@ def htm_search_cone(
     PolesLong_index=POLES_LONG_INDEX,
     PolesLat_index=POLES_LAT_INDEX,
 ):
-    # print('I am running htm_search_cone')
     """Description: Search for all HTM leafs intersecting a small circles
     Input  :-Either a table of HTM data or an open HDF5 object in which the HTM data is stored
             -Longitude (radians) to search
@@ -502,13 +470,11 @@ def load_HTM_ind(Filename, VarName, catalogs_dir="./data", CatDir=None):
     Output :- A list of N_trixels dictionnaries containing the 2D matrix info
     example:
     By : Maayane Soumagnac (original Matlab function by Eran Ofek)            August 2018"""
-    # print('I am looking for the data in',catalogs_dir + '/' + CatDir + '/' +Filename)
     Data = class_HDF5.HDF5(catalogs_dir + "/" + CatDir + "/" + Filename).load(
         VarName, numpy_array=True
     )  # as many columns as trixels, 13 lines with:
     #  [index,Father index,son1 index,son2 index,son3 index,son4 index, Pole1 long, Pole1 lat,Pole2 long, Pole2 lat,Pole3 long, Pole3 lat, either Nan or the data]
     N_trixels = np.shape(Data)[1]
-    # print('there are {0} trixels'.format(N_trixels))
     # load this data into a dictionnaries
     # each trixel is a dictionnary
     HTM_list = []  # will end up being a list of N_trixels dictionnaries
@@ -549,7 +515,6 @@ def load_colcell(CatDir, CatName):
         # test=test.transpose()
         Ncol = np.shape(test["ColCell"])[0]
         for i, j in enumerate(test["ColCell"][:, 0]):
-            # print(str(test['ColCell'][i][0][0]))
             ColCell[i] = str(test["ColCell"][i][0][0])
         for i, j in enumerate(test["ColUnits"][0, :]):
             if len(test["ColUnits"][0, i]) > 0:
@@ -559,7 +524,6 @@ def load_colcell(CatDir, CatName):
     else:
         Ncol = np.shape(test["ColCell"])[1]
         for i, j in enumerate(test["ColCell"][0, :]):
-            # print(test['ColCell'][0,i][0])
             ColCell[i] = str(test["ColCell"][0, i][0])
         for i, j in enumerate(test["ColUnits"][0, :]):
             if len(test["ColUnits"][0, i]) > 0:
@@ -617,14 +581,12 @@ def load_trix_by_ind(
             Ndi = np.shape(DataInd)[0]
             I1 = bin_sear(DataInd[:, 1], SearchParValue[0])
             I2 = bin_sear(DataInd[:, 1], SearchParValue[1])
-            # print('before the if, I1 is {0} and I2 is {1}'.format(I1,I2))
             Ind = DataInd[I1, 0]  # the
             Offset = np.append(DataInd[I1, 0] - 1, 0)
             if I1 == I2:
                 I2 = I2 + 1
             I2 = min(I2, Ndi - 1)
             Block = [1 + DataInd[I2, 0] - DataInd[I1, 0], Ncol]
-            # print('Block is',Block)
             trixel_data = (
                 class_HDF5.HDF5(catalogs_dir + "/" + CatDir + "/" + Filename)
                 .load(
@@ -707,10 +669,7 @@ def mfind_bin(X, Vals):
     I1 = np.ones(Nvals)
     I2 = N * np.ones(Nvals)
     Im = np.floor(0.5 * (I1 + I2)).astype(int)
-    # print('Im is',Im)
     PrevIm = np.zeros(np.shape(Im)[0]).astype(int)
-    # print('PrevIm is', PrevIm)
-    # pdb.set_trace()
     if np.shape(X)[0] < 2:
         if X.size == 0:
             Im = []
@@ -718,18 +677,12 @@ def mfind_bin(X, Vals):
             Im = np.ones(Nvals).astype(int)
     else:
         while np.all(Im == PrevIm) == False:
-            # print(np.all(Im==PrevIm))
-            # print('X[Im-1] is',X[Im-1])
             FlagU = Vals > X[Im - 1]
-            # print('FlagU is',FlagU)
             FlagD = np.invert(FlagU)
-            # print('FlagD is',FlagD)
             I1[FlagU] = Im[FlagU]
             I2[FlagD] = Im[FlagD]
             PrevIm = Im
             Im = np.floor(0.5 * (I1 + I2)).astype(int)
-            # print('Im is',Im)
-            # print('PrevIm is',PrevIm)
     return Im
 
 
@@ -802,7 +755,6 @@ def simplify3(x):
         return x
     else:
         y = simplify2(x)
-        # print(y)
         return simplify3(y)
 
 
@@ -829,21 +781,15 @@ def match_cats(Cat, Refcat, Radius=2, RadiusUnits="arcsec"):
                                 - IndCatMinDist: vector, the size of Refcat, with the indice of the cat2 nearest sources to the cat1 source of indice Res[Indref]. NaN if no source was found
                        example:
                        By : Maayane Soumagnac (original Matlab function by Eran Ofek)            August 2018"""
-    # print('I am running matchcats')
     if RadiusUnits == "arcsec":
         Radius = math.pi * Radius / (180.0 * 3600.0)
 
     Ncat = np.shape(Cat)[0]
-    # print('Ncat is',Ncat)#ok
-    # print('Refcat is',Refcat)
     Nref = np.shape(Refcat)[0]
-    # print('Nref is', Nref)#ok
     Radius = Radius * np.ones(Nref)
     Res = []
     Iuppx = mfind_bin(Cat[:, 1], Refcat[:, 1] + Radius)  # only if second column is dec!
     Ilowx = mfind_bin(Cat[:, 1], Refcat[:, 1] - Radius)  # only if second column is dec!
-    # print('Iupx is',Iuppx)#ok
-    # print('Ilowx is',Ilowx)#ok
     Ilow = np.zeros(np.shape(Ilowx)[0])
     for r, s in enumerate(Ilowx):
         Ilow[r] = max(1, s)
@@ -852,16 +798,9 @@ def match_cats(Cat, Refcat, Radius=2, RadiusUnits="arcsec"):
     Iupp = np.zeros(np.shape(Iuppx)[0])
     for r, s in enumerate(Iuppx):
         Iupp[r] = min(Ncat, s + 1)
-    # print('Iup is',Iupp)#ok
-    # print('Ilow is',Ilow)#ok
     Ncand = Iupp - Ilow
     Ic = np.array(np.where(Ncand >= 1))[0]
-    # print('Ic is',Ic)
-    # print(np.shape(Ic))
-    # print('Ic is',Ic)#index where condition verified, same as matlab one -1
     Nc = np.shape(Ic)[0]
-    # print('Nc is',Nc)
-    # pdb.set_trace()
 
     Vec = {}
     Vec["Nfound"] = np.zeros(Nref)
@@ -873,38 +812,18 @@ def match_cats(Cat, Refcat, Radius=2, RadiusUnits="arcsec"):
     IndCatMinDist = np.full(Nref, np.nan)  # vectornan
 
     for Icr in range(Nc):
-        # print("Vec['MinDist']5 is", Vec['MinDist'])
-        # print('Nc is',Nc)
         Iref = Ic[Icr]
-        # print('Iref is',Iref)#ok
-        # pdb.set_trace()
-        # print('Iref, type:{0},{1}'.format(Iref,type(Iref)))
-        # print('Ilow[Iref], type:{0},{1}'.format(Ilow[Iref], type(Ilow[Iref])))
-        # print('Iup[Iref], type:{0},{1}'.format(Iupp[Iref], type(Iupp[Iref])))
-        # print('Iupp[Iref]-Ilow[Iref]+1, type:{0},{1}'.format(Iupp[Iref]-Ilow[Iref]+1, type(Iupp[Iref]-Ilow[Iref]+1)))
-        # print(Ilow[Iref].is_integer())
         if (Ilow[Iref].is_integer() == False) | (Iupp[Iref].is_integer() == False):
             raise RuntimeError("Ilow[Iref] and Iupp[Iref] should be integers")
         Icat = np.linspace(
             int(Ilow[Iref]), int(Iupp[Iref]), int(Iupp[Iref] - Ilow[Iref] + 1)
         ).astype(int)
-        # print('Icat is',Icat)#ok
-        # print('Cat[Icat-1,0] is',Cat[Icat-1,0])#ok
-        # print('Cat[Icat-1,1] is',Cat[Icat-1,1])#ok
-        # print('Refcat[Iref,0]',Refcat[Iref,0])#ok
-        # print( 'Refcat[Iref,1]) is',Refcat[Iref,1])#ok
         Dist = celestial.sphere_dist_fast(
             Cat[Icat - 1, 0], Cat[Icat - 1, 1], Refcat[Iref, 0], Refcat[Iref, 1]
         )[0]
-        # print('In matchcats, Dist is',Dist)
-        # print('Radius[Iref] is',Radius[Iref])
         IndRelative = np.where(Dist <= Radius[Iref])[0]
         IndCat = Ilow[Icr] - 1 + IndRelative
-        # print('IndRelative is',IndRelative)#ok
-        # print('IndCat is',IndCat)#ok
         Vec["Nfound"][Iref] = np.shape(IndCat)[0]  # ok
-        # print("Vec['Nfound'][Iref] is",Vec['Nfound'][Iref])#ok
-        # pdb.set_trace()
         if Vec["Nfound"][Iref] > 0:
             Vec["MinDist"][Iref] = np.min(Dist[IndRelative])
             MinInd = np.argmin(Dist[IndRelative])
@@ -914,18 +833,9 @@ def match_cats(Cat, Refcat, Radius=2, RadiusUnits="arcsec"):
             Resi["IndRef"] = Iref
             Resi["Num"] = np.shape(IndCat)[0]
             Resi["Dist"] = Dist[IndRelative]
-            # print("Resi['Dist']",Resi['Dist'])
             Res.append(Resi)
-            # print("Vec['MinDist'] 1.5 is", Vec['MinDist'])
             IndCatMinDist[Iref] = IndCat[MinInd]
-            ##print('IndCatMinDist[Iref] is {0} and p.min(Dist[IndRelative]) is {1}'.format(IndCatMinDist[Iref],np.min(Dist[IndRelative])) )
         # #print("Vec['MinDist'] 1.8 is", Vec['MinDist'])# ca met IndCatMinDist[Iref] dans Vec['MinDist'][Iref]
-        # print("Vec['MinDist'] 2 is", Vec['MinDist'])
-        # print("Vec['MinDist'] 3 is", Vec['MinDist'])
-        # pdb.set_trace()
-    # print("Vec['MinDist'] 4 is", Vec['MinDist'])
-    # pdb.set_trace()
-    # print('In matchcat, Ind is',Res)
     return Vec, Res, IndCatMinDist  # Match,Ind,IndCatMinDist
 
 
@@ -1061,10 +971,6 @@ def xmatch_2cats(
     print(f"Catalog_1 is {Catname1} ({N_trixels_1} trixels)")
     print(f"Catalog_2 is {Catname2} ({N_trixels_2} trixels)")
 
-    # print('Catalog_2 is', CatDir2)
-    # print('The number of trixels in {0} is {1}'.format(CatDir1,N_trixels_1))
-    # print('The number of trixels in {0} is {1}'.format(CatDir2,N_trixels_2))
-
     L1 = celestial.number_of_trixels_to_level(N_trixels_1)[
         0
     ]  # number of levels in catalog 1
@@ -1092,17 +998,8 @@ def xmatch_2cats(
     Level = built_array[
         1
     ]  # une liste de Lmax dictionnaires, tels que dic['level']=un nombre designant le level (0 pour le level1) et dic['ptr']=un np array des indices des rixels a ce level
-    # print(HTM[0].coo())
-    # pdb.set_trace()
-    # print('HTM[0] is',HTM[0])#ok compared with eran
-    # print('HTM[1] is', HTM[1])#ok compared with Eran
-    # print('HTM[0][coo] is',HTM[0]['coo'])#ok w Eran
-    # print('HTM[8][coo] is', HTM[8]['coo'])# ok
-    # print('HTM[9][coo] is', HTM[9]['coo'])#ok
-    # print('HTM[10920][coo] is',HTM[10920]['coo'])#ok
 
     # ('HTM[10920] is',HTM[10920])
-    # pdb.set_trace()
 
     Level1 = Level[
         L1 - 1
@@ -1114,10 +1011,8 @@ def xmatch_2cats(
 
     Nh1 = len(Level1["ptr"])  # the number of trixels in the highest level
     print(f"The number of trixels in the highest level, for {Catname1} is {Nh1}")  # ok
-    # pdb.set_trace()
     Nh2 = len(Level2["ptr"])
     print(f"The number of trixels in the highest level, for {Catname2} is {Nh2}")  # ok
-    # pdb.set_trace()
 
     ColCell2 = load_colcell(catalogs_dir + "/" + CatDir2, Catname2)[0]
     ColUnits2 = load_colcell(catalogs_dir + "/" + CatDir2, Catname2)[1]
@@ -1151,10 +1046,6 @@ def xmatch_2cats(
             for i in range(np.shape(ColCell2)[0])
         ]
     )
-    # print(np.shape(cross_matching_result))
-    # print('header1 is',header1)
-    # print('header2 is', header2)
-    # print(header1+','+header2)
     if save_results == True and save_in_one_file == True:
         if os.path.exists(output + "/cross-matching_result_full.txt"):
             print("the txt file exists already, I am removing it")
@@ -1167,7 +1058,6 @@ def xmatch_2cats(
                 print(f"the txt file for {Catname2} exists already, I am removing it")
                 os.remove(output + f"/cross-matching_result_{Catname2}.txt")
 
-    # print("Level1['ptr'] is", Level1['ptr'])
     # np.savetxt('indexes.txt',Level1['ptr'])
     print("************** I am looking for overlapping trixels **************")
     start = time.time()
@@ -1186,13 +1076,9 @@ def xmatch_2cats(
             ],
         )
     for i in tqdm.tqdm(range(Nh1)):  # for each trixels in the highest level of Cat1
-        # print("Level1['ptr'][Nh1-1] is",Level1['ptr'][Nh1-1])
-        # print("Level1['ptr'][i] is",Level1['ptr'][i])
-
         index_cat1 = Level1["ptr"][
             i
         ]  # takes the index of this trixel and check if this trixel contains sources:
-        # print('I am looking for Catalog_2 ({0}) trixels overlapping with the trixel #{2} of Catalog_1 ({1})'.format(Catname2,Catname1,index_cat1))
         if HTM1[index_cat1 - 1]["Nsrc"] > 0:  # if the trixel contains sources:
             # if index_cat1==27305:
             if Verbose == True:
@@ -1204,9 +1090,6 @@ def xmatch_2cats(
                         HTM1[index_cat1 - 1]["Nsrc"]
                     )
                 )
-            # print('not empty')
-            # print('I am looking for Catalog_2 ({0}) trixels overlapping with the trixel #{2} of Catalog_1 ({1})'.format(Catname2,Catname1,index_cat1))
-            # print('the file with index {0} has {1} sources'.format(index_cat1,HTM1[index_cat1]['Nsrc']))
             # start = time.time()
             Cat1 = load_trix_by_ind(
                 Catname1,
@@ -1216,10 +1099,8 @@ def xmatch_2cats(
                 Verbose=Verbose,
             )[0]  # load the content of that trixel (in the form of a numpy array)
             # ongoing1=time.time()
-            # print(Cat1)#ok
             # Cat 1 is a numpy array with the content of a trixel that contains sources, at the highest level of Catalog1
             # PolesCoo ok
-            # print("HTM[index_cat1-1]['coo'] is",HTM[index_cat1-1]['coo'])#ok
 
             MeanRa = np.mean(
                 HTM[index_cat1 - 1]["coo"][:, 0]
@@ -1230,8 +1111,6 @@ def xmatch_2cats(
 
             MinDec = np.min(HTM[index_cat1 - 1]["coo"][:, 1]) - Search_radius
             MaxDec = np.max(HTM[index_cat1 - 1]["coo"][:, 1]) + Search_radius
-            # print('MeanRa is', MeanRa) #ok
-            # print('MeanDec is',MeanDec)#ok
 
             D = celestial.sphere_dist_fast(
                 MeanRa,
@@ -1239,19 +1118,15 @@ def xmatch_2cats(
                 HTM[index_cat1 - 1]["coo"][:, 0],
                 HTM[index_cat1 - 1]["coo"][:, 1],
             )[0]
-            # print('D is',D)
             CircRadius = np.max(D) + Search_radius
-            # print('CircRadius is',CircRadius)
             ID2 = celestial.htm_search_cone(HTM2, MeanRa, MeanDec, CircRadius, Ind=[])
             # if Verbose==True:
             ID2w = simplify3(ID2)
             if Verbose == True:
                 print(f"there are {len(ID2w)} trixel overlapping with it")  # ok
-                # pdb.set_trace()
                 print(
                     f"the list of trixels indexes of Catalog_2({Catname2}) overlapping with the trixel #{index_cat1} of Catalog_1({Catname1}) is {ID2w}"
                 )
-            # print('the list without brakets is',ID2w)# a list of indexes of cat2 trixels, which overlap with the cat1 trixel
 
             # load all the data corresponding to ID2w
             Nid2 = len(
@@ -1271,8 +1146,6 @@ def xmatch_2cats(
                         Verbose=Verbose,
                     )
                     # Cat2ID=np.array(list(zip(ID2w[i]*np.ones(N2),Ind2+np.array(range(N2)))))#MAYBE Ind2-1?
-                    # print('len(Cat2) after i=0 is',len(Cat2))
-                    # pdb.set_trace()
                 else:
                     if Verbose == True:
                         print("**********")
@@ -1287,12 +1160,8 @@ def xmatch_2cats(
                         Ncol=Ncol2,
                         Verbose=Verbose,
                     )
-                    # print('i={0},shape(Cat2) and shape(Cat2tmp) are {1} and {2}'.format(i,np.shape(Cat2),np.shape(Cat2tmp)))
-                    # pdb.set_trace()
                     # ongoing3 = time.time()
                     if len(Cat2) > 0:
-                        # print('at this (1) stage len(Cat2) is',len(Cat2))
-                        # print('Cat2tmp (1) is',Cat2tmp)
                         if len(Cat2tmp) > 0:
                             Cat2 = np.vstack((Cat2, Cat2tmp))
                         # else:
@@ -1300,44 +1169,27 @@ def xmatch_2cats(
                         # Cat2ID=np.vstack((Cat2ID,np.array(list(zip(ID2w[i]*np.ones(N2),Ind2+np.array(range(N2)))))))#MAYBE Ind2-1?
                         # else: Cat2 reste tel quel
                     else:  # si Cat2 etait vide
-                        # print('at this (2) stage len(Cat2) is',len(Cat2))
-                        # print('Cat2 was empty?')
                         if (
                             len(Cat2tmp) > 0
                         ):  # si Cat2tmp n'est pas vide, Cat2 devient lui
-                            # print('Cat2tnp.argwhere(np.isnan(x))mp (2) is',Cat2tmp)
                             Cat2 = np.copy(Cat2tmp)
-                # print('Cat 2 is', Cat2)
-                # pdb.set_trace()
                 # Cat2ID=np.vstack((Cat2ID,np.array(list(zip(ID2w[i]*np.ones(N2),Ind2+np.array(range(N2)))))))#MAYBE Ind2-1?
                 # else: Cat2 reste vide
-            # print('Cat2 is',Cat2)
-            # print('len(Cat2) is',len(Cat2))
-            # print('np.shape(Cat1) is',np.shape(Cat1))
-            # print('np.shape(Cat2) is', np.shape(Cat2))
             # ongoing4 = time.time()
             # C'est quoi Cat2? Cat2 is a catalog with the content of *all the Catalogue 2 trixels overlapping with the given trixel of cat1
             # C'est quoi Cat2ID?*
 
-            # print('Cat2 before sorting is',Cat2)
-            # print('Cat2[:, 1] is',Cat2[:,1] )
-            # pdb.set_trace()
-            # print('len(Cat2) after the loop is',len(Cat2))
-            # pdb.set_trace()
             if len(Cat2) > 0:
                 cat2 = Cat2[
                     Cat2[:, 1].argsort(),
                 ]  # cat2 est Cat2 -l'ensemble des trixels qui overlappent cat1 -trié par Dec croissant. On a besoin de ca pour applyer match_cats.
                 # np.savetxt('cat2.txt', cat2)
                 # SI=Cat2[:, 1].argsort() #SI est les indexes de Dec croissants de Cat2
-                # print('SI is',SI)# ok, verifie avec matlab
                 # probleme: cat 2 c est toutes les sources des overlapping trixels. Nous on veut que les sources reelelemt overlapping. donc on run match_cat
                 # ongoing5 = time.time()
                 [_Match, Ind, IndCatMinDist] = match_cats(
                     cat2, Cat1, Radius=Search_radius, RadiusUnits="rad"
                 )
-                # print('Ind',Ind)
-                # pdb.set_trace()
 
                 if QueryAllFun is not None:
                     if Verbose == True:
@@ -1354,8 +1206,6 @@ def xmatch_2cats(
                         additionnal_args=QueryAllFunPar,
                     )
                     # CAREFULLLLLLL it s cat2 not Cat2!!!!
-                    # print(Data)
-                    # pdb.set_trace()
 
                 # ongoing6 = time.time()
 
@@ -1369,17 +1219,6 @@ def xmatch_2cats(
                 # Ind[i]['Num']=Number of sources within search radius
                 # IndCatMinDist:  a vector of indices of cat2 objects which are the closest to the source in cat1. NaN if not found ??
 
-                # print("Match['Nfound'] is",Match['Nfound']) #ok, verifie avec matlab
-                # print("Match['MinDist'] is", Match['MinDist'])  #ok, verifie avec matlab
-                # print("Match['MinPA'] is", Match['MinPa']) #ok, verifie avec matlab
-                # print("Ind is",Ind)
-                # print("the Ind['Num'] are:",[Ind[i]['Num'] for i in range(len(Ind))]) # ok
-                # print("the Ind['IndCat'] are:", [Ind[i]['IndCat'] for i in range(len(Ind))])  # ok, moi=matlab-1, normal
-                # print("the Ind['IndRef'] are:", [Ind[i]['IndRef'] for i in range(len(Ind))])  # ok, moi=matlab-1, normal
-                # print("the Ind['Dist'] are:", [Ind[i]['Dist'] for i in range(len(Ind))]) # ok
-                # pdb.set_trace()
-                # print('IndCatMinDist is',IndCatMinDist)#ok, moi=matlab-1, normal
-                # print('the shape of IndCatMinDist is',np.shape(IndCatMinDist)[0]) #ok
                 """ if (~isempty(InPar.QueryAllFun))
                                 % execute InPar.QueryAllFun
                                 %  QueryAllFun(Cat1,Ind,Cat2,varargin)
@@ -1392,12 +1231,8 @@ def xmatch_2cats(
                 IsN = np.isnan(
                     IndCatMinDist
                 )  # un tableau de booleans qui est True la ou il y a zero sources cross-matched, et False la ou il y en a
-                # print('IsN is',IsN)
-                # print('IsN is',IsN) ok, mais moi c est des True et False et matlab c est des 0 et 1
-                # print('the shape of IsN is',np.shape(IsN)) ok
                 IndCatMinDist[IsN] = True
                 # if V
-                # print('IndCatMinDist is now',IndCatMinDist) # un tableau de la taille de cat1 avec : la ou il y a pas de cross-matched dans cat2: 1, et la ou il y en a: l'indice de l'objet de cat2 le plus proche
                 """
                     ceci: pas clair a quoi ca sert dans le code de matlab. Je laisse tomber.
                     print("Cat2ID is",Cat2ID) #ok mais pas sur qu'il dooivent etre identiques
@@ -1407,34 +1242,21 @@ def xmatch_2cats(
                     DataInd[IsN,:]=np.nan
                     print('DataInd is', DataInd)  # pareil que matlab mais pas sur que c est bien
                     """
-                # print("IndCatMinDist.astype(int) is",IndCatMinDist.astype(int))
-                # print("np.shape(cat2)",np.shape(cat2))
-                # print("np.shape(IndCatMinDist)",np.shape(IndCatMinDist))
-                # print("np.shape(IndCatMinDist.astype(int))",np.shape(IndCatMinDist.astype(int)))
 
-                # print("cat2[IndCatMinDist.astype(int)-1,:] is",cat2[IndCatMinDist.astype(int)-1,:])
-                # print('IndCatMinDist.astype(int)-1 is',IndCatMinDist.astype(int)-1)
-                # print("cat2[IndCatMinDist.astype(int),:] is", cat2[IndCatMinDist.astype(int), :])
-                # print('IndCatMinDist.astype(int) is', IndCatMinDist.astype(int))
                 indexes_analog_to_matlab = np.zeros(np.shape(IndCatMinDist))
                 indexes_analog_to_matlab[IndCatMinDist != 1] = IndCatMinDist[
                     IndCatMinDist != 1
                 ]
                 # THIS CHECK IS CRUCIAL! DON'T ARAISE
                 # if Verbose==True:
-                #    print('i (or matlab Ih1-1)={0},indexes_analog_to_matlab must be matlab Indcatmindist-1 everywhere, check if this is the case: {1}'.format(i,indexes_analog_to_matlab))#ok
                 #
                 Cat2matched = cat2[indexes_analog_to_matlab.astype(int), :]  # ok
                 # Cat2matched=cat2[IndCatMinDist.astype(int),:]
                 # Cat2matched=cat2[IndCatMinDist.astype(int),:]
-                # print('cat2 is,',cat2)
                 # Cat2matched est un tableau, de la longueur de cat1 avec:
                 #  -la ligne 0 de cat2 si la ligne correspond a un indice de cat1 qui a pas de cross-match
                 #  -s'il y a un cross-matched dans cat2: la ligne de cat2
-                # print("np.shape(Cat2matched)",np.shape(Cat2matched))
-                # print("np.shape(IsN)",np.shape(IsN))
                 Cat2matched[IsN, :] = np.nan
-                # print('Cat2matched is', Cat2matched)
                 if Debug == True and i in [
                     Nh1 // 1000,
                     Nh1 // 200,
@@ -1450,34 +1272,19 @@ def xmatch_2cats(
                     np.savetxt(
                         output + f"Cat2matched_{i}_4debug.txt", Cat2matched
                     )  # pas ok
-                # print('Cat2matched at the index of IndCatMinDist is',Cat2matched[IndCatMinDist!=1])
-                # print('IndCatMinDist', IndCatMinDist)
-                # pdb.set_trace()
 
-                # print('Cat2matched is', Cat2matched)
                 # un tableau, avec le meme nombre de lignes que cat1 et le nombre de colomnes de cat2 avec:
                 #  -NaN si cette ligne de cat1 a pas de cross-match
                 #  -s'il y a un cross-matched dans cat2: la ligne de cat2 correspondant a l objet le plus proche
-                # print("np.shape(Cat2matched)",np.shape(Cat2matched))
-
-                # print('cat1',cat1)
-                # print('Cat2matched is',Cat2matched)#ok avec matlab
-                # pdb.set_trace()
-                # print('np.shape(Cat2matched is)',np.shape(Cat2matched)) #ok avec matlab
 
                 # from here it is added by me
                 # create a numpy array with: columns of cat1, columns of Cat2matched
-                # print('let us just make sure that Cat1 and Cat2matched have same number of lines.')ok
-                # print('np.shape(Cat1) is',np.shape(Cat1))
-                # print('np.shape(Cat2matched) is', np.shape(Cat2matched))
 
                 # if save_results==True:
                 #    if os.path.exists(output):
-                #        print('the output directory, ' + output+ ' exists already')
                 #    else:
                 #        os.mkdir(output)
                 #    if os.path.exists(output+'/trixel_'+str(index_cat1)+'_'+Catname1):
-                #        print('the output directory, ' + output+'/trixel_'+str(index_cat1)+'_'+Catname1 + ' exists already')
                 #    else:
                 #        os.mkdir(output+'/trixel_'+str(index_cat1)+'_'+Catname1)
                 if save_results == True:
@@ -1501,10 +1308,7 @@ def xmatch_2cats(
                                 print(
                                     f"At line {i} of Cat1, there is a cross-matched object in cat2"
                                 )
-                                # print('Cat2matched[i,:] is',Cat2matched[i,:])
-                                # pdb.set_trace()
                             if np.shape(cross_matching_result_intermediate)[0] < 2:
-                                # print('np.shape(cross_matching_result_intermediate)[0] is',np.shape(cross_matching_result_intermediate)[0])
                                 cross_matching_result_intermediate = (
                                     cross_matching_result_w_nans[i, :]
                                 )
@@ -1519,7 +1323,6 @@ def xmatch_2cats(
                                     ]
                                 )
                             else:
-                                # print('else')
                                 cross_matching_result_intermediate = np.vstack(
                                     (
                                         cross_matching_result_intermediate,
@@ -1540,46 +1343,18 @@ def xmatch_2cats(
                                 )
 
                         # else:
-                        # print('there are no counterparts in cat2')
 
                     all_zeros = not np.any(cross_matching_result_intermediate)
                     if all_zeros == True:
                         print(
                             "There are no counterpart at all in cat 2 for this tri1xel"
                         )
-                        # pdb.set_trace()
                     else:
-                        # print('the shape of cross_matching_result_intermediate_cat1 is',np.shape(cross_matching_result_intermediate_cat1))
-                        # print('the shape of cross_matching_result_intermediate_cat2 is',
-                        #      np.shape(cross_matching_result_intermediate_cat2))
-                        # print('the shape of cross_matching_result_intermediate is',
-                        #      np.shape(cross_matching_result_intermediate))
-                        # print('ndim of cross_matching_result_intermediate_cat1) is 1?',
-                        #      cross_matching_result_intermediate_cat1.ndim)
-                        # print('the len of cross_matching_result_intermediate_cat1 is',np.shape(cross_matching_result_intermediate_cat1)[0])
-                        # print('the len of cross_matching_result_intermediate_cat2 is',np.shape(cross_matching_result_intermediate_cat2)[0])
-                        # print('the len of cross_matching_result_intermediate is',np.shape(cross_matching_result_intermediate)[0])
                         # if np.shape(cross_matching_result_intermediate_cat1)[0]!=np.shape(cross_matching_result_intermediate_cat2)[0]:
-                        #    print('ndim of cross_matching_result_intermediate_cat1) is 1?',cross_matching_result_intermediate_cat1.ndim)
-                        #    print('the shapes are not the same, probleme!')
-                        #    print(cross_matching_result_intermediate_cat1)
-                        #    print(cross_matching_result_intermediate_cat2)
-                        #    print('np.shape(cross_matching_result_intermediate)[0] is',np.shape(cross_matching_result_intermediate)[0])
-                        #    print('cross_matching_result_intermediate is',cross_matching_result_intermediate)
-                        #    print('np.shape(cross_matching_result_w_nans[i,:]))',np.shape(cross_matching_result_w_nans[i,:]))
-                        #    pdb.set_trace()
                         # if Verbose is True:
                         print(
                             f"The entries from catalog_1 ({Catname1}) :{cross_matching_result_intermediate_cat1}, cross-matched in catalog_2 ({Catname2}) are {cross_matching_result_intermediate_cat2}"
                         )
-                        # print('cross_matching_result is',cross_matching_result)
-                        # print('Is the cross_matching_result the size of Ind?')#yes
-                        # print(np.shape(cross_matching_result))
-                        # print(len(Ind))
-                        # print('Is the number of columns of cross_matching_result the sum of the number of columns of cat1 and cat2?')#yes
-                        # print(np.shape(cross_matching_result))
-                        # print(np.shape(Cat1))
-                        # print(np.shape(cat2))
                         """
                                 if (~isempty(InPar.QueryFun))
                                     % execute InPar.QueryFun
@@ -1600,17 +1375,7 @@ def xmatch_2cats(
                                 end
                             """
 
-                        # print('np.shape(cross_matching_result_intermediate) is ',np.shape(cross_matching_result_intermediate))
-                        # print(
-                        #'np.shape(cross_matching_result_intermediate_cat1) is ', np.shape(cross_matching_result_intermediate_cat1))
-                        # print(
-                        #'np.shape(cross_matching_result_intermediate_cat2) is ', np.shape(cross_matching_result_intermediate_cat2))
                         # if np.shape(cross_matching_result_intermediate_cat1)[0]!=np.shape(cross_matching_result_intermediate)[0]:
-                        #    print('pb!')
-                        #    print('cross_matching_result_intermediate is',cross_matching_result_intermediate)
-                        #    print('cross_matching_result_intermediate_cat1 is',cross_matching_result_intermediate_cat1)
-                        #    print('cross_matching_result_intermediate_cat2 is', cross_matching_result_intermediate_cat2)
-                        #    pdb.set_trace()
 
                         if save_in_one_file == True:
                             if (
@@ -1745,20 +1510,10 @@ def xmatch_2cats(
                                         )
                 # time checker:
                 # ongoing7 = time.time()
-                # print(ongoing7 - ongoing6)
-                # print(ongoing6 - ongoing5)#bcp
-                # print(ongoing5 - ongoing4)
-                # print(ongoing4-ongoing3)
-                # print(ongoing3-ongoing2)#bcp
-                # print(ongoing2-ongoing1)
-                # print(ongoing1-start)
-                # print(ongoing7-start)
-                # pdb.set_trace()
             else:
                 print(
                     f"None of the trixels of catalog_2 ({Catname2}) overlapping with trixel #{index_cat1} of catalog_1 ({Catname1}) has sources in it"
                 )
-                # pdb.set_trace()
         else:
             if Verbose == True:
                 print(f"trixel #{index_cat1} of Catalog_1 ({Catname1}) is empty")

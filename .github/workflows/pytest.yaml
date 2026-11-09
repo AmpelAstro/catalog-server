@@ -24,18 +24,14 @@ jobs:
     runs-on: ubuntu-26.04
     steps:
         - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        - name: "Set up environment"
-          uses: packetcoders/action-setup-cache-python-poetry@0d0be5577b30d85f3fa2d93a4beeda149520f120 # v1.2.0
+        - name: "Install Pixi"
+          uses: prefix-dev/setup-pixi@v0.11.3
           with:
-            # renovate: datasource=python-version depName=python versioning=python
-            python-version: "3.13.18"
-            # renovate: datasource=pypi depName=poetry versioning=pep440
-            poetry-version: "2.5.1"
-            install-args: --all-extras
-        - name: Install root
-          run: poetry run pip install -e . --no-deps
+            pixi-version: "0.84.1"
+        - name: Install dependencies
+          run: pixi install -e dev
         - run: |
-            poetry run mypy app
+            pixi run -e dev mypy app
   test:
     runs-on: ubuntu-26.04
     services:
@@ -52,23 +48,16 @@ jobs:
         options: --name mongo
     defaults:
       run:
-        working-directory: "src"
+        working-directory: "."
 
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+    - name: "Install Pixi"
+      uses: prefix-dev/setup-pixi@v0.11.3
       with:
-        path: src
-    - name: "Set up environment"
-      uses: jvansanten/action-setup-cache-python-poetry@4eb3435d85a91eb2ab47d273f31f00b873389f51 # working-directory
-      with:
-        # renovate: datasource=python-version depName=python versioning=python
-        python-version: "3.13.18"
-        # renovate: datasource=pypi depName=poetry versioning=pep440
-        poetry-version: "2.5.1"
-        install-args: --all-extras
-        working-directory: src
-    - name: Install root
-      run: poetry run pip install -e . --no-deps
+        pixi-version: "0.84.1"
+    - name: Install dependencies
+      run: pixi install -e dev
     - name: Populate mongodb data
       run: |
         sudo mkdir -p ${{ github.workspace }}/mongodumps
@@ -82,8 +71,9 @@ jobs:
       run: |
         export ROOT_PATH=/api/catalogmatch
         export MONGO_URI=mongodb://root:12345@localhost:27017
-        export CATSHTM_DIR=${{ github.workspace }}/src/tests/test-data/catsHTM2
-        nohup poetry run uvicorn app.main:app \
+        export CATSHTM_DIR=${{ github.workspace }}/tests/test-data/catsHTM2
+        export PYTHONPATH=${{ github.workspace }}
+        nohup pixi run -e dev uvicorn app.main:app \
           --host 0.0.0.0 \
           --port 8000 \
           --workers 2 \
@@ -95,7 +85,7 @@ jobs:
         curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/api/catalogmatch/ || exit 1
     - name: Test with pytest
       run: |
-        poetry run pytest tests --integration
+        pixi run -e dev pytest tests --integration
       env:
         CATALOGSERVER_URI: http://localhost:8000/api/catalogmatch
         MONGO_URI: mongodb://root:12345@localhost:27017

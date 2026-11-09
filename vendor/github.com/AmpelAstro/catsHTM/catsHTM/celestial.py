@@ -239,7 +239,7 @@ def htm_build(Level, Verbose=True):
     # construct 0 level northern and southern hemisphere
     for i in range(4):
         Ind = Ind + 1
-        trixel = dict()
+        trixel = {}
         # trixel['index']=Data[0,i]#line 1 of column 0
         trixel["index"] = Ind
         trixel["level"] = 0
@@ -274,7 +274,7 @@ def htm_build(Level, Verbose=True):
         # pdb.set_trace()
     for i in range(4):
         Ind = Ind + 1
-        trixel = dict()
+        trixel = {}
         # trixel['index']=Data[0,i]#line 1 of column 0
         trixel["index"] = Ind
         trixel["level"] = 0
@@ -297,7 +297,7 @@ def htm_build(Level, Verbose=True):
         HTM_list.append(trixel)
 
     Levlist = []
-    lev_list_dic = dict()
+    lev_list_dic = {}
     lev_list_dic["level"] = 0
     lev_list_dic["ptr"] = np.arange(8) + 1
     Levlist.append(lev_list_dic)
@@ -346,9 +346,8 @@ def htm_build_son(HTM_list, Levlist, Level, Ind, Verbose=False):
         Level > LevelDepth
     ):  # if there are more Levels to build than the number of levels so far
         # creation du nouveau dictionnaire dans la liste de levels
-        lev_list_dic = (
-            dict()
-        )  # je creee un nouveau dictionnaire "level" a mettre dans Levlist
+        # je creee un nouveau dictionnaire "level" a mettre dans Levlist
+        lev_list_dic = {}
         lev_list_dic["level"] = (
             Levlist[LevelDepth - 1]["level"] + 1
         )  # son level index (0 pour 1) est le level index du dernier dictionnaire de LevList +1
@@ -377,7 +376,7 @@ def htm_build_son(HTM_list, Levlist, Level, Ind, Verbose=False):
             # maintenant pour chaque trixel, creons les nouveaux trixels: les fils de ceux que l'on est en train de parcourir
             for j in range(4):
                 Ind = Ind + 1  # on augmente le plus haut index de 1
-                trixel = dict()  # le dictionnaire qu'on va ajouter
+                trixel = {}  # le dictionnaire qu'on va ajouter
                 trixel["level"] = FatherLevel + 1
                 trixel["cosd"] = np.zeros((3, np.shape(Vert1)[0]))
                 if j == 0:

@@ -507,7 +507,7 @@ def load_HTM_ind(Filename, VarName, catalogs_dir="./data", CatDir=None):
     # each trixel is a dictionnary
     HTM_list = []  # will end up being a list of N_trixels dictionnaries
     for i in range(N_trixels):
-        trixel = dict()
+        trixel = {}
         trixel["level"] = Data[0, i]  # line 1 of column 0
         if np.isnan(np.array(Data[1, i])).all() == True:
             trixel["father"] = []
@@ -860,7 +860,7 @@ def match_cats(Cat, Refcat, Radius=2, RadiusUnits="arcsec"):
     # print('Nc is',Nc)
     # pdb.set_trace()
 
-    Vec = dict()
+    Vec = {}
     Vec["Nfound"] = np.zeros(Nref)
     # vectornan=np.empty(Nref)
     # vectornan[:]=np.nan
@@ -905,7 +905,7 @@ def match_cats(Cat, Refcat, Radius=2, RadiusUnits="arcsec"):
         if Vec["Nfound"][Iref] > 0:
             Vec["MinDist"][Iref] = np.min(Dist[IndRelative])
             MinInd = np.argmin(Dist[IndRelative])
-            Resi = dict()
+            Resi = {}
             K = K + 1
             Resi["IndCat"] = IndCat
             Resi["IndRef"] = Iref

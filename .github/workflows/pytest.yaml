@@ -63,10 +63,8 @@ jobs:
         sudo mkdir -p ${{ github.workspace }}/mongodumps
         sudo cp -r tests/test-data/minimongodumps/* ${{ github.workspace }}/mongodumps/
     - name: "Populate test catalog"
-      uses: docker://docker
-      with:
-        args: >
-          docker exec mongo /mongodumps/restore.sh
+      run: |
+        docker exec mongo /mongodumps/restore.sh
     - name: Start uvicorn server
       run: |
         export ROOT_PATH=/api/catalogmatch

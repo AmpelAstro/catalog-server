@@ -60,7 +60,6 @@ jobs:
       run: pixi install -e dev
     - name: "Populate mongodb data"
       run: |
-        mkdir -p ${{ github.workspace }}/mongodumps
         cp -r tests/test-data/minimongodumps/* ${{ github.workspace }}/mongodumps/
     - name: "Populate test catalog"
       uses: docker://docker

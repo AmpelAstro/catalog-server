@@ -14,8 +14,8 @@ from app.main import app
 from app.mongo import get_catq
 from app.settings import Settings, settings
 
-import nest_asyncio
-nest_asyncio.apply()
+#import nest_asyncio
+#nest_asyncio.apply()
 
 
 # ============================================================================
@@ -433,97 +433,84 @@ def versitygw_container(_docker, pytestconfig):
     from testcontainers.core.container import DockerContainer
     from testcontainers.core.waiting_utils import wait_for_logs
     
-    try:
-        # Get the test data directory
-        test_data_dir = Path(__file__).parent / "test-data" / "catsHTM2"
-        
-        if not test_data_dir.exists():
-            pytest.skip(f"Test data directory not found: {test_data_dir}")
-        
-        # Create container with ports and volumes
-        # Mount test data to /data/test-bucket so that s3://test-bucket/ maps to it
-        # VersityGW command: --port :7070 --access KEY --secret SECRET posix /data
-        # NOTE: Must be writable (rw) because VersityGW creates .vgwlocks directory
-        container = (
-            DockerContainer(image="versity/versitygw:latest")
-            .with_exposed_ports(7070)
-            .with_volume_mapping(str(test_data_dir.absolute()), "/data/test-bucket", mode="rw")
-            .with_command([
-                "--port", ":7070",
-                "--access", "test-access-key",
-                "--secret", "test-secret-key",
-                "posix",
-                "/data"
-            ])
-        )
-        
-        # Start the container
-        print("\n" + "=" * 80)
-        print("Starting VersityGW container for S3 testing...")
-        print("=" * 80 + "\n")
-        
-        print(f"Starting VersityGW container...")
-        container.start()
-        print(f"Container started. Waiting for readiness...")
-        
-        # Wait for container to be ready by checking logs
-        # VersityGW typically logs "Listening on port 7070" when ready
-        # Note: get_logs() returns (stdout, stderr) tuple
-        import time
-        max_wait = 60  # Increased timeout
-        interval = 2
-        waited = 0
-        ready = False
-        
-        while waited < max_wait:
-            try:
-                stdout, stderr = container.get_logs()
-                combined = (stdout or b"") + (stderr or b"")
-                if combined:
-                    log_str = combined.decode('utf-8', errors='replace')
-                    print(f"Container logs (last 200 chars): {repr(log_str[-200:])}")
-                    # Check for various ready indicators from VersityGW
-                    if ("listening on" in log_str.lower() or 
-                        "admin/s3 service listening" in log_str.lower() or
-                        "versitygw" in log_str.lower() or
-                        "bound on host" in log_str.lower()):
-                        ready = True
-                        break
-            except Exception as e:
-                print(f"Error getting logs: {e}")
-                pass
-            time.sleep(interval)
-            waited += interval
-        
-        if not ready:
+    # Get the test data directory
+    test_data_dir = Path(__file__).parent / "test-data" / "catsHTM2"
+    
+    if not test_data_dir.exists():
+        pytest.skip(f"Test data directory not found: {test_data_dir}")
+    
+    # Create container with ports and volumes
+    # Mount test data to /data/test-bucket so that s3://test-bucket/ maps to it
+    # VersityGW command: --port :7070 --access KEY --secret SECRET posix /data
+    # NOTE: Must be writable (rw) because VersityGW creates .vgwlocks directory
+    container = (
+        DockerContainer(image="versity/versitygw:latest")
+        .with_exposed_ports(7070)
+        .with_volume_mapping(str(test_data_dir.absolute()), "/data/test-bucket", mode="rw")
+        .with_command([
+            "--port", ":7070",
+            "--access", "test-access-key",
+            "--secret", "test-secret-key",
+            "posix",
+            "/data"
+        ])
+    )
+    
+    # Start the container
+    print("\n" + "=" * 80)
+    print("Starting VersityGW container for S3 testing...")
+    print("=" * 80 + "\n")
+    
+    print(f"Starting VersityGW container...")
+    container.start()
+    print(f"Container started. Waiting for readiness...")
+    
+    # Wait for container to be ready by checking logs
+    # VersityGW typically logs "Listening on port 7070" when ready
+    # Note: get_logs() returns (stdout, stderr) tuple
+    import time
+    max_wait = 60  # Increased timeout
+    interval = 2
+    waited = 0
+    ready = False
+    
+    while waited < max_wait:
+        try:
             stdout, stderr = container.get_logs()
             combined = (stdout or b"") + (stderr or b"")
-            log_str = combined.decode('utf-8', errors='replace') if combined else '(empty)'
-            print(f"Final container logs:\n{log_str}")
-            container.stop()
-            raise RuntimeError(f"VersityGW container failed to start within {max_wait}s. Last logs:\n{log_str}")
-        
-        # Get the exposed port (may differ from requested if random)
-        exposed_port = container.get_exposed_port(7070)
-        s3_endpoint = f"http://{container.get_container_host_ip()}:{exposed_port}"
-        print(f"✅ VersityGW container started at: {s3_endpoint}")
-        print(f"   Serving files from: {test_data_dir}")
-        print(f"   Container ID: {container.get_container_id()}")
-        
-        yield s3_endpoint, container
-        
-        # Cleanup
-        print("\n" + "=" * 80)
-        print("Stopping VersityGW container...")
-        print("=" * 80 + "\n")
+            if combined:
+                log_str = combined.decode('utf-8', errors='replace')
+                print(f"Container logs (last 200 chars): {repr(log_str[-200:])}")
+                # Check for various ready indicators from VersityGW
+                if ("listening on" in log_str.lower() or 
+                    "admin/s3 service listening" in log_str.lower() or
+                    "versitygw" in log_str.lower() or
+                    "bound on host" in log_str.lower()):
+                    ready = True
+                    break
+        except Exception as e:
+            print(f"Error getting logs: {e}")
+            pass
+        time.sleep(interval)
+        waited += interval
+    
+    if not ready:
+        stdout, stderr = container.get_logs()
+        combined = (stdout or b"") + (stderr or b"")
+        log_str = combined.decode('utf-8', errors='replace') if combined else '(empty)'
+        print(f"Final container logs:\n{log_str}")
         container.stop()
-        print("✅ VersityGW container stopped")
+        raise RuntimeError(f"VersityGW container failed to start within {max_wait}s. Last logs:\n{log_str}")
+    
+    # Get the exposed port (may differ from requested if random)
+    exposed_port = container.get_exposed_port(7070)
+    s3_endpoint = f"http://{container.get_container_host_ip()}:{exposed_port}"
+    
+    yield s3_endpoint, container
+    
+    # Cleanup
+    container.stop()
         
-    except Exception as e:
-        # If Docker is not available or container fails to start
-        print(f"⚠️  Could not start VersityGW container: {e}")
-        pytest.skip(f"VersityGW container not available: {e}")
-
 
 @pytest.fixture(scope="session")
 def s3_catshtm_env(versitygw_container):

@@ -62,7 +62,7 @@ def skip_if_no_ros3(request):
 
 
 # Direct imports - will raise ImportError if not available (intentional)
-from catsHTM.class_HDF5 import HDF5, _is_s3_uri
+from app.catsHTM.class_HDF5 import HDF5, _is_s3_uri
 
 
 # ============================================================================
@@ -570,17 +570,6 @@ async def test_s3_nonexistent_catalog(s3_integration_client):
         assert isinstance(body, list)
         assert len(body) == 1
         assert body[0] == False
-
-
-# ============================================================================
-# Conditional Tests (Explicit Skipping)
-# ============================================================================
-
-@pytest.mark.skip(reason="Requires MongoDB which may not be available in all environments")
-def test_with_mongodb_integration():
-    """Example of explicitly skipped test."""
-    # This test would require MongoDB
-    pass
 
 
 # ============================================================================

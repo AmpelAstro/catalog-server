@@ -12,6 +12,7 @@ import hdf5storage
 import numpy as np
 import scipy.io as sio
 import tqdm
+from scipy.io.matlab import MatReadError
 
 from . import celestial, class_HDF5, params
 
@@ -164,10 +165,15 @@ def cone_search(
     IndexFilename = IndexFileTemplate % CatName
     # print(root_to_data+CatDir+'/'+ColCelFile)
     if os.path.isfile(root_to_data + CatDir + "/" + ColCelFile) == True:
+        # hdf5storage.loadmat is a superset of sio.loadmat: it reads HDF5-based
+        # v7.3 files (which raise NotImplementedError here) and bare HDF5 files
+        # (which raise ValueError), then delegates to scipy for older formats.
+        # Catch only the failures a fallback can actually fix, so genuine errors
+        # such as a missing or unreadable file still propagate.
         try:
             test = sio.loadmat(root_to_data + CatDir + "/" + ColCelFile)
             # test = mat73.loadmat(root_to_data + CatDir + '/' + ColCelFile)
-        except Exception:
+        except (NotImplementedError, ValueError, MatReadError):
             if verbose == True:
                 print(
                     "sio.loadmat did not work for opening {}, I am trying hdf5storage.loadmat".format(

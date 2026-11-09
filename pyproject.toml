@@ -32,12 +32,12 @@ pytest-asyncio = "^1.4.1"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.ruff.lint.per-file-ignores]
-# catsHTM is a vendored upstream package (see the catsHTM dependency above) whose
-# public module names are load-bearing: the app imports `catsHTM.script`,
-# `catsHTM.params`, etc., and script.py does `from . import class_HDF5`. The names
-# cannot be changed without breaking every import, so N999 is not actionable here.
-"vendor/**" = ["N999"]
+[tool.ruff.lint.pep8-naming]
+# catsHTM and class_HDF5 are load-bearing upstream module names: the app imports
+# `catsHTM.script`/`catsHTM.params`/`catsHTM.cone_search` and script.py does
+# `from . import class_HDF5`. Renaming them would break every import and diverge
+# from upstream, so accept the names rather than disabling N999 for all of vendor/.
+ignore-names = ["catsHTM", "class_HDF5"]
 
 [tool.pyright]
 # Analyze against the Poetry-managed virtualenv instead of the globally

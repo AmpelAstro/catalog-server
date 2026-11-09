@@ -58,12 +58,10 @@ jobs:
         pixi-version: "v0.84.1"
     - name: Install dependencies
       run: pixi install -e dev
-    - name: Populate mongodb data
-      run: |
-        sudo mkdir -p ${{ github.workspace }}/mongodumps
-        sudo cp -r tests/test-data/minimongodumps/* ${{ github.workspace }}/mongodumps/
     - name: "Populate test catalog"
       run: |
+        docker cp tests/test-data/minimongodumps/. mongo:/mongodumps/
+        docker exec mongo chmod +x /mongodumps/restore.sh
         docker exec mongo /mongodumps/restore.sh
     - name: Start uvicorn server
       run: |

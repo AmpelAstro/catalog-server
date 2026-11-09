@@ -412,15 +412,22 @@ def search_htm_ind(
     return ID_w_sources
 
 
+# Row offsets into the HTM index file. These are read-only, so hoisting them out
+# of the argument defaults avoids re-allocating the arrays on every call.
+SON_INDEX = np.arange(2, 6)
+POLES_LONG_INDEX = np.arange(6, 11, 2)
+POLES_LAT_INDEX = np.arange(7, 12, 2)
+
+
 def htm_search_cone(
     IndexFile_data,
     Long,
     Lat,
     Radius,
     Ind=None,
-    Son_index=np.arange(2, 6),
-    PolesLong_index=np.arange(6, 11, 2),
-    PolesLat_index=np.arange(7, 12, 2),
+    Son_index=SON_INDEX,
+    PolesLong_index=POLES_LONG_INDEX,
+    PolesLat_index=POLES_LAT_INDEX,
 ):
     # print('I am running htm_search_cone')
     """Description: Search for all HTM leafs intersecting a small circles

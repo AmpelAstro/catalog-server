@@ -37,8 +37,7 @@ def simplify2(x):
     IDc = []
     for i in x:
         if isinstance(i, (list, tuple, np.ndarray)) == True:
-            for j in i:
-                IDc.append(j)
+            IDc.extend(i)
         else:
             IDc.append(i)
     return IDc

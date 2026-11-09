@@ -26,23 +26,6 @@ class HDF5:
         self.FileName = FileName
         # self.VarName=VarName
 
-    def info(self):
-        """Description: goves info on the HDF5 file
-        Input:
-
-        Output :"""
-        filename = self.FileName
-        f = h5py.File(filename, "r")
-        print(f"Filename:{filename}")
-        print(
-            f"Number of datasets in the HDF5 file {self.FileName}: {np.shape(list(f.keys()))}"
-        )
-        print(f"{np.shape(list(f.keys()))[0] / 2.0} pairs of [data file, indexfile]")
-        print("****")
-        print("The keys are:")
-        print(list(f.keys()))
-        print("****")
-
     def load(
         self, dataset_name, numpy_array=False, Offset=None, Block=None, Verbose=True
     ):
@@ -106,12 +89,3 @@ class HDF5:
                         data = f[dataset_name]
                     # MemSpaceId=h5py.h5s.create_simple(TUPLE dims_tpl, TUPLE max_dims_tpl)
         return data
-
-    def load_colnames(
-        self,
-        Filename,
-    ):
-        # NOTE: unfinished stub in upstream catsHTM. Previously opened the file
-        # with h5py and leaked the handle without reading anything from it.
-        # Now raises explicitly instead of silently returning None.
-        raise NotImplementedError("HDF5.load_colnames is not implemented")

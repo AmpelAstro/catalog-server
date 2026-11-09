@@ -42,7 +42,7 @@ jobs:
           MONGO_INITDB_ROOT_PASSWORD: 12345
           MONGODUMP_DIR: /mongodumps
         volumes:
-          - ${{ github.workspace }}/mongodumps:/mongodumps
+          - ${{ github.workspace }}/tests/test-data/minimongodumps:/mongodumps
         ports:
           - 27017:27017
         options: --name mongo
@@ -59,12 +59,7 @@ jobs:
     - name: Install dependencies
       run: pixi install -e dev
     - name: "Populate test catalog"
-      run: |
-        docker cp tests/test-data/minimongodumps mongo:/mongodumps_data
-        docker exec mongo mv /mongodumps_data/* /mongodumps/
-        docker exec mongo rm -rf /mongodumps_data
-        docker exec mongo chmod +x /mongodumps/restore.sh
-        docker exec mongo /mongodumps/restore.sh
+      run: docker exec mongo /mongodumps/restore.sh
     - name: Start uvicorn server
       run: |
         export ROOT_PATH=/api/catalogmatch

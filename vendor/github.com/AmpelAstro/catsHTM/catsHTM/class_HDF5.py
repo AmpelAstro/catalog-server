@@ -68,7 +68,7 @@ class HDF5:
             data = np.array([])
         else:
             f = h5py.File(filename, "r")
-            if dataset_name not in f.keys():
+            if dataset_name not in f:
                 if Verbose == True:
                     print(
                         "Cannot read Dataset <{}> from hdf5 file <{}>, the trixel must be empty of sources".format(dataset_name, f)

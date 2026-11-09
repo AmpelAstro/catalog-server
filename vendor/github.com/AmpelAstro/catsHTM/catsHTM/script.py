@@ -23,12 +23,6 @@ try:
 except ImportError:
     from backports.functools_lru_cache import lru_cache
 
-# define FileNotFoundError for Python 2.7
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
-
 __all__ = [
     "Example_QueryAllFun",
     "cone_search",
@@ -174,7 +168,7 @@ def cone_search(
         try:
             test = sio.loadmat(root_to_data + CatDir + "/" + ColCelFile)
             # test = mat73.loadmat(root_to_data + CatDir + '/' + ColCelFile)
-        except:
+        except Exception:
             if verbose == True:
                 print(
                     "sio.loadmat did not work for opening {}, I am trying hdf5storage.loadmat".format(
@@ -824,8 +818,6 @@ def match_cats(Cat, Refcat, Radius=2, RadiusUnits="arcsec"):
                        example:
                        By : Maayane Soumagnac (original Matlab function by Eran Ofek)            August 2018"""
     # print('I am running matchcats')
-    if RadiusUnits == "rad":
-        Radius = Radius
     if RadiusUnits == "arcsec":
         Radius = math.pi * Radius / (180.0 * 3600.0)
 
@@ -880,7 +872,7 @@ def match_cats(Cat, Refcat, Radius=2, RadiusUnits="arcsec"):
         # print('Iupp[Iref]-Ilow[Iref]+1, type:{0},{1}'.format(Iupp[Iref]-Ilow[Iref]+1, type(Iupp[Iref]-Ilow[Iref]+1)))
         # print(Ilow[Iref].is_integer())
         if (Ilow[Iref].is_integer() == False) | (Iupp[Iref].is_integer() == False):
-            raise Exception("Ilow[Iref] and Iupp[Iref] should be integers")
+            raise RuntimeError("Ilow[Iref] and Iupp[Iref] should be integers")
         Icat = np.linspace(
             int(Ilow[Iref]), int(Iupp[Iref]), int(Iupp[Iref] - Ilow[Iref] + 1)
         ).astype(int)

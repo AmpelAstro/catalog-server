@@ -329,7 +329,7 @@ def sources_match(CatName, Cat, SearchRadius_arcs=2, catalog_dir="./data"):
     # print('Radius',Radius)
     # print('MedRa',MedRa)
     # print('MedDec',MedDec)
-    CatHunsorted, ColCelH, ColUnitsH = cone_search(
+    CatHunsorted, ColCelH, _ColUnitsH = cone_search(
         CatName, MedRa, MedDec, Radius, catalogs_dir=catalog_dir
     )
     # print('CatHunsorted:',CatHunsorted)
@@ -1276,7 +1276,7 @@ def xmatch_2cats(
                 Nid2
             ):  # for all trixels of catalog 2 overlapping with the given trixel of catalog1
                 if s == 0:
-                    [Cat2, Ind2] = load_trix_by_ind(
+                    [Cat2, _Ind2] = load_trix_by_ind(
                         Catname2,
                         ID2w[s],
                         [MinDec, MaxDec],
@@ -1293,7 +1293,7 @@ def xmatch_2cats(
                         print(
                             f"(catalog_2) {Catname2}'s trixel (overlapping with (catalog_1) {Catname1}'s trixel) of index {index_cat1}:"
                         )
-                    [Cat2tmp, Ind2] = load_trix_by_ind(
+                    [Cat2tmp, _Ind2] = load_trix_by_ind(
                         Catname2,
                         ID2w[s],
                         [MinDec, MaxDec],
@@ -1347,7 +1347,7 @@ def xmatch_2cats(
                 # print('SI is',SI)# ok, verifie avec matlab
                 # probleme: cat 2 c est toutes les sources des overlapping trixels. Nous on veut que les sources reelelemt overlapping. donc on run match_cat
                 # ongoing5 = time.time()
-                [Match, Ind, IndCatMinDist] = match_cats(
+                [_Match, Ind, IndCatMinDist] = match_cats(
                     cat2, Cat1, Radius=Search_radius, RadiusUnits="rad"
                 )
                 # print('Ind',Ind)

@@ -117,6 +117,7 @@ class HDF5:
         self,
         Filename,
     ):
-        f = h5py.File(Filename, "r")
-        # data = f.get('data/variable1')
-        # data = np.array(data)  # For converting to numpy array
+        # NOTE: unfinished stub in upstream catsHTM. Previously opened the file
+        # with h5py and leaked the handle without reading anything from it.
+        # Now raises explicitly instead of silently returning None.
+        raise NotImplementedError("HDF5.load_colnames is not implemented")

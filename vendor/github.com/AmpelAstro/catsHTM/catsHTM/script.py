@@ -1127,7 +1127,6 @@ def xmatch_2cats(
 
     ColCell1 = load_colcell(catalogs_dir + "/" + CatDir1, Catname1)[0]
     ColUnits1 = load_colcell(catalogs_dir + "/" + CatDir1, Catname1)[1]
-    Ncol1 = np.shape(ColCell1)[0]
     if Verbose == True:
         print(f"{CatDir1} has the following fields {ColCell1}")
         print("in units", ColUnits1)
@@ -1154,7 +1153,6 @@ def xmatch_2cats(
             for i in range(np.shape(ColCell2)[0])
         ]
     )
-    cross_matching_result = np.empty((1, np.shape(ColCell1)[0] + np.shape(ColCell2)[0]))
     # print(np.shape(cross_matching_result))
     # print('header1 is',header1)
     # print('header2 is', header2)
@@ -1259,7 +1257,6 @@ def xmatch_2cats(
             ID2 = celestial.htm_search_cone(HTM2, MeanRa, MeanDec, CircRadius, Ind=[])
             # if Verbose==True:
             ID2w = simplify3(ID2)
-            ongoing2 = time.time()
             if Verbose == True:
                 print(
                     f"there are {len(ID2w)} trixel overlapping with it"
@@ -1287,7 +1284,6 @@ def xmatch_2cats(
                         Ncol=Ncol2,
                         Verbose=Verbose,
                     )
-                    N2 = np.shape(Cat2)[0]
                     # Cat2ID=np.array(list(zip(ID2w[i]*np.ones(N2),Ind2+np.array(range(N2)))))#MAYBE Ind2-1?
                     # print('len(Cat2) after i=0 is',len(Cat2))
                     # pdb.set_trace()
@@ -1313,7 +1309,6 @@ def xmatch_2cats(
                         # print('Cat2tmp (1) is',Cat2tmp)
                         if len(Cat2tmp) > 0:
                             Cat2 = np.vstack((Cat2, Cat2tmp))
-                            N2 = np.shape(Cat2)[0]
                         # else:
 
                         # Cat2ID=np.vstack((Cat2ID,np.array(list(zip(ID2w[i]*np.ones(N2),Ind2+np.array(range(N2)))))))#MAYBE Ind2-1?
@@ -1326,7 +1321,6 @@ def xmatch_2cats(
                         ):  # si Cat2tmp n'est pas vide, Cat2 devient lui
                             # print('Cat2tnp.argwhere(np.isnan(x))mp (2) is',Cat2tmp)
                             Cat2 = np.copy(Cat2tmp)
-                            N2 = np.shape(Cat2)[0]
                 # print('Cat 2 is', Cat2)
                 # pdb.set_trace()
                 # Cat2ID=np.vstack((Cat2ID,np.array(list(zip(ID2w[i]*np.ones(N2),Ind2+np.array(range(N2)))))))#MAYBE Ind2-1?
@@ -1365,7 +1359,7 @@ def xmatch_2cats(
                     # if i==0:
                     #    Data=np.array([])
                     # else:
-                    Data = QueryAllFun(
+                    QueryAllFun(
                         Cat1,
                         Ind,
                         cat2,

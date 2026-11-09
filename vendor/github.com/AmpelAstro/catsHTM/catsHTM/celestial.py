@@ -198,8 +198,6 @@ def polysphere_poles(VertLong, VertLat):
     [CenLong, CenLat] = cosined2coo(np.mean(CD1), np.mean(CD2), np.mean(CD3))
     PA = sphere_distance_fast(CenLong, CenLat, VertLong, VertLat)[1]
     SI = np.argsort(PA)
-    VertLong_sortPA = VertLong[SI]
-    VertLat_sortPA = VertLat[SI]
     CD1_sortPA = CD1[SI]
     CD2_sortPA = CD2[SI]
     CD3_sortPA = CD3[SI]

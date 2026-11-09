@@ -52,6 +52,9 @@ pythonVersion = "3.12"
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "--showlocals -r a"
+markers = [
+    "integration: mark tests as requiring Docker containers",
+]
 filterwarnings = [
     "error",
     # triggered by hdf5storage

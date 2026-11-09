@@ -27,7 +27,7 @@ jobs:
         - name: "Install Pixi"
           uses: prefix-dev/setup-pixi@v0.11.3
           with:
-            pixi-version: "0.84.1"
+            pixi-version: "v0.84.1"
         - name: Install dependencies
           run: pixi install -e dev
         - run: |
@@ -55,7 +55,7 @@ jobs:
     - name: "Install Pixi"
       uses: prefix-dev/setup-pixi@v0.11.3
       with:
-        pixi-version: "0.84.1"
+        pixi-version: "v0.84.1"
     - name: Install dependencies
       run: pixi install -e dev
     - name: Populate mongodb data

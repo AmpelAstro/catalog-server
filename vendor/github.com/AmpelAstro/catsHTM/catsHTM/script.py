@@ -177,7 +177,7 @@ def cone_search(
         except:
             if verbose == True:
                 print(
-                    "sio.loadmat did not work for opening {0}, I am trying hdf5storage.loadmat".format(
+                    "sio.loadmat did not work for opening {}, I am trying hdf5storage.loadmat".format(
                         root_to_data + CatDir + "/" + ColCelFile
                     )
                 )
@@ -745,8 +745,8 @@ def get_file_dataset_from_trixel_id(
     num_file = (
         math.floor(index / NfilesinHDF) * NfilesinHDF
     )  # equivalent to index//Nfiles*Nfiles
-    Filename = "%s_htm_%06d.hdf5" % (CatName, num_file)
-    DatasetName = "htm_%06d" % index
+    Filename = f"{CatName}_htm_{int(num_file):06d}.hdf5"
+    DatasetName = f"htm_{int(index):06d}"
     return Filename, DatasetName
 
 
@@ -1214,7 +1214,7 @@ def xmatch_2cats(
                     f"I am looking for Catalog_2 ({Catname2}) trixels overlapping with the non-empty trixel #{index_cat1} ({i}/{Nh1}) of Catalog_1 ({Catname1})"
                 )
                 print(
-                    "there are {0} sources in this trixel".format(
+                    "there are {} sources in this trixel".format(
                         HTM1[index_cat1 - 1]["Nsrc"]
                     )
                 )

@@ -63,8 +63,7 @@ class HDF5:
         if os.path.exists(filename) == False:
             if Verbose == True:
                 print(
-                    "Cannot open the file <%s>, it does not exist, the trixel must be empty of sources"
-                    % (filename)
+                    "Cannot open the file <{}>, it does not exist, the trixel must be empty of sources".format(filename)
                 )
             data = np.array([])
         else:
@@ -72,8 +71,7 @@ class HDF5:
             if dataset_name not in f.keys():
                 if Verbose == True:
                     print(
-                        "Cannot read Dataset <%s> from hdf5 file <%s>, the trixel must be empty of sources"
-                        % (dataset_name, f)
+                        "Cannot read Dataset <{}> from hdf5 file <{}>, the trixel must be empty of sources".format(dataset_name, f)
                     )
                 f.close()
                 data = np.array([])

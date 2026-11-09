@@ -312,11 +312,11 @@ def htm_build(Level, Verbose=True):
         total_Levlist = Levlist
 
     if Verbose == True:
-        print("lev_list_dic[-1]['level'] is {0}".format(total_Levlist[-1]["level"]))
-        print("lev_list_dic[-1]['ptr'] is {0}".format(total_Levlist[-1]["ptr"]))
-        print("HT_list[-1]['level'] is {0}".format(total_HTM_list[-1]["level"]))
-        print("HT_list[-1]['father'] is {0}".format(total_HTM_list[-1]["father"]))
-        print("HT_list[-1]['son'] is {0}".format(total_HTM_list[-1]["son"]))
+        print("lev_list_dic[-1]['level'] is {}".format(total_Levlist[-1]["level"]))
+        print("lev_list_dic[-1]['ptr'] is {}".format(total_Levlist[-1]["ptr"]))
+        print("HT_list[-1]['level'] is {}".format(total_HTM_list[-1]["level"]))
+        print("HT_list[-1]['father'] is {}".format(total_HTM_list[-1]["father"]))
+        print("HT_list[-1]['son'] is {}".format(total_HTM_list[-1]["son"]))
         # print("the total Levlist is",total_Levlist)
 
     return total_HTM_list, total_Levlist

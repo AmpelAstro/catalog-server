@@ -18,8 +18,8 @@ def catshtm_catalog_descriptions():
     """
     Parse metadata from catsHTM README and MATLAB files
     """
-    from catsHTM import params
-    from catsHTM.script import get_CatDir
+    from .catsHTM import params
+    from .catsHTM.script import get_CatDir
     from scipy.io import loadmat
 
     catalogs = []

@@ -12,7 +12,7 @@ if sys.version_info >= (3, 9):
 else:
     from typing_extensions import Annotated
 
-from catsHTM.script import get_CatDir, params
+from .catsHTM.script import get_CatDir, params
 from pydantic import BaseModel, Field
 
 from .mongo import get_catq

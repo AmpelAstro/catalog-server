@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, TYPE_CHECKING
 import numpy as np
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
-from catsHTM import cone_search
+from .catsHTM.script import cone_search
 from extcats.catquery_utils import get_closest, get_distances
 from fastapi import APIRouter
 

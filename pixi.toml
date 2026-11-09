@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Catalog matching service with S3-backed CATSHTM2 support"
 authors = ["DESY Team <team@desy.de>"]
 channels = ["conda-forge"]
-platforms = ["osx-arm64"]
+platforms = ["osx-arm64","linux-aarch64","linux-64"]
 
 # ============================================================================
 # Runtime Dependencies
@@ -27,6 +27,8 @@ numpy = ">=1.24.0,<2.0"
 h5py = ">=3.9,<4.0"
 # Required by catsHTM for loading .mat files
 hdf5storage = "*"
+# Provides distutils for hdf5storage
+setuptools = "*"
 httpx = ">=0.24.1,<1.0"
 
 # ============================================================================

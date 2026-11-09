@@ -24,7 +24,6 @@ COPY --from=build /app/.pixi/envs/default /app/.pixi/envs/default
 COPY --from=build --chmod=0755 /app/entrypoint.sh /app/entrypoint.sh
 # copy your project code into the container as well
 COPY ./app /app/app
-COPY ./vendor /app/vendor
 
 # Set PYTHONPATH so imports work correctly
 ENV PYTHONPATH=/app

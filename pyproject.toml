@@ -9,8 +9,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.10,<4"
 fastapi = "^0.162.0"
-catsHTM = {path = "vendor/github.com/AmpelAstro/catsHTM"}
-# catsHTM secretly depends on pkg_resources via hdf5storage
+# catsHTM is now vendored locally in app/catsHTM/ with S3 modifications
+# setuptools is needed for pkg_resources via hdf5storage
 setuptools = {version = "*", python = ">=3.12"}
 extcats = "^2.5.0"
 uvicorn = {version="^0.54.0", optional=true}
@@ -36,7 +36,7 @@ build-backend = "poetry.core.masonry.api"
 # catsHTM and class_HDF5 are load-bearing upstream module names: the app imports
 # `catsHTM.script`/`catsHTM.params`/`catsHTM.cone_search` and script.py does
 # `from . import class_HDF5`. Renaming them would break every import and diverge
-# from upstream, so accept the names rather than disabling N999 for all of vendor/.
+# from upstream, so accept the names rather than disabling N999.
 ignore-names = ["catsHTM", "class_HDF5"]
 
 [tool.pyright]

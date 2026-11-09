@@ -5,7 +5,6 @@ A python implementation of catsHTM.m
 
 import math
 import os.path
-import pdb
 import time
 
 # import mat73
@@ -975,7 +974,6 @@ def Example_QueryAllFun(Cat1, Ind, Cat2, IndCatMinDist, i, additionnal_args=None
         np.savetxt("./Cat1_" + str(i) + ".txt", Cat1)
     print("***********************************************")
     print('press "c" to continue, "q" to quit')
-    pdb.set_trace()
     return Cat1
 
 
@@ -1193,7 +1191,6 @@ def xmatch_2cats(
                 Nh1 // 1.5,
             ],
         )
-        pdb.set_trace()
     for i in tqdm.tqdm(range(Nh1)):  # for each trixels in the highest level of Cat1
         # print("Level1['ptr'][Nh1-1] is",Level1['ptr'][Nh1-1])
         # print("Level1['ptr'][i] is",Level1['ptr'][i])
@@ -1461,7 +1458,6 @@ def xmatch_2cats(
                     np.savetxt(
                         output + f"Cat2matched_{i}_4debug.txt", Cat2matched
                     )  # pas ok
-                    pdb.set_trace()
                 # print('Cat2matched at the index of IndCatMinDist is',Cat2matched[IndCatMinDist!=1])
                 # print('IndCatMinDist', IndCatMinDist)
                 # pdb.set_trace()
@@ -1584,7 +1580,6 @@ def xmatch_2cats(
                         print(
                             f"The entries from catalog_1 ({Catname1}) :{cross_matching_result_intermediate_cat1}, cross-matched in catalog_2 ({Catname2}) are {cross_matching_result_intermediate_cat2}"
                         )
-                        pdb.set_trace()
                         # print('cross_matching_result is',cross_matching_result)
                         # print('Is the cross_matching_result the size of Ind?')#yes
                         # print(np.shape(cross_matching_result))

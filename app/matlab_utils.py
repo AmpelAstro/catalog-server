@@ -129,7 +129,7 @@ def _loadmat_from_s3(
     s3_kwargs = {k: v for k, v in s3_kwargs.items() if v is not None}
     
     try:
-        s3_client = boto3.client(
+        s3_client = boto3.client(  # type: ignore[call-overload]
             's3',
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,

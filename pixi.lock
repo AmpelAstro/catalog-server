@@ -1165,7 +1165,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.15.0-pyha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/bleach-6.4.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/boto3-1.43.117-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/boto3-stubs-1.43.126-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.117-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/botocore-stubs-1.43.126-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/bqplot-0.13.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/bqscales-0.3.7-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.10.23-hbd8a1cb_0.conda
@@ -1289,6 +1291,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/traittypes-0.2.3-pyh332efcf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/truststore-0.10.5-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typer-0.28.0-pyh5ded981_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-awscrt-0.37.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-s3transfer-0.19.3-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing-extensions-4.16.0-h69aa097_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing-inspection-0.4.5-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
@@ -1496,7 +1500,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.15.0-pyha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/bleach-6.4.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/boto3-1.43.117-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/boto3-stubs-1.43.126-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.117-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/botocore-stubs-1.43.126-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/bqplot-0.13.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/bqscales-0.3.7-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.10.23-hbd8a1cb_0.conda
@@ -1621,6 +1627,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/traittypes-0.2.3-pyh332efcf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/truststore-0.10.5-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typer-0.28.0-pyh5ded981_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-awscrt-0.37.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-s3transfer-0.19.3-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing-extensions-4.16.0-h69aa097_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing-inspection-0.4.5-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
@@ -1657,7 +1665,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.15.0-pyha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/bleach-6.4.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/boto3-1.43.117-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/boto3-stubs-1.43.126-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.117-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/botocore-stubs-1.43.126-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/bqplot-0.13.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/bqscales-0.3.7-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.10.23-hbd8a1cb_0.conda
@@ -1782,6 +1792,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/traittypes-0.2.3-pyh332efcf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/truststore-0.10.5-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typer-0.28.0-pyh5ded981_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-awscrt-0.37.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-s3transfer-0.19.3-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing-extensions-4.16.0-h69aa097_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing-inspection-0.4.5-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
@@ -8042,6 +8054,22 @@ packages:
   run_exports: {}
   size: 88607
   timestamp: 1793047973276
+- conda: https://conda.anaconda.org/conda-forge/noarch/boto3-stubs-1.43.126-pyh5ded981_0.conda
+  sha256: b5f2d8c61f984c1204753302fe71b813dcbaa3629ebf385db48b1bbc0f8cd694
+  md5: fd343a726fb8d138df4129555e2543d4
+  depends:
+  - python >=3.11
+  - botocore-stubs
+  - types-s3transfer
+  - typing-extensions >=4.1.0
+  - python
+  license: MIT
+  license_family: MIT
+  purls:
+  - pkg:pypi/boto3-stubs?source=hash-mapping
+  run_exports: {}
+  size: 58845
+  timestamp: 1794016468205
 - conda: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.117-pyhd8ed1ab_0.conda
   sha256: 37a85f065d23210f53225be39ae3c2d01be8ced15a96213d975068417d71dea1
   md5: 8203d935e6c064131720b1e03ce9a768
@@ -8057,6 +8085,21 @@ packages:
   run_exports: {}
   size: 9295257
   timestamp: 1793041870264
+- conda: https://conda.anaconda.org/conda-forge/noarch/botocore-stubs-1.43.126-pyh5ded981_0.conda
+  sha256: bf7b9e4c279e2b9e317eeac7a0dcd9e19727cd0b3c28b8aac3e1d9c32b4ad3eb
+  md5: b9446da3dcfaeafc3d5e9d86c92e344e
+  depends:
+  - python >=3.11
+  - types-awscrt
+  - typing_extensions >=4.1.0
+  - python
+  license: MIT
+  license_family: MIT
+  purls:
+  - pkg:pypi/botocore-stubs?source=hash-mapping
+  run_exports: {}
+  size: 48090
+  timestamp: 1794027160101
 - conda: https://conda.anaconda.org/conda-forge/noarch/bqplot-0.13.1-pyhcf101f3_0.conda
   sha256: 64adbe086644a6a4555783bb24b82ba6c8c544e2ab7b1a71e8a9f71e527dd001
   md5: e5896ff2fd86c75ff54a482e05e80a62
@@ -9854,6 +9897,32 @@ packages:
   run_exports: {}
   size: 188869
   timestamp: 1793975367397
+- conda: https://conda.anaconda.org/conda-forge/noarch/types-awscrt-0.37.0-pyhd8ed1ab_0.conda
+  sha256: 1e7282146e1696112e59e1a4105f859e507d0713fe3da223179abcc77c61c596
+  md5: 89b4738c4ab65b68b363479960cb00d5
+  depends:
+  - python >=3.11,<4.0
+  license: MIT
+  license_family: MIT
+  purls:
+  - pkg:pypi/types-awscrt?source=hash-mapping
+  run_exports: {}
+  size: 25008
+  timestamp: 1791860675411
+- conda: https://conda.anaconda.org/conda-forge/noarch/types-s3transfer-0.19.3-pyh5ded981_0.conda
+  sha256: bce0397cc1569a0b08585d0284192f8adff0beaa7b161a77a291c091e98b3357
+  md5: 3e82cc893254ab4343353943ebaaffad
+  depends:
+  - python >=3.11
+  - types-awscrt
+  - python
+  license: MIT
+  license_family: MIT
+  purls:
+  - pkg:pypi/types-s3transfer?source=hash-mapping
+  run_exports: {}
+  size: 19839
+  timestamp: 1792472104621
 - conda: https://conda.anaconda.org/conda-forge/noarch/typing-extensions-4.16.0-h69aa097_0.conda
   sha256: b141933ece3518f6d7b75dfb59451e2f26b405a44c18e2518a83e9a02e09315c
   md5: c680b5747e8c4c8f23dca0bb7042a8fc

@@ -50,7 +50,11 @@ class Settings(BaseSettings):
     # Custom validator for catshtm_dir
     _validate_catshtm_dir = field_validator("catshtm_dir")(_validate_catshtm_dir)
     
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra="allow",
+    )
 
 
 settings = Settings()

@@ -93,4 +93,26 @@ class RequestLoggerMiddleware(BaseHTTPMiddleware):
         request.state._body = body_bytes
         request._body = body_bytes
 
-        return await call_next(request)
+        # Call the next handler and capture any exceptions
+        try:
+            response = await call_next(request)
+            return response
+        except Exception as e:
+            # Log the error with the request
+            error_log = {
+                "timestamp": timestamp,
+                "method": request.method,
+                "url": str(request.url),
+                "headers": dict(request.headers),
+                "query_params": dict(request.query_params),
+                "body": body_json,
+                "error": str(e),
+                "error_type": type(e).__name__,
+            }
+            try:
+                json.dump(error_log, self._log_file)
+                self._log_file.write("\n")
+                self._log_file.flush()
+            except IOError:
+                pass  # Don't let logging failures mask the original error
+            raise

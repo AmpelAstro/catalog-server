@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from .catalogs import router as catalogs_router
 from .cone_search import router as cone_search_router
+from .middleware import RequestLoggerMiddleware
 from .settings import settings
 
 logging.basicConfig(level=settings.log_level)
@@ -26,6 +27,9 @@ app = FastAPI(
     openapi_tags=tags_metadata,
     root_path=settings.root_path,
 )
+
+# Add request logger middleware (no-op if REQUEST_LOG_PATH not set)
+app.add_middleware(RequestLoggerMiddleware)
 
 app.include_router(cone_search_router, prefix="/cone_search", tags=["cone_search"])
 app.include_router(catalogs_router, prefix="/catalogs", tags=["catalogs"])

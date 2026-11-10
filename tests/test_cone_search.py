@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.mark.parametrize("method", ["any", "nearest", "all"])
 @pytest.mark.parametrize("use", ["catsHTM", "extcats"])
 @pytest.mark.asyncio
@@ -15,6 +16,7 @@ async def test_invalid_catalog_name(method, use, test_client):
     }
     response = await test_client.post(f"/cone_search/{method}", json=request)
     assert response.status_code == 422
+
 
 @pytest.mark.xfail
 @pytest.mark.asyncio
@@ -53,8 +55,16 @@ def with_request(expected):
         (5, 5, [{"use": "catsHTM", "name": "ROSATfsc", "rs_arcsec": 60}]),
         (5, 5, [{"use": "catsHTM", "name": "AKARI", "rs_arcsec": 60}]),
         (5, 5, [{"use": "extcats", "name": "milliquas", "rs_arcsec": 60}]),
-        (265, -89.58, [{"use": "extcats", "name": "milliquas", "rs_arcsec": 60}],),
-        (0, 0, [{"use": "extcats", "name": "TNS", "rs_arcsec": 2400}],),
+        (
+            265,
+            -89.58,
+            [{"use": "extcats", "name": "milliquas", "rs_arcsec": 60}],
+        ),
+        (
+            0,
+            0,
+            [{"use": "extcats", "name": "TNS", "rs_arcsec": 2400}],
+        ),
     ]
     return pytest.mark.parametrize(
         "request_dict,expected",
@@ -64,20 +74,22 @@ def with_request(expected):
         ],
     )
 
+
 async def search(test_client, method, request_dict):
-    if test_client.base_url.host == "test" and any(c["name"] == "TNS" for c in request_dict["catalogs"]):
+    if test_client.base_url.host == "test" and any(
+        c["name"] == "TNS" for c in request_dict["catalogs"]
+    ):
         pytest.skip("mongomock does not implement $geoWithin")
     response = await test_client.post(f"/cone_search/{method}", json=request_dict)
     response.raise_for_status()
     return response.json()
+
 
 @with_request([[True], [False], [False], [False], [True], [True]])
 @pytest.mark.asyncio
 async def test_search_any(request_dict, expected, test_client):
     body = await search(test_client, "any", request_dict)
     assert body == expected
-
-
 
 
 @with_request([[True], [None], [None], [None], [True], [True]])
@@ -104,10 +116,12 @@ async def test_search_all(request_dict, expected, test_client):
 
 
 @pytest.mark.parametrize(
-    "method", ["nearest", "all"],
+    "method",
+    ["nearest", "all"],
 )
 @pytest.mark.parametrize(
-    "project", ["default", "null", "all", "none", "some"],
+    "project",
+    ["default", "null", "all", "none", "some"],
 )
 @pytest.mark.parametrize(
     "ra,dec,name,use,rs_arcsec",
@@ -160,10 +174,9 @@ async def test_keys_to_append(
     # else:
     #     assert body[0] is None
 
+
 @pytest.mark.asyncio
-async def test_post_filter(
-    test_client
-):
+async def test_post_filter(test_client):
     request_dict = {
         "ra_deg": 265,
         "dec_deg": -89.58,
@@ -186,4 +199,3 @@ async def test_post_filter(
     response.raise_for_status()
     body = response.json()
     assert len(body) == 1 and body[0] is None
-

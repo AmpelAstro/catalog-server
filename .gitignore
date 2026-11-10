@@ -2,3 +2,27 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
+
+# Environment variable files (never commit these!)
+.env
+.env.local
+.env.*.local
+
+# IDE-specific files
+.vscode/
+.idea/
+.DS_Store
+
+# Test cache and coverage
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Pixi environments
+.pixi/
+
+# Virtual environments
+.venv/
+venv/
+ENVS/

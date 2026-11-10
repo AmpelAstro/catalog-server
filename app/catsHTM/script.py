@@ -8,11 +8,11 @@ import os.path
 from functools import lru_cache
 
 # import mat73
-import hdf5storage
 import numpy as np
-import scipy.io as sio
 from scipy.io.matlab import MatReadError
 
+# Use our S3-aware loadmat wrapper instead of hdf5storage
+from ..matlab_utils import loadmat as sio_loadmat
 from . import celestial, class_HDF5, params
 
 __all__ = [
@@ -143,24 +143,26 @@ def cone_search(
 
     ColCelFile = ColCelFile % CatName
     IndexFilename = IndexFileTemplate % CatName
-    if os.path.isfile(root_to_data + CatDir + "/" + ColCelFile) == True:
-        # hdf5storage.loadmat is a superset of sio.loadmat: it reads HDF5-based
-        # v7.3 files (which raise NotImplementedError here) and bare HDF5 files
-        # (which raise ValueError), then delegates to scipy for older formats.
-        # Catch only the failures a fallback can actually fix, so genuine errors
-        # such as a missing or unreadable file still propagate.
+
+    file_path = root_to_data.rstrip("/") + "/" + CatDir.lstrip("/") + "/" + ColCelFile
+
+    # Use our S3-aware loadmat which handles both local and S3 URIs
+    # For S3 URIs, os.path.isfile doesn't work, so we just try to load
+    if os.path.isfile(file_path) or file_path.startswith("s3://"):
+        # Use our S3-aware loadmat which handles both local and S3 URIs
+        # and falls back appropriately for v7.3 files
         try:
-            test = sio.loadmat(root_to_data + CatDir + "/" + ColCelFile)
+            test = sio_loadmat(file_path)
             # test = mat73.loadmat(root_to_data + CatDir + '/' + ColCelFile)
         except (NotImplementedError, ValueError, MatReadError):
             if verbose == True:
                 print(
-                    "sio.loadmat did not work for opening {}, I am trying hdf5storage.loadmat".format(
-                        root_to_data + CatDir + "/" + ColCelFile
-                    )
+                    f"sio_loadmat did not work for opening {file_path}, trying fallback"
                 )
-            # test = sio.loadmat(root_to_data + CatDir + '/' + ColCelFile)
-            test = hdf5storage.loadmat(root_to_data + CatDir + "/" + ColCelFile)
+            # Retry with scipy directly as last resort
+            from scipy.io import loadmat as scipy_loadmat
+
+            test = scipy_loadmat(file_path)
         if np.shape(test["ColCell"])[1] < np.shape(test["ColCell"])[0]:
             # test=test.transpose()
             Ncol = np.shape(test["ColCell"])[0]

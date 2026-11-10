@@ -2,13 +2,13 @@ import io
 import logging
 import re
 from functools import lru_cache
-from typing import Any, Dict, List
+from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from pymongo.errors import OperationFailure
 
 from .models import CatalogDescription
-from .mongo import get_catq, get_mongo
+from .mongo import MongoClient, get_catq, get_mongo
 from .settings import settings
 
 log = logging.getLogger(__name__)
@@ -18,9 +18,9 @@ def catshtm_catalog_descriptions():
     """
     Parse metadata from catsHTM README and MATLAB files
     """
-    from catsHTM import params
-    from catsHTM.script import get_CatDir
-    from scipy.io import loadmat
+    from .catsHTM import params
+    from .catsHTM.script import get_CatDir
+    from .matlab_utils import loadmat
 
     catalogs = []
     if settings.catshtm_dir is None:
@@ -66,14 +66,24 @@ def catshtm_catalog_descriptions():
         )
         if match:
             name = match.group("key")
-            try:
-                meta = loadmat(
-                    str(
-                        settings.catshtm_dir
-                        / get_CatDir(name)
-                        / (params.ColCelFile % name)
-                    )
+            # Handle S3 URIs - can't use Path algebra on strings
+            if isinstance(
+                settings.catshtm_dir, str
+            ) and settings.catshtm_dir.startswith("s3://"):
+                # For S3 URIs, construct the path as a string
+                file_path = f"{settings.catshtm_dir}{get_CatDir(name)}/{params.ColCelFile % name}"
+            else:
+                # For local paths, use Path algebra
+                from pathlib import Path
+
+                file_path = str(
+                    Path(settings.catshtm_dir)
+                    / get_CatDir(name)
+                    / (params.ColCelFile % name)
                 )
+
+            try:
+                meta = loadmat(file_path)
             except FileNotFoundError:
                 continue
             catalogs.append(
@@ -100,7 +110,7 @@ def catshtm_catalog_descriptions():
     return catalogs
 
 
-def extcats_catalog_descriptions() -> List[Dict[str,Any]]:
+def extcats_catalog_descriptions() -> list[dict[str, Any]]:
     catalogs = []
     mongo = get_mongo()
     for db in mongo.list_database_names():
@@ -110,7 +120,7 @@ def extcats_catalog_descriptions() -> List[Dict[str,Any]]:
         if (catq := get_catq(db)) is None:
             continue
         try:
-            meta: Dict[str, Any] = next(
+            meta: dict[str, Any] = next(
                 mongo[db].get_collection("meta").find({"_id": "science"}, {"_id": 0}),
                 {},
             )
@@ -118,16 +128,21 @@ def extcats_catalog_descriptions() -> List[Dict[str,Any]]:
             # unauthorized
             meta = {}
         # use first entry as an example, minus index fields
-        projection = {"_id": 0, **{k: 0 for k in [catq.hp_key, catq.s2d_key] if k is not None}}
-        src: Dict[str, Any] = next(catq.src_coll.find({}, projection), {})
+        projection = {
+            "_id": 0,
+            **{k: 0 for k in [catq.hp_key, catq.s2d_key] if k is not None},
+        }
+        src: dict[str, Any] = next(catq.src_coll.find({}, projection), {})
         catalogs.append(
             {
                 "name": db,
                 "use": "extcats",
-                "columns": [{"name": k, "unit": None} for k in src.keys()],
+                "columns": [{"name": k, "unit": None} for k in src],
                 "description": meta.get("description"),
                 "reference": meta.get("ref"),
-                "contact": f"{meta['contact']} <{meta.get('email')}>" if 'contact' in meta else None
+                "contact": f"{meta['contact']} <{meta.get('email')}>"
+                if "contact" in meta
+                else None,
             }
         )
     return catalogs
@@ -135,14 +150,14 @@ def extcats_catalog_descriptions() -> List[Dict[str,Any]]:
 
 @lru_cache(maxsize=1)
 def catalog_descriptions():
-    return extcats_catalog_descriptions() + catshtm_catalog_descriptions() 
+    return extcats_catalog_descriptions() + catshtm_catalog_descriptions()
 
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[CatalogDescription])
-def list_catalogs() -> List[CatalogDescription]:
+@router.get("/", response_model=list[CatalogDescription])
+def list_catalogs() -> list[CatalogDescription]:
     """
     Get set of usable catalogs
     """
@@ -150,11 +165,14 @@ def list_catalogs() -> List[CatalogDescription]:
 
 
 @router.get("/{catalog}/{name}")
-def lookup(catalog: str, name: str, mongo = Depends(get_mongo)):
+def lookup(catalog: str, name: str, mongo: MongoClient):
     collection = mongo.get_database(catalog).get_collection("srcs")
     # ensure search will be indexed
     try:
-        if not any("name" in dict(idx["key"]) for idx in collection.index_information().values()):
+        if not any(
+            "name" in dict(idx["key"])
+            for idx in collection.index_information().values()
+        ):
             raise HTTPException(status_code=404)
     except OperationFailure:
         raise HTTPException(status_code=404)

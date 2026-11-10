@@ -99,6 +99,7 @@ class RequestLoggerMiddleware(BaseHTTPMiddleware):
             return response
         except Exception as e:
             # Log the error with the request
+            import traceback
             error_log = {
                 "timestamp": timestamp,
                 "method": request.method,
@@ -108,6 +109,7 @@ class RequestLoggerMiddleware(BaseHTTPMiddleware):
                 "body": body_json,
                 "error": str(e),
                 "error_type": type(e).__name__,
+                "traceback": traceback.format_exc(),
             }
             try:
                 json.dump(error_log, self._log_file)

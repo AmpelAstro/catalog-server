@@ -1,5 +1,5 @@
 import logging
-from functools import cache, lru_cache
+from functools import lru_cache
 from typing import Annotated
 
 import pymongo
@@ -9,7 +9,7 @@ from fastapi import Depends
 from .settings import settings
 
 log = logging.getLogger(__name__)
-mongo_db = pymongo.MongoClient(str(settings.mongo_uri))
+mongo_db: pymongo.MongoClient = pymongo.MongoClient(str(settings.mongo_uri))
 
 
 def get_mongo() -> pymongo.MongoClient:

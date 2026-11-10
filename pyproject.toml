@@ -1,36 +1,16 @@
-[tool.poetry]
+[project]
 name = "app"
-version = "2.0.0"
 description = "catalog-server provides cone searches against extcats and catsHTM catalogs via a REST API. It is strictly read-only, and safe to expose to anonymous users with appropriate rate-limiting."
-authors = ["Jakob van Santen <jvansanten@gmail.com>"]
 license = "BSD-2-Clause"
+version = "2.0.0"
 readme = "README.md"
+authors = [
+    {name = "Jakob van Santen",email = "jakob.van.santen@desy.de"},
+]
+requires-python = '>=3.10,<4'
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4"
-fastapi = "^0.162.0"
-# catsHTM is now vendored locally in app/catsHTM/ with S3 modifications
-# setuptools is needed for pkg_resources via hdf5storage
-setuptools = {version = "*", python = ">=3.12"}
-extcats = "^2.5.0"
-uvicorn = {version="^0.54.0", optional=true}
-gunicorn = {version="^26.0.0", optional=true}
-pydantic-settings = "^2.5.2"
-
-[tool.poetry.extras]
-asgi = ["uvicorn", "gunicorn"]
-
-[tool.poetry.group.dev.dependencies]
-httpx = "^0.28.1"
-mongomock = "^4.3.0"
-mypy = "^2.4.1"
-nest-asyncio = "^1.6.0"
-pytest = "^9.0.0"
-pytest-asyncio = "^1.4.1"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
 
 [tool.ruff.lint.pep8-naming]
 # catsHTM and class_HDF5 are load-bearing upstream module names: the app imports
@@ -69,3 +49,10 @@ filterwarnings = [
 ]
 asyncio_mode = "strict"
 asyncio_default_fixture_loop_scope = "function"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+# catsHTM is now vendored locally in app/catsHTM/ with S3 modifications
+# setuptools is needed for pkg_resources via hdf5storage

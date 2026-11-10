@@ -145,25 +145,10 @@ def cone_search(
     IndexFilename = IndexFileTemplate % CatName
 
     file_path = root_to_data.rstrip("/") + "/" + CatDir.lstrip("/") + "/" + ColCelFile
-    is_s3_uri = file_path.startswith("s3://")
 
-    # For S3 URIs, skip os.path.isfile check (doesn't work with S3)
-    # and use class_HDF5 which supports ROS3 VFD
-    if is_s3_uri:
-        try:
-            # Load the ColCell dataset using our S3-enabled HDF5 class
-            colcell_data = class_HDF5.HDF5(file_path).load("ColCell", numpy_array=True)
-            if colcell_data.size == 0:
-                raise FileNotFoundError(f"Empty or invalid data in {file_path}")
-            # Wrap in expected dict format
-            test = {"ColCell": colcell_data}
-            if np.shape(test["ColCell"])[1] < np.shape(test["ColCell"])[0]:
-                Ncol = np.shape(test["ColCell"])[0]
-            else:
-                Ncol = np.shape(test["ColCell"])[1]
-        except Exception as e:
-            raise FileNotFoundError(f"Failed to load S3 file {file_path}: {e}")
-    elif os.path.isfile(file_path) == True:
+    # Use our S3-aware loadmat which handles both local and S3 URIs
+    # For S3 URIs, os.path.isfile doesn't work, so we just try to load
+    if os.path.isfile(file_path) or file_path.startswith("s3://"):
         # Use our S3-aware loadmat which handles both local and S3 URIs
         # and falls back appropriately for v7.3 files
         try:

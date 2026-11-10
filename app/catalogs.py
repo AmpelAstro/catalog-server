@@ -2,7 +2,7 @@ import io
 import logging
 import re
 from functools import lru_cache
-from typing import Any, Dict, List
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pymongo.errors import OperationFailure
@@ -110,7 +110,7 @@ def catshtm_catalog_descriptions():
     return catalogs
 
 
-def extcats_catalog_descriptions() -> List[Dict[str, Any]]:
+def extcats_catalog_descriptions() -> list[dict[str, Any]]:
     catalogs = []
     mongo = get_mongo()
     for db in mongo.list_database_names():
@@ -120,7 +120,7 @@ def extcats_catalog_descriptions() -> List[Dict[str, Any]]:
         if (catq := get_catq(db)) is None:
             continue
         try:
-            meta: Dict[str, Any] = next(
+            meta: dict[str, Any] = next(
                 mongo[db].get_collection("meta").find({"_id": "science"}, {"_id": 0}),
                 {},
             )
@@ -132,12 +132,12 @@ def extcats_catalog_descriptions() -> List[Dict[str, Any]]:
             "_id": 0,
             **{k: 0 for k in [catq.hp_key, catq.s2d_key] if k is not None},
         }
-        src: Dict[str, Any] = next(catq.src_coll.find({}, projection), {})
+        src: dict[str, Any] = next(catq.src_coll.find({}, projection), {})
         catalogs.append(
             {
                 "name": db,
                 "use": "extcats",
-                "columns": [{"name": k, "unit": None} for k in src.keys()],
+                "columns": [{"name": k, "unit": None} for k in src],
                 "description": meta.get("description"),
                 "reference": meta.get("ref"),
                 "contact": f"{meta['contact']} <{meta.get('email')}>"
@@ -156,8 +156,8 @@ def catalog_descriptions():
 router = APIRouter()
 
 
-@router.get("/", response_model=List[CatalogDescription])
-def list_catalogs() -> List[CatalogDescription]:
+@router.get("/", response_model=list[CatalogDescription])
+def list_catalogs() -> list[CatalogDescription]:
     """
     Get set of usable catalogs
     """

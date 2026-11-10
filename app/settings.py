@@ -1,11 +1,11 @@
-from typing import Annotated, Optional, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 from pydantic import (
-    UrlConstraints,
     AnyHttpUrl,
     AnyUrl,
     DirectoryPath,
     Field,
+    UrlConstraints,
     field_validator,
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -21,8 +21,8 @@ else:
 
 
 def _validate_catshtm_dir(
-    v: Optional[Union[str, DirectoryPath]],
-) -> Optional[Union[str, DirectoryPath]]:
+    v: str | DirectoryPath | None,
+) -> str | DirectoryPath | None:
     """
     Validate CATSHTM_DIR which can be either:
     - A local directory path (validated as DirectoryPath)
@@ -50,7 +50,7 @@ class Settings(BaseSettings):
     mongo_uri: MongoUrl = Field(
         MongoUrl("mongodb://localhost:27017"), validation_alias="MONGO_URI"
     )
-    catshtm_dir: Optional[str] = Field(None, validation_alias="CATSHTM_DIR")
+    catshtm_dir: str | None = Field(None, validation_alias="CATSHTM_DIR")
     log_level: str = Field("WARN", validation_alias="LOG_LEVEL")
 
     # Custom validator for catshtm_dir

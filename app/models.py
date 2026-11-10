@@ -1,20 +1,22 @@
 import sys
-from typing import Any, Dict, List, Optional, Sequence, Union
+from collections.abc import Sequence
+from typing import Any
+
 from pydantic import field_validator
 
 if sys.version_info >= (3, 8):
     from typing import Literal
 else:
-    from typing_extensions import Literal
+    from typing import Literal
 
 if sys.version_info >= (3, 9):
     from typing import Annotated
 else:
-    from typing_extensions import Annotated
+    from typing import Annotated
 
-from .catsHTM.script import get_CatDir, params
 from pydantic import BaseModel, Field
 
+from .catsHTM.script import get_CatDir, params
 from .mongo import get_catq
 from .settings import settings
 
@@ -22,7 +24,7 @@ from .settings import settings
 class CatalogQueryItem(BaseModel):
     name: str = Field(..., description="Name of catalog")
     rs_arcsec: float = Field(..., description="Search radius in arcseconds")
-    keys_to_append: Optional[Sequence[str]] = Field(
+    keys_to_append: Sequence[str] | None = Field(
         None,
         description="Fields from catalog record to include in result. If null, return the entire record.",
     )
@@ -30,10 +32,10 @@ class CatalogQueryItem(BaseModel):
 
 class ExtcatsQueryItem(CatalogQueryItem):
     use: Literal["extcats"] = "extcats"
-    pre_filter: Optional[Dict[str, Any]] = Field(
+    pre_filter: dict[str, Any] | None = Field(
         None, description="Filter condition to apply before index search"
     )
-    post_filter: Optional[Dict[str, Any]] = Field(
+    post_filter: dict[str, Any] | None = Field(
         None, description="Filter condition to apply after index search"
     )
 
@@ -81,12 +83,12 @@ class CatsHTMQueryItem(CatalogQueryItem):
 
 
 QueryItem = Annotated[
-    Union[ExtcatsQueryItem, CatsHTMQueryItem], Field(discriminator="use")
+    ExtcatsQueryItem | CatsHTMQueryItem, Field(discriminator="use")
 ]
 
 
 class CatalogItem(BaseModel):
-    body: Dict[str, Any]
+    body: dict[str, Any]
     dist_arcsec: float
 
 
@@ -102,13 +104,13 @@ class ConeSearchRequest(BaseModel):
 
 class CatalogField(BaseModel):
     name: str
-    unit: Optional[str] = None
+    unit: str | None = None
 
 
 class CatalogDescription(BaseModel):
     name: str
     use: Literal["extcats", "catsHTM"]
-    description: Optional[str] = None
-    reference: Optional[str] = None
-    contact: Optional[str] = None
-    columns: List[CatalogField]
+    description: str | None = None
+    reference: str | None = None
+    contact: str | None = None
+    columns: list[CatalogField]

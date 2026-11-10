@@ -5,7 +5,7 @@ Provides a drop-in replacement for scipy.io.loadmat that can handle S3 URIs.
 """
 
 import io
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 import boto3
 from botocore.exceptions import ClientError
@@ -13,9 +13,9 @@ from scipy.io import loadmat as scipy_loadmat
 
 
 def loadmat(
-    file_name: Union[str, io.IOBase],
+    file_name: str | io.IOBase,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Load a MATLAB .mat file, supporting both local paths and S3 URIs.
 
@@ -84,7 +84,7 @@ def loadmat(
 def _loadmat_from_s3(
     s3_uri: str,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Load a MATLAB file from S3.
 
@@ -137,9 +137,7 @@ def _loadmat_from_s3(
 
     except ClientError as e:
         error_msg = f"Failed to download {s3_uri} from S3: {e}"
-        if e.response["Error"]["Code"] == "NoSuchKey":
-            raise FileNotFoundError(error_msg)
-        elif e.response["Error"]["Code"] == "NoSuchBucket":
+        if e.response["Error"]["Code"] == "NoSuchKey" or e.response["Error"]["Code"] == "NoSuchBucket":
             raise FileNotFoundError(error_msg)
         else:
             raise RuntimeError(error_msg)

@@ -1,6 +1,5 @@
 import logging
 from functools import lru_cache
-from typing import Optional
 
 from extcats.CatalogQuery import CatalogQuery
 from pymongo import MongoClient
@@ -16,7 +15,7 @@ def get_mongo() -> MongoClient:
 
 
 @lru_cache(maxsize=128)
-def get_catq(name: str) -> Optional[CatalogQuery]:
+def get_catq(name: str) -> CatalogQuery | None:
     try:
         return CatalogQuery(name, dbclient=get_mongo())
     except KeyError:

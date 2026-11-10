@@ -1,14 +1,14 @@
 import math
 from functools import singledispatch
-from typing import Any, Dict, List, Optional, Set, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
-from .catsHTM.script import cone_search
 from extcats.catquery_utils import get_closest, get_distances
 from fastapi import APIRouter
 
+from .catsHTM.script import cone_search
 from .models import (
     CatalogItem,
     CatsHTMQueryItem,
@@ -38,9 +38,9 @@ def sanitize_json(obj):
 
 def table_to_json(
     table: "Table",
-    allow_keys: Optional[Set[str]],
-    disallow_keys: Set[str] = set(),
-) -> List[Dict[str, Any]]:
+    allow_keys: set[str] | None,
+    disallow_keys: set[str] = set(),
+) -> list[dict[str, Any]]:
     keys = table.keys()
     rows = [
         {
@@ -64,9 +64,9 @@ def table_to_json(
 
 def row_to_json(
     row: "Row",
-    allow_keys: Optional[Set[str]],
-    disallow_keys: Set[str] = set(),
-) -> Dict[str, Any]:
+    allow_keys: set[str] | None,
+    disallow_keys: set[str] = set(),
+) -> dict[str, Any]:
     keys = row.table.keys()
     return {
         k: sanitize_json(v)
@@ -82,13 +82,13 @@ def search_any_item(item, coord: SkyCoord) -> bool:
 
 
 @singledispatch
-def search_nearest_item(item, coord: SkyCoord) -> Optional[CatalogItem]:
+def search_nearest_item(item, coord: SkyCoord) -> CatalogItem | None:
     raise NotImplementedError
     return False
 
 
 @singledispatch
-def search_all_item(item, coord: SkyCoord) -> Optional[List[CatalogItem]]:
+def search_all_item(item, coord: SkyCoord) -> list[CatalogItem] | None:
     raise NotImplementedError
     return None
 
@@ -110,7 +110,7 @@ def _(item: CatsHTMQueryItem, coord: SkyCoord) -> bool:
 
 
 @search_nearest_item.register  # type: ignore[no-redef]
-def _(item: CatsHTMQueryItem, coord: SkyCoord) -> Optional[CatalogItem]:  # type: ignore[no-redef]
+def _(item: CatsHTMQueryItem, coord: SkyCoord) -> CatalogItem | None:  # type: ignore[no-redef]
     # Only call cone_search if CATSHTM_DIR is configured
     if settings.catshtm_dir is None:
         return None
@@ -139,7 +139,7 @@ def _(item: CatsHTMQueryItem, coord: SkyCoord) -> Optional[CatalogItem]:  # type
 
 
 @search_all_item.register  # type: ignore[no-redef]
-def _(item: CatsHTMQueryItem, coord: SkyCoord) -> Optional[List[CatalogItem]]:
+def _(item: CatsHTMQueryItem, coord: SkyCoord) -> list[CatalogItem] | None:
     # Only call cone_search if CATSHTM_DIR is configured
     if settings.catshtm_dir is None:
         return None
@@ -191,7 +191,7 @@ def _(item: ExtcatsQueryItem, coord: SkyCoord) -> bool:
 
 def get_catq_with_projection(
     item: ExtcatsQueryItem,
-) -> Tuple[CatalogQuery, Dict[str, Any], Optional[Set[str]], Set[str]]:
+) -> tuple[CatalogQuery, dict[str, Any], set[str] | None, set[str]]:
     if (catq := get_catq(item.name)) is None:
         raise ValueError(f"{item.name} is not a valid extcats catalog")
     # do not return structured index fields
@@ -212,7 +212,7 @@ def get_catq_with_projection(
 
 
 @search_nearest_item.register  # type: ignore[no-redef]
-def _(item: ExtcatsQueryItem, coord: SkyCoord) -> Optional[CatalogItem]:  # type: ignore[no-redef]
+def _(item: ExtcatsQueryItem, coord: SkyCoord) -> CatalogItem | None:  # type: ignore[no-redef]
     catq, projection, allow_keys, disallow_keys = get_catq_with_projection(item)
     row, dist = catq.findclosest(
         coord.ra.deg,
@@ -232,7 +232,7 @@ def _(item: ExtcatsQueryItem, coord: SkyCoord) -> Optional[CatalogItem]:  # type
 
 
 @search_all_item.register  # type: ignore[no-redef]
-def _(item: ExtcatsQueryItem, coord: SkyCoord) -> Optional[List[CatalogItem]]:
+def _(item: ExtcatsQueryItem, coord: SkyCoord) -> list[CatalogItem] | None:
     catq, projection, allow_keys, disallow_keys = get_catq_with_projection(item)
     srcs_tab = catq.findwithin(
         coord.ra.deg,
@@ -261,8 +261,8 @@ def _(item: ExtcatsQueryItem, coord: SkyCoord) -> Optional[List[CatalogItem]]:
 router = APIRouter()
 
 
-@router.post("/any", response_model=List[bool])
-def search_any(request: ConeSearchRequest) -> List[bool]:
+@router.post("/any", response_model=list[bool])
+def search_any(request: ConeSearchRequest) -> list[bool]:
     """
     Are there sources in the search radius?
     """
@@ -270,8 +270,8 @@ def search_any(request: ConeSearchRequest) -> List[bool]:
     return [search_any_item(item, coord) for item in request.catalogs]
 
 
-@router.post("/nearest", response_model=List[Optional[CatalogItem]])
-def search_nearest(request: ConeSearchRequest) -> List[Optional[CatalogItem]]:
+@router.post("/nearest", response_model=list[CatalogItem | None])
+def search_nearest(request: ConeSearchRequest) -> list[CatalogItem | None]:
     """
     Find nearest source in search radius
     """
@@ -279,8 +279,8 @@ def search_nearest(request: ConeSearchRequest) -> List[Optional[CatalogItem]]:
     return [search_nearest_item(item, coord) for item in request.catalogs]
 
 
-@router.post("/all", response_model=List[Optional[List[CatalogItem]]])
-def search_all(request: ConeSearchRequest) -> List[Optional[List[CatalogItem]]]:
+@router.post("/all", response_model=list[list[CatalogItem] | None])
+def search_all(request: ConeSearchRequest) -> list[list[CatalogItem] | None]:
     """
     Find all sources in the search radius
     """

@@ -9,11 +9,10 @@ from functools import lru_cache
 
 # import mat73
 import numpy as np
+from scipy.io.matlab import MatReadError
 
 # Use our S3-aware loadmat wrapper instead of hdf5storage
 from ..matlab_utils import loadmat as sio_loadmat
-from scipy.io.matlab import MatReadError
-
 from . import celestial, class_HDF5, params
 
 __all__ = [
@@ -173,9 +172,7 @@ def cone_search(
         except (NotImplementedError, ValueError, MatReadError):
             if verbose == True:
                 print(
-                    "sio_loadmat did not work for opening {}, trying fallback".format(
-                        file_path
-                    )
+                    f"sio_loadmat did not work for opening {file_path}, trying fallback"
                 )
             # Retry with scipy directly as last resort
             from scipy.io import loadmat as scipy_loadmat

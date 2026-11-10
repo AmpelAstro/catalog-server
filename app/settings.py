@@ -51,6 +51,7 @@ class Settings(BaseSettings):
         MongoUrl("mongodb://localhost:27017"), validation_alias="MONGO_URI"
     )
     catshtm_dir: str | None = Field(None, validation_alias="CATSHTM_DIR")
+    request_log_path: str | None = Field(None, validation_alias="REQUEST_LOG_PATH")
     log_level: str = Field("WARN", validation_alias="LOG_LEVEL")
 
     # Custom validator for catshtm_dir

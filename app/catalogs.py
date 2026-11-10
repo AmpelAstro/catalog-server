@@ -20,7 +20,7 @@ def catshtm_catalog_descriptions():
     """
     from .catsHTM import params
     from .catsHTM.script import get_CatDir
-    from scipy.io import loadmat
+    from .matlab_utils import loadmat
 
     catalogs = []
     if settings.catshtm_dir is None:

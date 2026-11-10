@@ -225,6 +225,12 @@ def test_catshtm_catalog_descriptions_with_s3():
     # Set S3 base URI
     s3_base = "s3://catalogs/catsHTM2/"
     
+    # Set AWS credentials in environment (needed by matplotlib_utils.loadmat)
+    os.environ['AWS_ENDPOINT_URL'] = 'https://ampel-s3.zeuthen.desy.de:8443'
+    os.environ['AWS_ACCESS_KEY_ID'] = 'catalog-writer'
+    os.environ['AWS_SECRET_ACCESS_KEY'] = '98BvJQog/sC3jDNC8wQTSInQontUIU0J8m/d4k5K'
+    os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
+    
     # Patch settings.catshtm_dir
     with patch("app.catalogs.settings.catshtm_dir", s3_base):
         # Call the function - it reads settings.catshtm_dir internally
@@ -233,13 +239,12 @@ def test_catshtm_catalog_descriptions_with_s3():
         
         print(f"\nExpected catalogs from docstring: {expected_count}")
         print(f"Actual catalogs returned: {actual_count}")
-        print(f"Result: {result}")
+        print(f"Result: {[c['name'] for c in result]}")
         
-        # The test: with S3 URI, loadmat will fail, so we expect 0 or very few catalogs
-        # This proves the hypothesis that scipy.io.loadmat doesn't support S3
-        assert actual_count < expected_count, (
-            f"Expected fewer than {expected_count} catalogs due to S3 incompatibility, "
-            f"but got {actual_count}. This suggests S3 support might be working!"
+        # NOW FIXED: with our S3-aware loadmat, we expect ALL catalogs to load
+        assert actual_count == expected_count, (
+            f"Expected {expected_count} catalogs, but got {actual_count}. "
+            f"Some catalogs may be missing from S3 or inaccessible."
         )
 
 

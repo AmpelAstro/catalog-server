@@ -25,9 +25,7 @@ scipy = ">=1.10"
 numpy = ">2"
 # CRITICAL: h5py from conda-forge has ROS3 VFD support compiled in
 h5py = ">=3.9,<4.0"
-# Required by catsHTM for loading .mat files
-hdf5storage = "*"
-# Provides distutils for hdf5storage
+# Provides distutils for legacy packages
 setuptools = "*"
 httpx = ">=0.24.1,<1.0"
 # pulled in by extcats; pypy deps can't transitively depend on conda

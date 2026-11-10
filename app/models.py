@@ -1,20 +1,7 @@
-import sys
 from collections.abc import Sequence
-from typing import Any
+from typing import Annotated, Any, Literal
 
-from pydantic import field_validator
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing import Literal
-
-if sys.version_info >= (3, 9):
-    from typing import Annotated
-else:
-    from typing import Annotated
-
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from .catsHTM.script import get_CatDir, params
 from .mongo import get_catq

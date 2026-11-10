@@ -39,8 +39,10 @@ def sanitize_json(obj):
 def table_to_json(
     table: "Table",
     allow_keys: set[str] | None,
-    disallow_keys: set[str] = set(),
+    disallow_keys: set[str] | None = None,
 ) -> list[dict[str, Any]]:
+    if disallow_keys is None:
+        disallow_keys = set()
     keys = table.keys()
     rows = [
         {
@@ -65,8 +67,10 @@ def table_to_json(
 def row_to_json(
     row: "Row",
     allow_keys: set[str] | None,
-    disallow_keys: set[str] = set(),
+    disallow_keys: set[str] | None = None,
 ) -> dict[str, Any]:
+    if disallow_keys is None:
+        disallow_keys = set()
     keys = row.table.keys()
     return {
         k: sanitize_json(v)
@@ -99,7 +103,7 @@ def _(item: CatsHTMQueryItem, coord: SkyCoord) -> bool:
     if settings.catshtm_dir is None:
         return False
 
-    srcs, colnames, colunits = cone_search(
+    srcs, _colnames, _colunits = cone_search(
         item.name,
         coord.ra.rad,
         coord.dec.rad,
@@ -115,7 +119,7 @@ def _(item: CatsHTMQueryItem, coord: SkyCoord) -> CatalogItem | None:  # type: i
     if settings.catshtm_dir is None:
         return None
 
-    srcs, colnames, colunits = cone_search(
+    srcs, colnames, _colunits = cone_search(
         item.name,
         coord.ra.rad,
         coord.dec.rad,
@@ -144,7 +148,7 @@ def _(item: CatsHTMQueryItem, coord: SkyCoord) -> list[CatalogItem] | None:
     if settings.catshtm_dir is None:
         return None
 
-    srcs, colnames, colunits = cone_search(
+    srcs, colnames, _colunits = cone_search(
         item.name,
         coord.ra.rad,
         coord.dec.rad,
@@ -195,7 +199,7 @@ def get_catq_with_projection(
     if (catq := get_catq(item.name)) is None:
         raise ValueError(f"{item.name} is not a valid extcats catalog")
     # do not return structured index fields
-    remove_keys = set([k for k in [catq.hp_key, catq.s2d_key] if k is not None])
+    remove_keys = {k for k in [catq.hp_key, catq.s2d_key] if k is not None}
     remove_keys.update({"_ra", "_dec"})
     if item.keys_to_append is None:
         projection = {"_id": 0}

@@ -4,11 +4,11 @@ import re
 from functools import lru_cache
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from pymongo.errors import OperationFailure
 
 from .models import CatalogDescription
-from .mongo import get_catq, get_mongo
+from .mongo import MongoClient, get_catq, get_mongo
 from .settings import settings
 
 log = logging.getLogger(__name__)
@@ -165,7 +165,7 @@ def list_catalogs() -> list[CatalogDescription]:
 
 
 @router.get("/{catalog}/{name}")
-def lookup(catalog: str, name: str, mongo=Depends(get_mongo)):
+def lookup(catalog: str, name: str, mongo: MongoClient):
     collection = mongo.get_database(catalog).get_collection("srcs")
     # ensure search will be indexed
     try:

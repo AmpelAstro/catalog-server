@@ -67,7 +67,7 @@ def loadmat(
     """
     # If it's already a file-like object, pass it through
     if hasattr(file_name, 'read'):
-        return scipy_loadmat(file_name, **kwargs)
+        return scipy_loadmat(file_name, **kwargs)  # type: ignore[arg-type]
     
     # If it's not a string, try to pass it through
     if not isinstance(file_name, str):
@@ -119,21 +119,13 @@ def _loadmat_from_s3(
             "and AWS_SECRET_ACCESS_KEY environment variables."
         )
     
-    # Create S3 client with custom endpoint support
-    s3_kwargs = {
-        'endpoint_url': aws_endpoint_url,
-        'region_name': aws_default_region,
-    }
-    
-    # Filter out None values
-    s3_kwargs = {k: v for k, v in s3_kwargs.items() if v is not None}
-    
     try:
-        s3_client = boto3.client(  # type: ignore[call-overload]
+        s3_client = boto3.client(
             's3',
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
-            **s3_kwargs,
+            region_name=aws_default_region,
+            endpoint_url=aws_endpoint_url,
         )
         
         # Download file to BytesIO

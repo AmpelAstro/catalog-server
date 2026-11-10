@@ -61,6 +61,7 @@ def table_to_json(
         for row in table.iterrows()
     ]
 
+
 def row_to_json(
     row: "Row",
     allow_keys: Optional[Set[str]],
@@ -97,7 +98,7 @@ def _(item: CatsHTMQueryItem, coord: SkyCoord) -> bool:
     # Only call cone_search if CATSHTM_DIR is configured
     if settings.catshtm_dir is None:
         return False
-    
+
     srcs, colnames, colunits = cone_search(
         item.name,
         coord.ra.rad,
@@ -113,7 +114,7 @@ def _(item: CatsHTMQueryItem, coord: SkyCoord) -> Optional[CatalogItem]:  # type
     # Only call cone_search if CATSHTM_DIR is configured
     if settings.catshtm_dir is None:
         return None
-    
+
     srcs, colnames, colunits = cone_search(
         item.name,
         coord.ra.rad,
@@ -142,7 +143,7 @@ def _(item: CatsHTMQueryItem, coord: SkyCoord) -> Optional[List[CatalogItem]]:
     # Only call cone_search if CATSHTM_DIR is configured
     if settings.catshtm_dir is None:
         return None
-    
+
     srcs, colnames, colunits = cone_search(
         item.name,
         coord.ra.rad,

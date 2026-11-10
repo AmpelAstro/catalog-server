@@ -9,6 +9,7 @@ from functools import lru_cache
 
 # import mat73
 import numpy as np
+
 # Use our S3-aware loadmat wrapper instead of hdf5storage
 from ..matlab_utils import loadmat as sio_loadmat
 from scipy.io.matlab import MatReadError
@@ -143,10 +144,10 @@ def cone_search(
 
     ColCelFile = ColCelFile % CatName
     IndexFilename = IndexFileTemplate % CatName
-    
-    file_path = root_to_data.rstrip('/') + "/" + CatDir.lstrip('/') + "/" + ColCelFile
+
+    file_path = root_to_data.rstrip("/") + "/" + CatDir.lstrip("/") + "/" + ColCelFile
     is_s3_uri = file_path.startswith("s3://")
-    
+
     # For S3 URIs, skip os.path.isfile check (doesn't work with S3)
     # and use class_HDF5 which supports ROS3 VFD
     if is_s3_uri:
@@ -178,6 +179,7 @@ def cone_search(
                 )
             # Retry with scipy directly as last resort
             from scipy.io import loadmat as scipy_loadmat
+
             test = scipy_loadmat(file_path)
         if np.shape(test["ColCell"])[1] < np.shape(test["ColCell"])[0]:
             # test=test.transpose()

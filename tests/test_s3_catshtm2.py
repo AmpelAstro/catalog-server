@@ -24,17 +24,22 @@ from app.catsHTM.class_HDF5 import HDF5, _is_s3_uri
 # Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def sample_hdf5_file() -> Generator[str, None, None]:
     """Create a temporary HDF5 file for testing."""
     with tempfile.NamedTemporaryFile(suffix=".h5", delete=False) as tmp:
         tmp_path = tmp.name
-    
+
     try:
         with h5py.File(tmp_path, "w") as f:
             # Create test datasets similar to CATSHTM2
-            f.create_dataset("test_matrix", data=np.random.rand(100, 100).astype(np.float32))
-            f.create_dataset("test_vector", data=np.random.rand(1000).astype(np.float32))
+            f.create_dataset(
+                "test_matrix", data=np.random.rand(100, 100).astype(np.float32)
+            )
+            f.create_dataset(
+                "test_vector", data=np.random.rand(1000).astype(np.float32)
+            )
             f.create_dataset("test_scalar", data=np.float32(42.0))
             # Edge case: empty dataset
             f.create_dataset("empty_dataset", data=np.array([]))
@@ -95,12 +100,13 @@ def test_edge_case_uris(uri, expected: bool, description: str):
 # HDF5 Class Tests
 # ============================================================================
 
+
 def test_hdf5_class_instantiation():
     """Test that HDF5 class can be instantiated with various inputs."""
     # Local path
     loader1 = HDF5("/fake/path.h5")
     assert loader1.FileName == "/fake/path.h5"
-    
+
     # S3 URI
     loader2 = HDF5("s3://bucket/file.h5")
     assert loader2.FileName == "s3://bucket/file.h5"
@@ -117,17 +123,17 @@ def test_is_s3_uri_function():
 def test_load_existing_local_file(sample_hdf5_file: str):
     """Test loading data from a local HDF5 file."""
     loader = HDF5(sample_hdf5_file)
-    
+
     # Load matrix
     data = loader.load("test_matrix", numpy_array=True)
     assert isinstance(data, np.ndarray)
     assert data.shape == (100, 100)
-    
+
     # Load vector
     data = loader.load("test_vector", numpy_array=True)
     assert isinstance(data, np.ndarray)
     assert data.shape == (1000,)
-    
+
     # Load scalar
     data = loader.load("test_scalar", numpy_array=True)
     assert isinstance(data, (np.ndarray, float, int))
@@ -144,11 +150,11 @@ def test_empty_dataset(sample_hdf5_file: str):
 def test_numpy_array_option(sample_hdf5_file: str):
     """Test numpy_array parameter."""
     loader = HDF5(sample_hdf5_file)
-    
+
     # With numpy_array=True
     data_np = loader.load("test_matrix", numpy_array=True)
     assert isinstance(data_np, np.ndarray)
-    
+
     # With numpy_array=False
     data_raw = loader.load("test_matrix", numpy_array=False)
     # Raw data can be various types depending on h5py version
@@ -158,14 +164,10 @@ def test_numpy_array_option(sample_hdf5_file: str):
 def test_with_offset_and_block(sample_hdf5_file: str):
     """Test loading with offset and block parameters."""
     loader = HDF5(sample_hdf5_file)
-    
+
     # Load subset of matrix
     data = loader.load(
-        "test_matrix", 
-        numpy_array=True, 
-        Offset=[0, 0], 
-        Block=[10, 10],
-        Verbose=False
+        "test_matrix", numpy_array=True, Offset=[0, 0], Block=[10, 10], Verbose=False
     )
     assert isinstance(data, np.ndarray)
     assert data.shape == (10, 10)
@@ -174,7 +176,7 @@ def test_with_offset_and_block(sample_hdf5_file: str):
 def test_full_array_without_offset_block(sample_hdf5_file: str):
     """Test loading full array without specifying offset/block."""
     loader = HDF5(sample_hdf5_file)
-    
+
     data = loader.load("test_matrix", numpy_array=True, Verbose=False)
     assert isinstance(data, np.ndarray)
     assert data.shape == (100, 100)
@@ -196,7 +198,7 @@ def test_local_paths_with_special_chars():
         "/path/with_underscores/file.h5",
         "/path/with.dots/file.h5",
     ]
-    
+
     for path in special_paths:
         loader = HDF5(path)
         assert loader.FileName == path
@@ -209,7 +211,7 @@ def test_s3_uris_with_special_chars():
         "bucket_with_underscores",
         "bucket.with.dots",
     ]
-    
+
     for bucket in special_buckets:
         uri = f"s3://{bucket}/file.h5"
         loader = HDF5(uri)

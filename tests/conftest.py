@@ -14,19 +14,20 @@ from app.main import app
 from app.mongo import get_catq
 from app.settings import Settings, settings
 
-#import nest_asyncio
-#nest_asyncio.apply()
+# import nest_asyncio
+# nest_asyncio.apply()
 
 
 # ============================================================================
 # Docker/Testcontainers Configuration
 # ============================================================================
 
+
 @pytest.fixture(scope="session")
 def _docker(pytestconfig):
     """
     Configure Docker for Rancher Desktop.
-    
+
     This fixture sets up Docker environment variables for testcontainers
     to work with Rancher Desktop. It does NOT skip tests - dependent fixtures
     should handle skipping if --integration is not enabled.
@@ -50,13 +51,13 @@ def pytest_addoption(parser):
 def _configure_docker_for_rancher_desktop():
     """
     Configure Docker client to work with Rancher Desktop.
-    
+
     Rancher Desktop places its Docker socket at ~/.rd/docker.sock instead of
     the standard /var/run/docker.sock. This fixture detects Rancher Desktop
     and configures the environment accordingly.
     """
     from pathlib import Path
-    
+
     # Check for Rancher Desktop socket
     rd_socket = Path.home() / ".rd" / "docker.sock"
     if rd_socket.exists():
@@ -71,6 +72,7 @@ def _configure_docker_for_rancher_desktop():
             print(f"✅ Using standard Docker socket ({std_socket})")
         else:
             print("⚠️  Docker socket not found at standard locations")
+
 
 # # https://github.com/encode/starlette/issues/652#issuecomment-569327566
 # @pytest.mark.anyio
@@ -133,11 +135,13 @@ def mock_catshtm(monkeypatch):
     """Mock CATSHTM_DIR to point to test data directory."""
     test_data_dir = Path(__file__).parent / "test-data" / "catsHTM2"
     monkeypatch.setenv("CATSHTM_DIR", str(test_data_dir))
-    
+
 
 @pytest_asyncio.fixture
 async def mock_client(mock_extcats, mock_catshtm, without_keys_doc):
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
         yield client
 
 
@@ -145,19 +149,19 @@ async def mock_client(mock_extcats, mock_catshtm, without_keys_doc):
 def uvicorn_process(pytestconfig):
     """
     Fixture that starts uvicorn in a subprocess for integration testing.
-    
+
     Features:
     - Runs uvicorn asynchronously in background process
     - Captures stdout/stderr logs
     - Dumps logs on test failure for easier debugging
     - Automatically stops on test completion
     - Configurable host/port
-    
+
     Usage:
         def test_api(uvicorn_process):
             url = f"http://{uvicorn_process.host}:{uvicorn_process.port}"
             # ... make requests to url
-    
+
     Environment Variables:
         Can be overridden by setting UVICORN_HOST, UVICORN_PORT, etc.
     """
@@ -168,51 +172,61 @@ def uvicorn_process(pytestconfig):
     import time
     import urllib.request
     import urllib.error
-    
+
     # Only run if --integration flag is specified
     if not pytestconfig.getoption("--integration"):
         raise pytest.skip("Integration tests require --integration flag")
-    
+
     # Check if CATALOGSERVER_URI is set (prefer external server)
     if "CATALOGSERVER_URI" in os.environ:
         raise pytest.skip(
             "CATALOGSERVER_URI is set; using external server instead of subprocess"
         )
-    
+
     # Configuration (can be overridden by environment variables)
     host = os.environ.get("UVICORN_HOST", "127.0.0.1")
     port = int(os.environ.get("UVICORN_PORT", 8000))
     workers = int(os.environ.get("UVICORN_WORKERS", 1))
     log_level = os.environ.get("UVICORN_LOG_LEVEL", "warning")
-    
+
     # Queue for capturing output
     output_queue = queue.Queue()
-    
+
     # Build command
     cmd = [
-        sys.executable, "-m", "uvicorn",
+        sys.executable,
+        "-m",
+        "uvicorn",
         "app.main:app",
-        "--host", host,
-        "--port", str(port),
-        "--workers", str(workers),
-        "--log-level", log_level,
+        "--host",
+        host,
+        "--port",
+        str(port),
+        "--workers",
+        str(workers),
+        "--log-level",
+        log_level,
     ]
-    
+
     # Add environment variables for the uvicorn process
     env = os.environ.copy()
-    env.update({
-        "ROOT_PATH": "/api/catalogmatch",
-        "PYTHONPATH": os.pathsep.join([
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            env.get("PYTHONPATH", "")
-        ]),
-    })
-    
+    env.update(
+        {
+            "ROOT_PATH": "/api/catalogmatch",
+            "PYTHONPATH": os.pathsep.join(
+                [
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                    env.get("PYTHONPATH", ""),
+                ]
+            ),
+        }
+    )
+
     # Start process
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print(f"Starting uvicorn server: {' '.join(cmd)}")
-    print(f"{'='*80}\n")
-    
+    print(f"{'=' * 80}\n")
+
     proc = subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
@@ -222,7 +236,7 @@ def uvicorn_process(pytestconfig):
         bufsize=1,
         universal_newlines=True,
     )
-    
+
     # Thread to capture output
     def capture_output():
         try:
@@ -230,17 +244,17 @@ def uvicorn_process(pytestconfig):
                 output_queue.put(line)
         except Exception as e:
             output_queue.put(f"[CAPTURE ERROR] {str(e)}")
-    
+
     output_thread = threading.Thread(target=capture_output, daemon=True)
     output_thread.start()
-    
+
     # Wait for server to start (up to 30 seconds)
     max_wait = float(os.environ.get("UVICORN_START_TIMEOUT", 30))
     interval = 0.5
     waited = 0
-    
+
     url = f"http://{host}:{port}/api/catalogmatch/catalogs/"
-    
+
     while waited < max_wait:
         try:
             req = urllib.request.Request(url, method="GET")
@@ -255,7 +269,7 @@ def uvicorn_process(pytestconfig):
         # Server didn't start in time
         proc.kill()
         output_thread.join(timeout=5)
-        
+
         # Collect any output for debugging
         logs = []
         while not output_queue.empty():
@@ -263,7 +277,7 @@ def uvicorn_process(pytestconfig):
                 logs.append(output_queue.get_nowait())
             except queue.Empty:
                 break
-        
+
         error_msg = (
             f"❌ Uvicorn server failed to start within {max_wait}s\n"
             f"Command: {' '.join(cmd)}\n"
@@ -274,13 +288,13 @@ def uvicorn_process(pytestconfig):
             error_msg += f"Logs:\n{''.join(logs)}"
         else:
             error_msg += "No logs captured"
-        
+
         pytest.fail(error_msg)
-    
+
     # Create wrapper class for the process
     class UvicornProcessWrapper:
         """Wrapper class for managing uvicorn subprocess."""
-        
+
         def __init__(self, proc, output_queue, output_thread, host, port):
             self.proc = proc
             self.output_queue = output_queue
@@ -289,7 +303,7 @@ def uvicorn_process(pytestconfig):
             self.port = port
             self.base_url = f"http://{host}:{port}/api/catalogmatch"
             self._logs_dumped = False
-        
+
         def get_logs(self):
             """Get all captured logs."""
             logs = []
@@ -299,12 +313,12 @@ def uvicorn_process(pytestconfig):
                 except queue.Empty:
                     break
             return "".join(logs)
-        
+
         def dump_logs(self):
             """Dump logs to console."""
             if self._logs_dumped:
                 return
-            
+
             logs = self.get_logs()
             if logs:
                 print("\n" + "=" * 80)
@@ -313,7 +327,7 @@ def uvicorn_process(pytestconfig):
                 print(logs)
                 print("=" * 80 + "\n")
                 self._logs_dumped = True
-        
+
         def stop(self):
             """Stop the uvicorn process gracefully."""
             if self.proc.poll() is None:  # Process still running
@@ -329,15 +343,17 @@ def uvicorn_process(pytestconfig):
                     self.proc.kill()
                     self.proc.wait(timeout=5)
                     print("✅ Uvicorn server killed")
-            
+
             # Stop output thread
             if self.output_thread.is_alive():
                 self.output_thread.join(timeout=5)
-    
-    process_wrapper = UvicornProcessWrapper(proc, output_queue, output_thread, host, port)
-    
+
+    process_wrapper = UvicornProcessWrapper(
+        proc, output_queue, output_thread, host, port
+    )
+
     yield process_wrapper
-    
+
     # Teardown: dump logs and stop process
     process_wrapper.dump_logs()
     process_wrapper.stop()
@@ -352,7 +368,7 @@ def web_service(pytestconfig):
     """
     if not pytestconfig.getoption("--integration"):
         raise pytest.skip("integration tests require --integration flag")
-    
+
     # use an external fixture for local development or CI
     if "CATALOGSERVER_URI" in os.environ:
         uri = os.environ["CATALOGSERVER_URI"]
@@ -361,18 +377,20 @@ def web_service(pytestconfig):
             uri = uri.rstrip("/") + "/api/catalogmatch"
         yield uri
         return
-    
+
     # Fallback: try to detect if we're in CI with uvicorn running
     # This allows the test suite to work with the GitHub Actions workflow
     # which starts uvicorn separately
-    raise pytest.skip("integration tests require CATALOGSERVER_URI env var or docker-compose")
+    raise pytest.skip(
+        "integration tests require CATALOGSERVER_URI env var or docker-compose"
+    )
 
 
 @pytest_asyncio.fixture
 async def integration_client(request, pytestconfig):
     """
     Provides an HTTP client for integration tests.
-    
+
     If CATALOGSERVER_URI is set, connects to that external server.
     Otherwise, starts uvicorn as a subprocess (requires --integration flag).
     """
@@ -386,8 +404,10 @@ async def integration_client(request, pytestconfig):
         uvi_proc = request.getfixturevalue("uvicorn_process")
         base_url = uvi_proc.base_url
     else:
-        raise pytest.skip("integration tests require --integration flag or CATALOGSERVER_URI")
-    
+        raise pytest.skip(
+            "integration tests require --integration flag or CATALOGSERVER_URI"
+        )
+
     # Use longer timeout for subprocess uvicorn (slower startup)
     async with AsyncClient(base_url=base_url, timeout=Timeout(30.0)) as client:
         yield client
@@ -404,5 +424,3 @@ def test_client(request, pytestconfig):
         return request.getfixturevalue("integration_client")
     else:
         return request.getfixturevalue("mock_client")
-
-

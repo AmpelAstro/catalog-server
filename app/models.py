@@ -54,25 +54,36 @@ class CatsHTMQueryItem(CatalogQueryItem):
         # If CATSHTM_DIR is not set, skip validation
         if settings.catshtm_dir is None:
             return value
-        
+
         # For S3 URIs, we can't easily check file existence without making a network call
         # So we skip the existence check for S3 URIs
         # For local paths, perform the existence check
-        if isinstance(settings.catshtm_dir, str) and settings.catshtm_dir.startswith("s3://"):
+        if isinstance(settings.catshtm_dir, str) and settings.catshtm_dir.startswith(
+            "s3://"
+        ):
             # S3 URI - skip existence check (will be validated when actually used)
             return value
-        
+
         # Local path - perform existence check
         try:
             from pathlib import Path
-            file_path = Path(settings.catshtm_dir) / get_CatDir(value) / (params.ColCelFile % value)
+
+            file_path = (
+                Path(settings.catshtm_dir)
+                / get_CatDir(value)
+                / (params.ColCelFile % value)
+            )
             if not file_path.exists():
                 raise FileNotFoundError
         except (ValueError, FileNotFoundError) as exc:
             raise ValueError(f"Unknown catsHTM catalog '{value}'") from exc
         return value
 
-QueryItem = Annotated[Union[ExtcatsQueryItem, CatsHTMQueryItem], Field(discriminator="use")]
+
+QueryItem = Annotated[
+    Union[ExtcatsQueryItem, CatsHTMQueryItem], Field(discriminator="use")
+]
+
 
 class CatalogItem(BaseModel):
     body: Dict[str, Any]

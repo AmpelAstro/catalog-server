@@ -26,10 +26,10 @@ import numpy as np
 def _is_s3_uri(path: str) -> bool:
     """
     Check if the given path is an S3 URI.
-    
+
     Args:
         path: The path to check
-        
+
     Returns:
         True if path starts with 's3://', False otherwise
     """
@@ -55,7 +55,7 @@ class HDF5:
         Example: class_HDF5.HDF5('FIRST_htm_010900.hdf5').load('htm_010921',numpy_array=True,Offset=[0,0],Block=[2,4])
         gives the transpose of Cat = HDF5.load('FIRST_htm_010900.hdf5','htm_010921',[1,1],[2,4]) in matlab"""
         filename = self.FileName
-        
+
         # Handle S3 URIs with ROS3 VFD
         if _is_s3_uri(filename):
             # For S3 URIs, use ROS3 VFD driver
@@ -79,7 +79,7 @@ class HDF5:
                     )
                 return np.array([])
             f = h5py.File(filename, "r")
-        
+
         # Common processing for both S3 and local files
         if dataset_name not in f:
             if Verbose == True:
@@ -123,6 +123,6 @@ class HDF5:
                 else:
                     data = f[dataset_name]
                 # MemSpaceId=h5py.h5s.create_simple(TUPLE dims_tpl, TUPLE max_dims_tpl)
-        
+
         f.close()
         return data

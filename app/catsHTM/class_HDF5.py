@@ -69,7 +69,7 @@ class HDF5:
                         f"Cannot open S3 file <{filename}>: {e}. "
                         "Ensure AWS_ENDPOINT_URL and credentials are configured."
                     )
-                return np.array([])
+                raise OSError(f"Cannot open S3 file <{filename}>: {e}") from e
         else:
             # Existing local filesystem logic
             if os.path.exists(filename) == False:
@@ -77,7 +77,7 @@ class HDF5:
                     print(
                         f"Cannot open the file <{filename}>, it does not exist, the trixel must be empty of sources"
                     )
-                return np.array([])
+                raise FileNotFoundError(f"HDF5 file not found: {filename}")
             f = h5py.File(filename, "r")
 
         # Common processing for both S3 and local files
@@ -87,7 +87,7 @@ class HDF5:
                     f"Cannot read Dataset <{dataset_name}> from hdf5 file <{f}>, the trixel must be empty of sources"
                 )
             f.close()
-            return np.array([])
+            raise KeyError(f"Dataset '{dataset_name}' not found in HDF5 file '{filename}'")
         else:
             if numpy_array == True:
                 datax = np.array(f[dataset_name])

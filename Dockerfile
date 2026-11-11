@@ -17,6 +17,10 @@ RUN cat /shell-hook >> /app/entrypoint.sh
 RUN echo 'exec "$@"' >> /app/entrypoint.sh
 
 FROM ubuntu:24.04 AS production
+
+# install ca certs for aws-c
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 # only copy the production environment into prod container
 # please note that the "prefix" (path) needs to stay the same as in the build container
@@ -30,8 +34,7 @@ ENV PYTHONPATH=/app
 # Create cache dirs for astropy and friends
 RUN mkdir -p --mode a=rwx /var/cache/astropy
 ENV XDG_CACHE_HOME=/var/cache XDG_CONFIG_HOME=/var/cache
-# use certifi CAs
-ENV AWS_CA_BUNDLE=/app/.pixi/envs/default/ssl/cacert.pem
+
 
 EXPOSE 80
 ENTRYPOINT [ "/app/entrypoint.sh" ]

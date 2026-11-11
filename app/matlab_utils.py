@@ -137,7 +137,10 @@ def _loadmat_from_s3(
 
     except ClientError as e:
         error_msg = f"Failed to download {s3_uri} from S3: {e}"
-        if e.response["Error"]["Code"] == "NoSuchKey" or e.response["Error"]["Code"] == "NoSuchBucket":
+        if (
+            e.response["Error"]["Code"] == "NoSuchKey"
+            or e.response["Error"]["Code"] == "NoSuchBucket"
+        ):
             raise FileNotFoundError(error_msg)
         else:
             raise RuntimeError(error_msg)

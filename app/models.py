@@ -69,9 +69,7 @@ class CatsHTMQueryItem(CatalogQueryItem):
         return value
 
 
-QueryItem = Annotated[
-    ExtcatsQueryItem | CatsHTMQueryItem, Field(discriminator="use")
-]
+QueryItem = Annotated[ExtcatsQueryItem | CatsHTMQueryItem, Field(discriminator="use")]
 
 
 class CatalogItem(BaseModel):

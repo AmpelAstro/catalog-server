@@ -30,6 +30,8 @@ ENV PYTHONPATH=/app
 # Create cache dirs for astropy and friends
 RUN mkdir -p --mode a=rwx /var/cache/astropy
 ENV XDG_CACHE_HOME=/var/cache XDG_CONFIG_HOME=/var/cache
+# use certifi CAs
+ENV AWS_CA_BUNDLE=/app/.pixi/envs/default/ssl/cacert.pem
 
 EXPOSE 80
 ENTRYPOINT [ "/app/entrypoint.sh" ]

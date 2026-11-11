@@ -15,6 +15,7 @@ mongo_db: pymongo.MongoClient = pymongo.MongoClient(str(settings.mongo_uri))
 def get_mongo() -> pymongo.MongoClient:
     return mongo_db
 
+
 MongoClient = Annotated[pymongo.MongoClient, Depends(get_mongo)]
 
 

@@ -1,13 +1,12 @@
-import logging
-
 from fastapi import FastAPI
 
 from .catalogs import router as catalogs_router
 from .cone_search import router as cone_search_router
-from .middleware import RequestLoggerMiddleware
+from .logging import configure_logging
+from .middleware import LogCorrelationIdMiddleware, RequestLoggerMiddleware
 from .settings import settings
 
-logging.basicConfig(level=settings.log_level)
+configure_logging()
 
 tags_metadata = [
     {
@@ -30,6 +29,7 @@ app = FastAPI(
 
 # Add request logger middleware (no-op if REQUEST_LOG_PATH not set)
 app.add_middleware(RequestLoggerMiddleware)
+app.add_middleware(LogCorrelationIdMiddleware)
 
 app.include_router(cone_search_router, prefix="/cone_search", tags=["cone_search"])
 app.include_router(catalogs_router, prefix="/catalogs", tags=["catalogs"])

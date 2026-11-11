@@ -2,13 +2,18 @@
 
 import json
 import time
+from collections.abc import Awaitable, Callable
 from pathlib import Path
-from typing import Callable, Awaitable, TextIO
+from typing import TextIO
 
+import structlog
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 from app.settings import settings
+
+from .logging import generate_correlation_id
 
 
 class RequestLoggerMiddleware(BaseHTTPMiddleware):
@@ -27,31 +32,37 @@ class RequestLoggerMiddleware(BaseHTTPMiddleware):
             except Exception:
                 pass
 
-    async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         # Check if logging path has changed
         current_path = settings.request_log_path
-        
+
         # If path changed or we don't have a file open, reconfigure
         if current_path != self._current_log_path:
             # Close old file if open
             if self._log_file:
                 self._log_file.close()
-            
+
             # Open new file if path is set
             if current_path:
                 log_path = Path(current_path)
                 log_path.parent.mkdir(parents=True, exist_ok=True)
                 try:
                     self._log_file = log_path.open("a", encoding="utf-8")
-                except IOError as e:
+                except OSError as e:
                     import sys
-                    print(f"WARNING: Failed to open request log file {log_path}: {e}", file=sys.stderr)
+
+                    print(
+                        f"WARNING: Failed to open request log file {log_path}: {e}",
+                        file=sys.stderr,
+                    )
                     self._log_file = None
             else:
                 self._log_file = None
-            
+
             self._current_log_path = current_path
-        
+
         # Early exit if no log file
         if self._log_file is None:
             return await call_next(request)
@@ -85,8 +96,9 @@ class RequestLoggerMiddleware(BaseHTTPMiddleware):
             json.dump(log_entry, self._log_file)
             self._log_file.write("\n")
             self._log_file.flush()  # Ensure immediate write
-        except IOError as e:
+        except OSError as e:
             import sys
+
             print(f"ERROR: Failed to write request log: {e}", file=sys.stderr)
 
         # Reconstruct request with body for downstream handlers
@@ -100,6 +112,7 @@ class RequestLoggerMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             # Log the error with the request
             import traceback
+
             error_log = {
                 "timestamp": timestamp,
                 "method": request.method,
@@ -115,6 +128,25 @@ class RequestLoggerMiddleware(BaseHTTPMiddleware):
                 json.dump(error_log, self._log_file)
                 self._log_file.write("\n")
                 self._log_file.flush()
-            except IOError:
+            except OSError:
                 pass  # Don't let logging failures mask the original error
             raise
+
+
+class LogCorrelationIdMiddleware:
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+
+        structlog.contextvars.bind_contextvars(
+            correlation_id=generate_correlation_id(),
+            method=scope["method"],
+            path=scope["path"],
+        )
+
+        await self.app(scope, receive, send)
+
+        structlog.contextvars.unbind_contextvars("correlation_id", "method", "path")

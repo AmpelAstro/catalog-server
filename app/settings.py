@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Annotated
+from typing import TYPE_CHECKING, Annotated, Literal
 
 from pydantic import (
     AnyHttpUrl,
@@ -53,6 +53,10 @@ class Settings(BaseSettings):
     catshtm_dir: str | None = Field(None, validation_alias="CATSHTM_DIR")
     request_log_path: str | None = Field(None, validation_alias="REQUEST_LOG_PATH")
     log_level: str = Field("WARN", validation_alias="LOG_LEVEL")
+    log_mode: Literal["dev", "prod"] = Field("dev", validation_alias="LOG_MODE")
+
+    def is_production(self) -> bool:
+        return self.log_mode == "prod"
 
     # Custom validator for catshtm_dir
     _validate_catshtm_dir = field_validator("catshtm_dir")(_validate_catshtm_dir)

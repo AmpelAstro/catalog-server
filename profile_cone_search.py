@@ -8,9 +8,15 @@ and measures execution time.
 Usage:
     python profile_cone_search.py          # Default: 100 arcsec at (0, 0)
     python profile_cone_search.py 1.5      # Custom radius in arcsec at (0, 0)
-    python profile_cone_search.py --random 10  # 10 random points with default radius
+    python profile_cone_search.py --random 10  # 10 random points over full sphere
     python profile_cone_search.py --random 10 100  # 10 random points, radius=100 arcsec
+    python profile_cone_search.py --random 10 --area 9.6  # 10 random points in 9.6 sq deg box at (0,0)
     python -m cProfile -s cumulative profile_cone_search.py  # Detailed profiling
+
+Area Options:
+    --area X: Randomize over X square degrees box centered at (0,0)
+              Default: None (full sphere)
+    For Rubin LSST: use --area 9.6 (single visit footprint)
 """
 
 import os
@@ -41,22 +47,53 @@ os.environ["CATSHTM_DIR"] = s3_base
 from app.catsHTM.script import cone_search
 
 
-def generate_random_point():
-    """Generate a random (RA, Dec) point uniformly distributed over the sphere.
+def generate_random_point(center_ra=0.0, center_dec=0.0, area_sq_deg=None):
+    """Generate a random (RA, Dec) point.
     
-    Accounts for projection effects by:
-    - Drawing sin(dec) uniformly from [-1, 1]
-    - Converting to dec using arcsin
-    - RA drawn uniformly from [0, 360]
+    If area_sq_deg is None: uniformly distributed over the full sphere.
+    If area_sq_deg is set: uniformly distributed within a rectangular box 
+    of the given area (square degrees) centered at (center_ra, center_dec).
+    
+    For the box case, we approximate by treating RA and Dec as Cartesian
+    near the center point (valid for small areas like Rubin's 9.6 sq deg).
+    
+    Args:
+        center_ra: Center RA in degrees (default: 0)
+        center_dec: Center Dec in degrees (default: 0)
+        area_sq_deg: Area in square degrees for bounding box (default: None = full sphere)
     
     Returns:
         tuple: (ra_degrees, dec_degrees)
     """
     import random
-    ra = random.uniform(0, 360)  # Uniform in RA
-    sin_dec = random.uniform(-1, 1)  # Uniform in sin(dec) accounts for cos(dec) projection
-    dec = math.degrees(math.asin(sin_dec))  # Convert to degrees
-    return ra, dec
+    
+    if area_sq_deg is None:
+        # Full sphere: uniform distribution accounting for projection
+        ra = random.uniform(0, 360)  # Uniform in RA
+        sin_dec = random.uniform(-1, 1)  # Uniform in sin(dec) accounts for cos(dec) projection
+        dec = math.degrees(math.asin(sin_dec))  # Convert to degrees
+        return ra, dec
+    else:
+        # Rectangular box approximation (valid for small areas)
+        # Assume roughly square: side_length = sqrt(area_sq_deg)
+        side_deg = math.sqrt(area_sq_deg)
+        half_side = side_deg / 2
+        
+        # Generate offsets from center
+        delta_ra = random.uniform(-half_side, half_side)
+        delta_dec = random.uniform(-half_side, half_side)
+        
+        # Apply offsets to center
+        ra = center_ra + delta_ra
+        dec = center_dec + delta_dec
+        
+        # Normalize RA to [0, 360]
+        ra = ra % 360
+        
+        # Clamp Dec to [-90, 90]
+        dec = max(-90, min(90, dec))
+        
+        return ra, dec
 
 
 def profile_gaiadr2_cone_search(radius_arcsec=100.0, ra=None, dec=None):
@@ -116,7 +153,10 @@ if __name__ == "__main__":
     parser.add_argument("radius", type=float, nargs="?", default=100.0,
                        help="Search radius in arcseconds (default: 100)")
     parser.add_argument("--random", "-n", type=int, metavar="N",
-                       help="Run N queries at random positions on the sphere")
+                       help="Run N queries at random positions")
+    parser.add_argument("--area", type=float, metavar="SQ_DEG",
+                       help="Area in square degrees for random box (default: full sphere). "
+                            "Use 9.6 for Rubin LSST single visit footprint.")
     parser.add_argument("--seed", type=int, default=None,
                        help="Random seed for reproducibility")
     args = parser.parse_args()
@@ -126,11 +166,12 @@ if __name__ == "__main__":
         random.seed(args.seed)
     
     if args.random:
-        print(f"Running {args.random} random cone searches with radius={args.radius} arcsec\n")
+        area_desc = f"{args.area} sq deg box at (0,0)" if args.area else "full sphere"
+        print(f"Running {args.random} random cone searches over {area_desc} with radius={args.radius} arcsec\n")
         print("-" * 60)
         times = []
         for i in range(args.random):
-            ra, dec = generate_random_point()
+            ra, dec = generate_random_point(center_ra=0.0, center_dec=0.0, area_sq_deg=args.area)
             start = time.perf_counter()
             cat_onlycone, ColCell, ColUnits = cone_search(
                 "GAIADR2", ra, dec, args.radius, catalogs_dir=s3_base, verbose=False

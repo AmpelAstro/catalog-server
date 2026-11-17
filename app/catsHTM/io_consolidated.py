@@ -1,3 +1,4 @@
+# type: ignore
 """
 IO Module for Consolidated CATSHTM2 HDF5 Files
 
@@ -11,7 +12,6 @@ complexities with h5py type annotations that pyright struggles with.
 The code is tested and works correctly despite the type checker warnings.
 """
 
-# type: ignore
 import h5py
 import numpy as np
 from typing import Optional, Union, List, Tuple
@@ -129,14 +129,28 @@ class ConsolidatedCatalog:
         """List of column names."""
         if self._colcell is None:
             self._load_metadata()
-        return [str(c) for c in self._colcell]
+        # Decode bytes to strings if needed
+        result = []
+        for c in self._colcell:
+            if isinstance(c, bytes):
+                result.append(c.decode('utf-8'))
+            else:
+                result.append(str(c))
+        return result
     
     @property
     def colunits(self) -> List[str]:
         """List of column units."""
         if self._colunits is None:
             self._load_metadata()
-        return [str(u) for u in self._colunits]
+        # Decode bytes to strings if needed
+        result = []
+        for u in self._colunits:
+            if isinstance(u, bytes):
+                result.append(u.decode('utf-8'))
+            else:
+                result.append(str(u))
+        return result
     
     @property
     def trixel_ids(self) -> np.ndarray:

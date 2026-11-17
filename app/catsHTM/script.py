@@ -4,15 +4,10 @@ A python implementation of catsHTM.m
 # print __doc__
 
 import math
-import os.path
 from functools import lru_cache
 
-# import mat73
 import numpy as np
-from scipy.io.matlab import MatReadError
 
-# Use our S3-aware loadmat wrapper instead of hdf5storage
-from ..matlab_utils import loadmat as sio_loadmat
 from . import celestial, io, params
 
 __all__ = [

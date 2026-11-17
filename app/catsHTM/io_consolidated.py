@@ -159,6 +159,13 @@ class ConsolidatedCatalog:
             self._load_metadata()
         return self._trixel_ids.copy()
     
+    @property
+    def index_data(self) -> np.ndarray:
+        """The HTM index data array."""
+        if self._file is None:
+            raise RuntimeError("File not open. Call open() first.")
+        return np.asarray(self._file['index'])
+    
     def get_col_index(self, colname: str) -> int:
         """
         Get the index of a column by name.

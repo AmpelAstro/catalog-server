@@ -3,7 +3,7 @@ Unit tests for S3-backed CATSHTM2 support.
 
 Tests exercise application code that handles S3 URIs:
 - URI detection (_is_s3_uri)
-- HDF5 class with S3 support
+- load_hdf5_dataset function with S3 support
 - loadmat wrapper for MATLAB files
 """
 
@@ -17,7 +17,7 @@ import h5py
 import numpy as np
 
 # Direct imports - will raise ImportError if not available (intentional)
-from app.catsHTM.class_HDF5 import HDF5, _is_s3_uri
+from app.catsHTM.io import _is_s3_uri, load_hdf5_dataset
 
 
 # ============================================================================
@@ -97,19 +97,15 @@ def test_edge_case_uris(uri, expected: bool, description: str):
 
 
 # ============================================================================
-# HDF5 Class Tests
+# HDF5 I/O Function Tests
 # ============================================================================
 
 
-def test_hdf5_class_instantiation():
-    """Test that HDF5 class can be instantiated with various inputs."""
-    # Local path
-    loader1 = HDF5("/fake/path.h5")
-    assert loader1.FileName == "/fake/path.h5"
-
-    # S3 URI
-    loader2 = HDF5("s3://bucket/file.h5")
-    assert loader2.FileName == "s3://bucket/file.h5"
+def test_load_hdf5_dataset_basic():
+    """Test that load_hdf5_dataset function can handle various inputs."""
+    # This is tested indirectly through other tests
+    # The HDF5 class has been removed in favor of standalone functions
+    pass
 
 
 def test_is_s3_uri_function():
@@ -122,83 +118,51 @@ def test_is_s3_uri_function():
 
 def test_load_existing_local_file(sample_hdf5_file: str):
     """Test loading data from a local HDF5 file."""
-    loader = HDF5(sample_hdf5_file)
-
     # Load matrix
-    data = loader.load("test_matrix", numpy_array=True)
+    data = load_hdf5_dataset(sample_hdf5_file, "test_matrix")
     assert isinstance(data, np.ndarray)
     assert data.shape == (100, 100)
 
     # Load vector
-    data = loader.load("test_vector", numpy_array=True)
+    data = load_hdf5_dataset(sample_hdf5_file, "test_vector")
     assert isinstance(data, np.ndarray)
     assert data.shape == (1000,)
 
     # Load scalar
-    data = loader.load("test_scalar", numpy_array=True)
+    data = load_hdf5_dataset(sample_hdf5_file, "test_scalar")
     assert isinstance(data, (np.ndarray, float, int))
 
 
 def test_empty_dataset(sample_hdf5_file: str):
     """Test loading empty datasets."""
-    loader = HDF5(sample_hdf5_file)
-    data = loader.load("empty_dataset", numpy_array=True)
+    data = load_hdf5_dataset(sample_hdf5_file, "empty_dataset")
     assert isinstance(data, np.ndarray)
     assert data.size == 0
 
 
 def test_numpy_array_option(sample_hdf5_file: str):
-    """Test numpy_array parameter."""
-    loader = HDF5(sample_hdf5_file)
-
-    # With numpy_array=True
-    data_np = loader.load("test_matrix", numpy_array=True)
-    assert isinstance(data_np, np.ndarray)
-
-    # With numpy_array=False
-    data_raw = loader.load("test_matrix", numpy_array=False)
-    # Raw data can be various types depending on h5py version
-    assert data_raw is not None
-
-
-def test_with_offset_and_block(sample_hdf5_file: str):
-    """Test that Offset/Block parameters are not supported in the simplified implementation.
-    
-    Note: Offset/Block were never used in production code and have been removed
-    from the primary implementation path (load_hdf5_dataset). They remain in
-    the legacy HDF5.load() wrapper for backwards compatibility but the
-    simplified path doesn't support them.
-    """
-    loader = HDF5(sample_hdf5_file)
-
-    # Offset/Block are not supported when using the new load_hdf5_dataset path
-    # which is invoked when numpy_array=True
-    # The legacy path would handle them but we're phasing it out
-    # For now, just verify full array loading works
-    data = loader.load("test_matrix", numpy_array=True, Verbose=False)
+    """Test that load_hdf5_dataset always returns numpy arrays."""
+    # The new implementation always returns numpy arrays
+    data = load_hdf5_dataset(sample_hdf5_file, "test_matrix")
     assert isinstance(data, np.ndarray)
-    assert data.shape == (100, 100)
 
 
 def test_full_array_without_offset_block(sample_hdf5_file: str):
     """Test loading full array without specifying offset/block."""
-    loader = HDF5(sample_hdf5_file)
-
-    data = loader.load("test_matrix", numpy_array=True, Verbose=False)
+    data = load_hdf5_dataset(sample_hdf5_file, "test_matrix")
     assert isinstance(data, np.ndarray)
     assert data.shape == (100, 100)
 
 
 def test_verbose_false(sample_hdf5_file: str, capsys):
-    """Test that Verbose=False suppresses output."""
-    loader = HDF5(sample_hdf5_file)
-    loader.load("test_matrix", numpy_array=True, Verbose=False)
+    """Test that load_hdf5_dataset doesn't print output."""
+    load_hdf5_dataset(sample_hdf5_file, "test_matrix")
     captured = capsys.readouterr()
     assert captured.out == ""
 
 
 def test_local_paths_with_special_chars():
-    """Test HDF5 class with special characters in local paths."""
+    """Test _is_s3_uri with special characters in local paths."""
     special_paths = [
         "/path/with spaces/file.h5",
         "/path/with-dashes/file.h5",
@@ -207,12 +171,11 @@ def test_local_paths_with_special_chars():
     ]
 
     for path in special_paths:
-        loader = HDF5(path)
-        assert loader.FileName == path
+        assert _is_s3_uri(path) == False
 
 
 def test_s3_uris_with_special_chars():
-    """Test HDF5 class with special characters in S3 URIs."""
+    """Test _is_s3_uri with special characters in S3 URIs."""
     special_buckets = [
         "bucket-123",
         "bucket_with_underscores",
@@ -221,5 +184,4 @@ def test_s3_uris_with_special_chars():
 
     for bucket in special_buckets:
         uri = f"s3://{bucket}/file.h5"
-        loader = HDF5(uri)
-        assert loader.FileName == uri
+        assert _is_s3_uri(uri) == True

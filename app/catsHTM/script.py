@@ -13,80 +13,13 @@ from scipy.io.matlab import MatReadError
 
 # Use our S3-aware loadmat wrapper instead of hdf5storage
 from ..matlab_utils import loadmat as sio_loadmat
-from . import celestial, class_HDF5, params
+from . import celestial, io, params
 
 __all__ = [
     "cone_search",
     "htm_search_cone",
     "search_htm_ind",
 ]  # redefinition of '*' for import *
-
-
-def get_CatDir(CatName):
-    if CatName == "TMASS":
-        CatDir = "2MASS"
-    elif CatName == "TMASSxsc":
-        CatDir = "2MASSxsc"
-    elif CatName == "DECaLS":
-        CatDir = "DECaLS/DR5"
-    elif CatName == "GAIADR1":
-        CatDir = "GAIA/DR1"
-    elif CatName == "GAIADR2":
-        CatDir = "GAIA/DR2"
-    elif CatName == "GAIAEDR3":
-        CatDir = "GAIA/DRE3"
-    elif CatName == "GALEX":
-        CatDir = "GALEX/DR6Plus7"
-    elif CatName == "HSCv2":
-        CatDir = "HST/HSCv2"
-    elif CatName == "IPHAS":
-        CatDir = "IPHAS/DR2"
-    elif CatName == "NEDz":
-        CatDir = "NED/20180502"
-    elif CatName == "SDSSDR10":
-        CatDir = "SDSS/DR10"
-    elif CatName == "SDSSoffset":
-        CatDir = "SDSS/DR14offset"
-    elif CatName == "SpecSDSS":
-        CatDir = "SpecSDSS/DR14"
-    elif CatName == "SAGE":
-        CatDir = "Spitzer/SAGE"
-    elif CatName == "IRACgc":
-        CatDir = "Spitzer/IRACgc"
-    elif CatName == "UKIDSS":
-        CatDir = "UKIDSS/DR10"
-    elif CatName == "VISTAviking":
-        CatDir = "VISTA/Viking/DR2"
-    elif CatName == "VSTatlas":
-        CatDir = "VST/ATLAS/DR3"
-    elif CatName == "VSTkids":
-        CatDir = "VST/KiDS/DR3"
-    elif CatName == "ztfSrcLCDR1":
-        CatDir = "./ZTF/SrcLCDR1"
-    elif CatName == "ztfDR1var":
-        CatDir = "./ZTF/ztfDR1var"
-    elif CatName not in [
-        "AKARI",
-        "APASS",
-        "Cosmos",
-        "FIRST",
-        "NVSS",
-        "PS1",
-        "PTFpc",
-        "PGC",
-        "ROSATfsc",
-        "SkyMapper",
-        "UCAC4",
-        "WISE",
-        "XMM",
-        "NOAO",
-    ]:
-        raise ValueError(
-            "you need to specify a valid name for the catalog (see README file for list of available catalogs and names)"
-        )
-    else:
-        CatDir = CatName
-    return CatDir
 
 
 def cone_search(
@@ -134,44 +67,17 @@ def cone_search(
         print("*************")
 
     root_to_data = catalogs_dir + "/"
-    CatDir = get_CatDir(CatName)
+    CatDir = io.get_CatDir(CatName)
 
     Rad = 180.0 / math.pi
 
     # if RadiusUnits=='arcsec':
     Radius = Radius / (Rad * 3600)  # converts arcsec radius into radians radius
 
-    ColCelFile = ColCelFile % CatName
     IndexFilename = IndexFileTemplate % CatName
 
-    file_path = root_to_data.rstrip("/") + "/" + CatDir.lstrip("/") + "/" + ColCelFile
-
-    # Use our S3-aware loadmat which handles both local and S3 URIs
-    # For S3 URIs, os.path.isfile doesn't work, so we just try to load
-    if os.path.isfile(file_path) or file_path.startswith("s3://"):
-        # Use our S3-aware loadmat which handles both local and S3 URIs
-        # and falls back appropriately for v7.3 files
-        try:
-            test = sio_loadmat(file_path)
-            # test = mat73.loadmat(root_to_data + CatDir + '/' + ColCelFile)
-        except (NotImplementedError, ValueError, MatReadError):
-            if verbose == True:
-                print(
-                    f"sio_loadmat did not work for opening {file_path}, trying fallback"
-                )
-            # Retry with scipy directly as last resort
-            from scipy.io import loadmat as scipy_loadmat
-
-            test = scipy_loadmat(file_path)
-        if np.shape(test["ColCell"])[1] < np.shape(test["ColCell"])[0]:
-            # test=test.transpose()
-            Ncol = np.shape(test["ColCell"])[0]
-        else:
-            Ncol = np.shape(test["ColCell"])[1]
-    else:
-        raise FileNotFoundError(
-            "you need to specify a valid path for the HDF5 catalogs location"
-        )
+    # Load ColCell data using io module
+    Ncol, ColCell, ColUnits = io.load_colcell(catalogs_dir, CatName)
     ### computes the list of index of the trixels which intercept the cone
     ID = search_htm_ind(
         IndexFilename,
@@ -195,11 +101,9 @@ def cone_search(
     else:
         FileName_0 = CatFileTemplate % (CatName, FileID[0])
         DataName_0 = htmTemplate % ID_matlab[0]
-        cat = (
-            class_HDF5.HDF5(root_to_data + CatDir + "/" + FileName_0)
-            .load(DataName_0, numpy_array=True)
-            .T
-        )
+        cat = io.load_hdf5_dataset(
+            root_to_data + CatDir + "/" + FileName_0, DataName_0
+        ).T
         for Iid in range(Nid)[1:]:
             FileName = CatFileTemplate % (CatName, FileID[Iid])
             DataName = htmTemplate % ID_matlab[Iid]
@@ -207,9 +111,9 @@ def cone_search(
             cat = np.vstack(
                 (
                     cat,
-                    class_HDF5.HDF5(root_to_data + CatDir + "/" + FileName)
-                    .load(DataName, numpy_array=True)
-                    .T,
+                    io.load_hdf5_dataset(
+                        root_to_data + CatDir + "/" + FileName, DataName
+                    ).T,
                 )
             )
         # if OnlyCone==True:
@@ -218,40 +122,19 @@ def cone_search(
         )  # [0]
         cat_onlycone = cat[D < Radius, :]
 
-    ### a colomne with the cell names:
+    ### a column with the cell names:
+    # Load and process ColCell/ColUnits, passing Ncol if we determined it from cat_onlycone
     if cat_onlycone.ndim > 1:
-        ColCell = np.empty((np.shape(cat_onlycone)[1]), dtype=object)
-        ColUnits = np.empty((np.shape(cat_onlycone)[1]), dtype=object)
+        Ncol_for_colcell = np.shape(cat_onlycone)[1]
     else:
-        ColCell = np.empty((Ncol), dtype=object)
-        ColUnits = np.empty((Ncol), dtype=object)
-
-    if np.shape(test["ColCell"])[1] > np.shape(test["ColCell"])[0]:
-        for i, j in enumerate(test["ColCell"][0, :]):
-            ColCell[i] = str(test["ColCell"][0, i][0])
-        for i, j in enumerate(test["ColUnits"][0, :]):
-            if len(test["ColUnits"][0, i]) > 0:
-                ColUnits[i] = str(test["ColUnits"][0, i][0])
-            else:
-                ColUnits[i] = " "
-
-    else:  # rare cases: Cosmos and TMASSxsc
-        for i, j in enumerate(test["ColCell"][:, 0]):
-            ColCell[i] = str(test["ColCell"][i][0][0])
-        for i, j in enumerate(test["ColUnits"][0, :]):
-            if len(test["ColUnits"][0, i]) > 0:
-                ColUnits[i] = str(test["ColUnits"][0, i][0])
-            else:
-                ColUnits[i] = " "
+        Ncol_for_colcell = None  # Will be determined from .mat file
+    
+    _Ncol, ColCell, ColUnits = io.load_colcell(catalogs_dir, CatName, ncol=Ncol_for_colcell)
 
     return cat_onlycone, ColCell, ColUnits
 
 
-@lru_cache(16)
-def get_index_data(path, CatDir, Filename, VarName):
-    return class_HDF5.HDF5(path + "/" + CatDir + "/" + Filename).load(
-        VarName, numpy_array=True
-    )  # load the indexfile content
+# get_index_data is now in io module (imported above)
 
 
 def search_htm_ind(
@@ -268,7 +151,7 @@ def search_htm_ind(
         cat_name = Filename.split("_")[0]
         VarName = cat_name + "_HTM"
 
-    DataHTM_indexfile = get_index_data(path, CatDir, Filename, VarName)
+    DataHTM_indexfile = io.get_index_data(path, CatDir, Filename, VarName)
 
     ID = htm_search_cone(
         DataHTM_indexfile, Long, Lat, Radius

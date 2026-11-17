@@ -3,7 +3,8 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-from .catsHTM.script import get_CatDir, params
+from .catsHTM.script import params
+from .catsHTM.io import get_CatDir
 from .mongo import get_catq
 from .settings import settings
 

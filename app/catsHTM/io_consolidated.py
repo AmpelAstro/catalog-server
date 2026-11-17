@@ -12,6 +12,12 @@ complexities with h5py type annotations that pyright struggles with.
 The code is tested and works correctly despite the type checker warnings.
 """
 
+# Must import hdf5plugin before h5py for ZSTD filter support
+try:
+    import hdf5plugin  # noqa: F401
+except ImportError:
+    pass  # ZSTD won't be available, but other filters will work
+
 import h5py
 import numpy as np
 from typing import Optional, Union, List, Tuple

@@ -4,6 +4,8 @@
 
 This document describes the data flow and performance characteristics of the CATSHTM cone search implementation, particularly when using S3-backed storage via HDF5 ROS3 VFD.
 
+**See also:** [`HDF5_METADATA_ANALYSIS.md`](HDF5_METADATA_ANALYSIS.md) for deep dive on metadata storage and optimization opportunities.
+
 ## Data Flow
 
 ### Query Execution Flow

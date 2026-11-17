@@ -7,8 +7,11 @@ import math
 from functools import lru_cache
 
 import numpy as np
+import structlog
 
 from . import celestial, io, params
+
+logger = structlog.get_logger(__name__)
 
 __all__ = [
     "cone_search",
@@ -55,11 +58,9 @@ def cone_search(
     Output  : a numpy array where each line is the catalog line for the sources inside the cone"""
     # start_time=time.time()
     if verbose == True:
-        print("*************")
-        print(
+        logger.debug(
             f"Catalog: {CatName}; cone radius: {Radius} arcsec; cone center: (RA,DEC)=({RA},{Dec})"
         )
-        print("*************")
 
     root_to_data = catalogs_dir + "/"
     CatDir = io.get_CatDir(CatName)
@@ -91,7 +92,7 @@ def cone_search(
 
     if Nid == 0:  # if none of the catalog's trixel intercept the cone
         if verbose == True:
-            print("INFO: the cone does not intercept the catalog")
+            logger.info("the cone does not intercept the catalog")
         cat_onlycone = np.array([])
     else:
         FileName_0 = CatFileTemplate % (CatName, FileID[0])

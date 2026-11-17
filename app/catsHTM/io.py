@@ -106,14 +106,13 @@ def get_index_data(path: str, CatDir: str, Filename: str, VarName: str) -> np.nd
     return load_hdf5_dataset(full_path, VarName)
 
 
-def load_colcell(catalogs_dir: str, CatName: str, ncol: int | None = None) -> tuple[int, np.ndarray, np.ndarray]:
+def load_colcell(catalogs_dir: str, CatName: str) -> tuple[int, np.ndarray, np.ndarray]:
     """
     Load and process column cell data from a .mat file.
     
     Args:
         catalogs_dir: Root directory containing catalog data
         CatName: Name of the catalog
-        ncol: Optional override for number of columns (used when cat_onlycone is available)
     
     Returns:
         Tuple of (Ncol, ColCell, ColUnits) where:
@@ -148,10 +147,6 @@ def load_colcell(catalogs_dir: str, CatName: str, ncol: int | None = None) -> tu
             Ncol = np.shape(mat_data["ColCell"])[0]
         else:
             Ncol = np.shape(mat_data["ColCell"])[1]
-        
-        # Override Ncol if provided (when we already know the number of columns from cat_onlycone)
-        if ncol is not None:
-            Ncol = ncol
         
         # Initialize output arrays
         ColCell = np.empty((Ncol), dtype=object)

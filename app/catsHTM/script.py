@@ -77,7 +77,7 @@ def cone_search(
     IndexFilename = IndexFileTemplate % CatName
 
     # Load ColCell data using io module
-    Ncol, ColCell, ColUnits = io.load_colcell(catalogs_dir, CatName)
+    _Ncol, ColCell, ColUnits = io.load_colcell(catalogs_dir, CatName)
     ### computes the list of index of the trixels which intercept the cone
     ID = search_htm_ind(
         IndexFilename,
@@ -123,13 +123,13 @@ def cone_search(
         cat_onlycone = cat[D < Radius, :]
 
     ### a column with the cell names:
-    # Load and process ColCell/ColUnits, passing Ncol if we determined it from cat_onlycone
+    # Reuse ColCell/ColUnits loaded earlier
+    # If cat_onlycone has a different number of columns, trim ColCell/ColUnits to match
     if cat_onlycone.ndim > 1:
-        Ncol_for_colcell = np.shape(cat_onlycone)[1]
-    else:
-        Ncol_for_colcell = None  # Will be determined from .mat file
-    
-    _Ncol, ColCell, ColUnits = io.load_colcell(catalogs_dir, CatName, ncol=Ncol_for_colcell)
+        actual_ncol = np.shape(cat_onlycone)[1]
+        if actual_ncol < len(ColCell):
+            ColCell = ColCell[:actual_ncol]
+            ColUnits = ColUnits[:actual_ncol]
 
     return cat_onlycone, ColCell, ColUnits
 
